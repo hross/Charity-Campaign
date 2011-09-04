@@ -1,0 +1,93 @@
+<div class="container">
+<div class="row">
+
+<div class="span4 columns">
+	<%if (campaignId > 0) {%>
+	<h3>Quick Links</h3>
+	<ul class="unstyled">
+		<li><a href="/campaigns/show/<%= campaignId%>">Back to Campaign</a></li>
+	</ul>
+	<%}%>
+
+	<%if (isAdmin) {%>
+	<h3>Administration</h3>
+	<ul class="unstyled menu">
+		<li>
+		<a href="/users/add" class="btn">Add a User</a>
+		</li>
+		<li>
+		<a href="/users/edit/<%=user.id%>" class="btn">Edit this User</a>
+		</li>
+		<li>
+		<a href="/users/destroy/<%=user.id%>" class="btn">Delete this User</a>
+		</li>
+	</ul>
+	<%}%>
+</div>
+
+<div class="span12 columns">
+
+	<%- partial('../messages') %>
+	
+	<div class="page-header">
+		<h2><a href="/users/show/<%= user.id%>"><%=user.login%></a></h2>
+	</div>
+
+	<form method="post" action="/users/update/<%= user.id %>">		
+		<fieldset>
+
+		<div class="clearfix">
+			<label for="login">Login</label>
+			<div class="input">
+			<input type="text" name="login" id="login" value="<%=user.login%>" />
+			</div>
+		</div>
+		
+		<div class="clearfix">
+			<label for="first">First Name</label>
+			<div class="input"><input type="text" name="first" id="first" value="<%=user.first%>" /></div>
+		</div>
+			
+		<div class="clearfix">
+			<label for="last">Last Name</label>
+			<div class="input"><input type="text" name="last" id="last" value="<%=user.last%>" /></div>
+		</div>
+			
+		<div class="clearfix">
+			<label for="account">Account</label>
+			<div class="input"><input type="text" name="account" id="account" value="<%=user.account?user.account:''%>" /></div>
+		</div>
+		
+		<div class="clearfix">
+			<label for="password">Password</label>
+			<div class="input"><input type="password" name="password" id="password" value="" /></div>
+		</div>
+			
+		<div class="clearfix">
+			<label for="password2">Retype Password</label>
+			<div class="input"><input type="password" name="password2" id="password2" value="" /></div>
+		</div>
+			
+		<div class="clearfix">
+			<label for="isadmin">Administrator</label>
+			<div class="input"><input type="checkbox" name="isadmin"  <%if(user.roles && user.roles.indexOf("Administrator") > 0) {%>checked<%}%>/></div>
+		</div>
+
+		<div class="clearfix">
+			<label for="enail">Email</label>
+			<div class="input"><input name="email" id="email" value="<%=user.email%>" /></div>
+		</div>
+
+			<input type="hidden" name="guid" id="guid" value="<%=user._id%>" />
+			
+		<div class="actions">
+			<input class="btn" type="submit" value="Update" />
+		</div>
+		
+		</fieldset>	
+	</form>
+
+</div>
+
+</div>	
+</div>

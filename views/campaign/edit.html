@@ -1,0 +1,139 @@
+<div class="container">
+<div class="row">
+
+<div class="span4 columns">
+	<h3>Administration</h3>
+
+	<ul class="unstyled menu">
+	<li>
+	<a href="/campaigns/edit/<%=campaign.id%>" class="btn">Edit this Campaign</a>
+	</li>
+	<li>
+	<a href="/campaigns/edit/<%=campaign.id%>" class="btn">Delete this Campaign</a>
+	</li>
+	</ul>
+</div>
+
+<div class="span12 columns">
+
+	<%- partial('../messages') %>
+	
+	<div class="page-header">
+		<h2><a href="/campaigns/show/<%= campaign.id%>"><%= campaign.title%></a></h2>
+	</div>
+
+	<form method="post" action="/campaigns/update/<%= campaign.id %>">
+	
+	<fieldset>
+		<legend><%= campaign.description%></legend>
+
+			<div class="clearfix">
+			<label for="title">Title</label>
+			<div class="input"><input type="text" name="title" id="title" value="<%=campaign.title%>" /></div>
+			</div>
+				
+			<div class="clearfix">
+				<label for="start">Start</label>
+				<div class="input">
+				<input type="text" name="start" id="start" value="<%=campaign.start%>" />
+				</div>
+			</div>
+			
+			<div class="clearfix">
+				<label for="end">End</label>
+				<div class="input">
+				<input type="text" name="end" id="end" value="<%=campaign.end%>" />
+				</div>
+			</div>
+
+			<div class="clearfix">
+				<label for="description">Description</label>
+				<div class="input">
+				<textarea name="description" id="description" rows=10 cols=50><%=campaign.description%></textarea>
+				</div>
+			</div>
+			
+			<div class="clearfix">
+				<label for="user">Select User</label>
+				<div class="input">
+				<input type="text" name="user" id="user" autocomplete="off" value="" />
+    			<a href="javascript:void(0);" id="btn-add">Add &raquo;</a>
+    			</div>
+    		</div>
+    		
+    		<div class="clearfix">	
+    			<label for="user">Campaign Administrators</label>
+    			<div class="input">
+					<select name="administrators[]" class="select-users" id="administrators" multiple="multiple" size=5>
+						<%for (var i = 0; i < campaign.administrators.length; i++) {%>
+						<option value="<%=campaign.administrators[i]%>"><%=campaign.administrators[i]%></option>
+						<%}%>
+					</select>
+					<select name="administrators_hidden[]" class="select-hidden" id="administrators_hidden" multiple="multiple" size=5>
+						<%for (var i = 0; i < campaign.administrators.length; i++) {%>
+						<option value="<%=campaign.administrators[i]%>" selected><%=campaign.administrators[i]%></option>
+						<%}%>
+					</select>
+					<br />
+					<a href="javascript:void(0);" id="btn-remove">Remove Selected</a>
+				</div>
+			</div>
+				
+				<input type="hidden" name="guid" id="guid" value="<%=campaign._id%>" />
+				
+			<div class="actions">
+				<input class="btn" type="submit" value="Update" />
+			</div>
+			
+		</fieldset>
+	</form>
+
+	</div>
+	
+</div>
+</div>
+
+
+<script>
+	
+	$(document).ready(function() {
+		// date/time functionality
+		$('#start').datetimepicker();
+		$('#end').datetimepicker();
+		$('#start').datetimepicker('setDate', (new Date("<%=campaign.start%>")) );
+		$('#end').datetimepicker('setDate', (new Date("<%=campaign.end%>")) );
+ 
+ 		// add/remove user list functionality
+		$('#btn-add').click(function(){
+			var username = $('#user').val();
+			
+			var found = $("#administrators option[value='" + username + "']").text();
+
+			if (!found || found.length == 0) {
+				$('#administrators').append("<option value='"+username+"'>"+$('#user').val()+"</option>");
+				$('#administrators_hidden').append("<option value='"+username+"' selected>"+$('#user').val()+"</option>");
+			}
+		});
+		
+		$('#btn-remove').click(function(){
+			$('#administrators option:selected').each( function() {
+				$("#administrators_hidden option[value='" + $(this).val() + "']").remove();
+				$(this).remove();
+			});
+		});
+		
+		var callback = function(option) {
+			$('#user').val(option.title);
+		};
+		
+		// auto suggest for user box
+		$("#user").fancy_suggest({
+			url: "/users/json",
+			callback: callback,
+			tpl_result_begin: '<li class="result {{class}}" id="{{id}}" result_id="{{result_id}}"><a href="#">',
+      		tpl_result_body: '<span class="title">{{title}}</span>',
+      		tpl_result_end: '</li></a>'
+		});
+	});
+	
+</script>

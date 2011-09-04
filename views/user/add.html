@@ -1,0 +1,81 @@
+<div class="container">
+<div class="row">
+
+<div class="span4 columns">
+	<%if (campaignId > 0) {%>
+	<h3>Quick Links</h3>
+	<ul class="unstyled">
+		<li><a href="/campaigns/show/<%= campaignId%>">Back to Campaign</a></li>
+	</ul>
+	<%}%>
+
+	<%if (isAdmin) {%>
+	<h3>Administration</h3>
+	<ul class="unstyled menu">
+		<li>
+		<a href="/users/add" class="btn">Add a User</a>
+		</li>
+	</ul>
+	<%}%>
+</div>
+
+<div class="span12 columns">
+
+	<%- partial('../messages') %>
+
+
+	<form method="post" action="/users/create">
+		<fieldset>
+			<legend>Create a New User</legend>
+
+			<div class="clearfix">
+			<label for="name">Login</label>
+			<div class="input"><input type="text" name="login" id="login" /></div>
+			</div>
+			
+			<div class="clearfix">
+			<label for="first">First Name</label>
+			<div class="input"><input type="text" name="first" id="first" /></div>
+			</div>
+			
+			<div class="clearfix">
+			<label for="last">Last Name</label>
+			<div class="input"><input type="text" name="last" id="last" /></div>
+			</div>
+			
+			<div class="clearfix">
+			<label for="account">Account</label>
+			<div class="input"><input type="text" name="account" id="account" /></div>	
+			</div>
+			
+			<div class="clearfix">
+			<label for="password">Password</label>
+			<div class="input"><input type="password" name="password" id="password" /></div>
+			</div>
+			
+			<div class="clearfix">
+			<label for="password">Retype Password</label><br />
+			<div class="input"><input type="password" name="password2" id="password2" /></div>
+			</div>
+			
+			<div class="clearfix">
+			<label for="isadmin">Administrator</label>
+			<div class="input"><input type="checkbox" name="isadmin" /></div>
+			</div>
+			
+			<div class="clearfix">
+			<label for="enail">Email</label>
+			<div class="input"><input name="email" id="email" /></div>
+			</div>
+			
+			<div class="actions">
+				<input class="btn" type="submit" value="Create" />
+			</div>
+			
+			</fieldset>
+		</form>
+
+</div>
+
+</div>	
+</div>

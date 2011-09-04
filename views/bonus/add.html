@@ -1,0 +1,77 @@
+<div class="container">
+<div class="row">
+
+<div class="span4 columns">
+	<h3>Quick Links</h3>
+	<ul class="unstyled">
+		<li><a href="/campaigns/show/<%= campaignId%>">Back to Campaign</a></li>
+	</ul>
+</div>
+
+<div class="span12 columns">
+	<%- partial('../messages') %>
+
+	<form method="post" action="/bonuses/create">
+		<fieldset>
+		<legend>Create a new Bonus</legend>
+		
+		<div class="clearfix">
+			<label for="title">Title</label>
+			<div class="input"><input type="text" name="title" id="title" /></div>
+		</div>
+		
+		<div class="clearfix">
+			<label for="start">Start</label>
+			<div class="input"><input type="text" name="start" id="start" /></div>
+		</div>
+		
+		<div class="clearfix">
+			<label for="end">End</label><br />
+			<div class="input"><input type="text" name="end" id="end" /></div>
+		</div>
+		
+		<div class="clearfix">
+			<label for="points">Bonus Points per Item</label>
+			<div class="input"><input type="text" name="points" id="points" /></div>
+		</div>
+		
+		<div class="clearfix">
+			<label for="type">Item Type</label>
+			<div class="input">
+				<ul class="inputs-list">
+			<% for(var i=0; i < itemTypes.length; i++) {%>
+				<%if (itemTypes[i].visible) {%>
+				<li><label>
+				<input type="radio" name="type" value="<%=itemTypes[i].id%>">
+				<span><%=itemTypes[i].name%></span>
+				</label></li>
+				<%}%>
+			<%}%>
+				</ul>
+			</div>
+		</div>
+		
+		<div class="clearfix">
+			<label for="description">Description</label>
+			<div class="input"><textarea name="description" id="description" rows=10 cols=50></textarea></div>
+		</div>
+		
+		<input type="hidden" name="campaignId" id="campaignId" value="<%= campaignId%>" />
+		
+		<div class="actions">
+			<input class="btn" type="submit" value="Create" />
+		</div>
+		
+		</fieldset>
+		
+	</form>
+</div>
+
+</div>
+
+</div>
+
+<script>
+	$('#start').datetimepicker();
+	$('#end').datetimepicker();
+</script>

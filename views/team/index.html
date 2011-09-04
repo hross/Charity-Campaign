@@ -1,0 +1,43 @@
+<div class="container">
+<div class="row">
+
+<div class="span4 columns">
+	<h3>Quick Links</h3>
+	<ul class="unstyled">
+		<li><a href="/campaigns/show/<%= campaignId%>">Back to Campaign</a></li>
+	</ul>
+</div>
+
+<div class="span12 columns">
+	<%- partial('../messages') %>
+
+	<div class="page-header">
+		<h2>Teams for this Campaign</h2>
+	</div>
+	
+	<table class="common-table zebra-striped">
+		<thead>
+			<tr>
+				<th>Team</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% for(var i=0; i < teams.length; i++) {%>
+			<tr>
+				<td><a href="/teams/show/<%= teams[i].id%>/<%= teams[i].slug%>"><%= teams[i].name %></a></td>
+			</tr>
+			<% } %>
+		</tbody>
+		
+		<%if (isAdmin) {%>
+		<tr><td>
+		<a class="btn primary" href="/teams/add/<%=campaignId%>">Create New Team</a>
+		</td></tr>
+		<%}%>
+	</table>
+
+	<p><a href="/campaigns/show/<%=campaignId%>">Back to Campaign</a></p>
+
+</div>
+</div>
+</div>

@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>Charity Campaign</title>
+	<meta name="keywords" content="" />
+	<meta name="description" content="" />
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <link rel="stylesheet" href="/stylesheets/bootstrap-1.0.0.css" />
+    <link rel="stylesheet" href="/stylesheets/jquery-ui-1.8.14.custom.css" />
+    <link rel="stylesheet" href="/stylesheets/jquery.fancy_suggest.css" />
+    
+    <script type="text/javascript" src="/javascript/jquery-1.6.2.min.js"></script>
+    <script type="text/javascript" src="/javascript/jquery-ui-1.8.14.custom.min.js"></script>
+	<script type="text/javascript" src="/javascript/jquery-ui-timepicker-addon.js"></script>
+	<script type="text/javascript" src="/javascript/jquery.fancy_input.js"></script>
+	<script type="text/javascript" src="/javascript/jquery.fancy_suggest.js"></script>
+	<script type="text/javascript" src="/javascript/flot/jquery.flot.js"></script>
+	<script src="http://autobahn.tablesorter.com/jquery.tablesorter.min.js"></script>
+	<script type="text/javascript" src="/javascript/scripts.js"></script>
+</head>
+<body>
+
+<!-- Topbar
+    ================================================== -->
+    <div class="topbar">
+      <div class="fill">
+        <div class="container">
+          <ul>
+    		<%if (campaignId) {%>
+				<li><a href="/campaigns/show/<%=campaignId%>">Campaign</a></li>
+				<li><a href="/teams/filter/<%=campaignId%>">Teams</a></li>
+				<li><a href="/bonuses/filter/<%=campaignId%>">Bonuses</a></li>
+			<%} else {%>
+				<li><a href="/">Home</a></li>
+				<li><a href="/about">About</a></li>
+			<%}%>
+          </ul>
+          
+          <ul class="nav secondary-nav">
+				<%if (!luser) {%>
+					<li><a href="/users/validate?redir=<%=url%>">Login</a></li>
+				<%} else {%>
+					<li><a href="/users/show/<%= luser.id%>/<%= luser.slug%>">Welcome, <%=luser.login%></a></li>
+					<li><a class="iconlink" href="/users/invalidate"><img src="/images/door_out.png" alt="Logout" /></a></li>
+				<%}%>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Masthead
+    ================================================== -->
+    <div id="masthead">
+      <div class="inner">
+        <div class="container">
+          <h1>Charity Campaign</h1>
+          <p class="lead"><em>Competing for a Cause</em></p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- content body -->
+    <%- body %>
+
+  
+<!-- start footer -->
+<div id="footer">
+	<p><a href="/about">This application</a> was design using <a href="http://nodejs.org/">node.js</a>.</p>
+</div>
+<!-- end footer -->
+
+
+</body>
+</html>

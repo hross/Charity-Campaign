@@ -1,0 +1,43 @@
+<div class="container">
+<div class="row">
+
+<div class="span4 columns">
+	<h3>Quick Links</h3>
+	<ul class="unstyled">
+		<li><a href="/teams/show/<%= teamId%>">Back to Team</a></li>
+	</ul>
+</div>
+
+<div class="span12 columns">
+	<%- partial('../messages') %>
+
+	<div class="page-header">
+		<h2>Recent Items for this Team</h2>
+	</div>
+
+	<table class="common-table zebra-striped">
+		<thead>
+			<tr><th>Item</th>
+			<th>Points</th></tr>
+		</thead>
+		<tbody>
+		<% for(var i=0; i < items.length; i++) {%>
+			<tr>
+			<td><a href="/items/show/<%= items[i].id%>/<%= items[i].slug%>"><%=items[i].quantity%> <%= items[i].name %></a></td>
+			<td><%=(items[i].points + items[i].bonus) * items[i].quantity %></td>
+			</tr>
+		<% } %>
+		</tbody>
+		
+		<%if (isAdmin) {%>
+		<tr><td colspan="2">
+		<a class="btn primary" href="/items/add/<%=teamId%>">Add an Item</a>
+		</td></tr>
+		<%}%>
+		</tbody>
+
+	</table>
+
+</div>
+</div>
+</div>

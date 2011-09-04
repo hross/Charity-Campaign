@@ -1,0 +1,45 @@
+<div class="container">
+<div class="row">
+
+<div class="span4 columns">
+	<h3>Quick Links</h3>
+	<ul class="unstyled">
+		<li><a href="/campaigns/show/<%= campaignId%>">Back to Campaign</a></li>
+	</ul>
+</div>
+
+<div class="span12 columns">
+	<%- partial('../messages') %>
+
+	<div class="page-header">
+		<h2>Item Types for this Campaign</h2>
+	</div>
+	
+	<table class="common-table zebra-striped">
+		<thead>
+			<tr>
+				<th>Item Type</th>
+				<th>Point Value</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% for(var i=0; i < itemtypes.length; i++) {%>
+			<tr>
+				<td><a href="/itemtypes/show/<%= itemtypes[i].id%>/<%= itemtypes[i].slug%>"><%= itemtypes[i].name %></a></td>
+				<td><%= itemtypes[i].points %></td>
+			</tr>
+			<% } %>
+		</tbody>
+		
+		<%if (isAdmin) {%>
+		<tr><td colspan="2">
+		<a class="btn primary" href="/itemtypes/add/<%=campaignId%>">Create New Item Types</a>
+		</td></tr>
+		<%}%>
+	</table>
+
+	<p><a href="/campaigns/show/<%=campaignId%>">Back to Campaign</a></p>
+
+</div>
+</div>
+</div>

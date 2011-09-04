@@ -1,0 +1,112 @@
+<div class="container">
+<div class="row">
+
+<div class="span4 columns">
+	<h3>Quick Links</h3>
+	<ul class="unstyled">
+		<li><a href="/campaigns/show/<%= campaignId%>">Back to Campaign</a></li>
+	</ul>
+</div>
+
+<div class="span12 columns">
+		
+	<%- partial('../messages') %>
+
+	<form method="post" action="/teams/create">
+		<fieldset>
+		<legend>Create a new Team</legend>
+
+			<div class="clearfix">
+			<label for="name">Name</label>
+			<div class="input"><input type="text" name="name" id="name" /></div>
+			</div>
+					
+			<div class="clearfix">
+			<label for="captain">Captain</label><br />
+			<div class="input"><input type="text" name="captain" id="captain" value="" autocomplete="off" /></div>
+			</div>
+			
+			<div class="clearfix">
+			<label for="motto">Motto</label><br />
+			<div class="input"><textarea name="motto" id="motto" rows=10 cols=50></textarea></div>
+			</div>
+			
+			<div class="clearfix">
+			<label for="user">Select Member</label>
+			<div class="input"><input type="text" name="user" id="user" autocomplete="off" value="" />
+    		<a href="javascript:void(0);" id="btn-add">Add &raquo;</a>
+    		</div>
+    		</div>
+    			
+    		<div class="clearfix">
+    		<label for="members">Members</label>
+    		<div class="input">
+			<select name="members[]" class="select-users" id="members" multiple="multiple" size=5>
+			</select>
+			
+			<select name="members_hidden[]" class="select-hidden" id="members_hidden" multiple="multiple" size=5>
+			</select>
+			<br />
+			<a href="javascript:void(0);" id="btn-remove">Remove Selected</a>
+			</div>
+			</div>
+			
+			<input type="hidden" name="campaignId" id="campaignId" value="<%= campaignId%>" />
+			
+			<div class="actions">
+				<input class="btn" type="submit" value="Create" />
+			</div>
+			
+			</fieldset>
+			</form>
+		
+		</div>
+	</div>
+</div>
+
+<script>
+ 		// add/remove user list functionality
+		$('#btn-add').click(function(){
+			var username = $('#user').val();
+			
+			var found = $("#members option[value='" + username + "']").text();
+
+			if (!found || found.length == 0) {
+				$('#members').append("<option value='"+username+"'>"+$('#user').val()+"</option>");
+				$('#members_hidden').append("<option value='"+username+"' selected>"+$('#user').val()+"</option>");
+			}
+		});
+		
+		$('#btn-remove').click(function(){
+			$('#members option:selected').each( function() {
+				$("#members_hidden option[value='" + $(this).val() + "']").remove();
+				$(this).remove();
+			});
+		});
+		
+		var callback = function(option) {
+			$('#captain').val(option.title);
+		};
+		
+		// auto suggest for user box
+		$("#captain").fancy_suggest({
+			url: "/users/json",
+			callback: callback,
+			tpl_result_begin: '<li class="result {{class}}" id="{{id}}" result_id="{{result_id}}"><a href="#">',
+      		tpl_result_body: '<span class="title">{{title}}</span>',
+      		tpl_result_end: '</li></a>'
+		});
+		
+		var callback = function(option) {
+			$('#user').val(option.title);
+		};
+		
+		// auto suggest for user box
+		$("#user").fancy_suggest({
+			url: "/users/json",
+			callback: callback,
+			tpl_result_begin: '<li class="result {{class}}" id="{{id}}" result_id="{{result_id}}"><a href="#">',
+      		tpl_result_body: '<span class="title">{{title}}</span>',
+      		tpl_result_end: '</li></a>'
+		});
+</script>

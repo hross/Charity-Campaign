@@ -1,0 +1,336 @@
+var config = require('../config');
+
+// instantiate team provider
+var TeamProvider = require('../providers/team').TeamProvider;
+var teamProvider = new TeamProvider(config.mongodb.host, config.mongodb.port);
+
+// instantiate user provider
+var UserProvider = require('../providers/user').UserProvider;
+var userProvider = new UserProvider(config.mongodb.host, config.mongodb.port, config.ldap.url, config.ldap.userSearch);
+
+// instantiate item provider
+var ItemProvider = require('../providers/item').ItemProvider;
+var itemProvider = new ItemProvider(config.mongodb.host, config.mongodb.port);
+
+var dateformat = require('../providers/dateformat'); // custom date tools
+
+var TEAM_CAPTAIN_ROLE = config.roles.TEAM_CAPTAIN_ROLE;
+var CAMPAIGN_ADMIN_ROLE = config.roles.CAMPAIGN_ADMIN_ROLE;
+var ADMIN_ROLE = config.roles.ADMIN_ROLE;
+
+module.exports = {
+  
+  // list
+  
+  index: function(req, res){
+  	var campaignId = req.params.parentId;
+  	
+  	var isAdmin = (req.session.user && req.session.user.roles &&
+			(req.session.user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + campaignId)>=0 ||
+			req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
+  	
+  	if (campaignId) {
+		teamProvider.findAll(campaignId, function(error, teams) {
+			if (error) return next(error);
+			res.render(null, {locals: {teams: teams, campaignId: campaignId, isAdmin: isAdmin}});
+		});
+	} else {
+		teamProvider.findAll(null, function(error, teams) {
+			if (error) return next(error);
+        	res.render(null, {locals: {teams: teams, campaignId: null, isAdmin: isAdmin}});
+    	});
+	}
+  },
+
+  // single display
+  
+  show: function(req, res, next){
+  	var teamId = req.params.id;
+  
+  	var canJoin = (req.session.user && 
+  		(!req.session.user.teams || (req.session.user.teams.length <= 0)
+  		|| (req.session.user.teams.indexOf(teamId) < 0)));
+  		
+  	var canLeave = (req.session.user && 
+  		(req.session.user.teams && (req.session.user.teams.indexOf(teamId) >= 0)));
+  
+    teamProvider.findById(req.params.id, function(error, team) {
+    	if (error) return next(error);
+    	
+    	if (!team) {
+    		req.flash('error', 'Cannot find this team.');
+    		res.redirect('back');
+    		return;
+    	}
+    	
+		var isAdmin = (req.session.user && req.session.user.roles &&
+			(req.session.user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + team.campaignId)>=0 ||
+			req.session.user.roles.indexOf(TEAM_CAPTAIN_ROLE + teamId)>=0 ||
+			req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
+    	
+    	itemProvider.teamPoints(req.params.id, function(error, points) {
+    		if (error) return next(error);
+    		
+    		if (!points) points = 0;
+    		if (points.substring) points = parseInt(points);
+    		if (typeof points != "number") points = 0;
+    		
+    		itemProvider.findAll(req.params.id, null, function(error, items) {
+    			if (error) return next(error);
+    			
+    			// format the dates for display
+    			if (items) {
+					for (var i = 0; i < items.length; i++) {
+						items[i].created_at_format = dateformat.dateFormat(items[i].created_at, "dddd, mmmm d, yyyy HH:MM");
+						items[i].updated_on_format = dateformat.dateFormat(items[i].updated_on, "dddd, mmmm d, yyyy HH:MM");
+					}
+    			}
+
+    			userProvider.findByLogin(team.captain, function(error, teamCaptain) {
+    				if (error) return next(error);
+    				if (!teamCaptain) teamCaptain = {};
+    				
+    				res.render(null, {locals: {
+    					teamCaptain: teamCaptain, team: team, canJoin: canJoin, canLeave: canLeave, 
+    					points: points, items: items, campaignId: team.campaignId, isAdmin: isAdmin
+    				}});
+  				});
+  			});
+  		});
+    });
+  },
+  
+  // edit screen
+  
+  edit: function(req, res, next){
+    teamProvider.findById(req.params.id, function(error, team) {
+    	if (error) return next(error);
+    	
+    	if (!team) {
+    		req.flash("Could not find that team.");
+    		res.render(null, {locals:{team: null}});
+    		return;
+    	}
+    	
+    	var teamId = team.id;
+		var isAdmin = (req.session.user && req.session.user.roles &&
+			(req.session.user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + team.campaignId)>=0 ||
+			req.session.user.roles.indexOf(TEAM_CAPTAIN_ROLE + teamId)>=0 ||
+			req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
+
+		if (!isAdmin) {
+			req.push('error', 'You do not have permission to edit this team.');
+			res.redirect('back');
+			return;
+		}
+
+		userProvider.findByLogin(team.captain, function(error, teamCaptain) {
+    		if (error) return next(error);
+    		if (!teamCaptain) teamCaptain = {};
+    		
+    		res.render(null, {locals: {team: team, campaignId: team.campaignId, teamCaptain: teamCaptain, isAdmin: isAdmin}});
+  		});
+    });
+  },
+  
+  // create screen
+  
+  add: function(req, res, next){
+  	var campaignId = req.params.parentId;
+
+	var isAdmin = (req.session.user && req.session.user.roles &&
+		  (req.session.user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + campaignId)>=0 ||
+		  req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
+  	
+  	if (!isAdmin) {
+		req.push('error', 'You do not have permission to edit item types.');
+		res.redirect('back');
+		return;
+	}
+	
+	res.render(null, {locals: {campaignId: campaignId}});
+  },
+  
+  // handle create post
+  
+  create: function(req, res, next){
+  	if (!req.session.user) {
+  		req.flash('error', 'You must be logged in to create a team.');
+  		res.redirect('back');
+  		return;
+  	}
+  	
+  	var campaignId = req.param("campaignId");
+  	
+  	var isAdmin = (req.session.user && req.session.user.roles &&
+		  (req.session.user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + campaignId)>=0 ||
+		  req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
+  	
+  	if (!isAdmin) {
+		req.push('error', 'You do not have permission to create teams.');
+		res.redirect('back');
+		return;
+	}
+  	
+   	// whoever created this team is the captain
+  	var captain = req.param('captain');
+  	if (!captain) { captain = req.session.user.login; }
+  	
+  	// load team members
+  	var members = [];
+  	// validate list of members
+  	if(req.param('members_hidden') && req.param('members_hidden').length) {
+  		members = req.param('members_hidden');
+  	} else {
+  		members = [captain];
+  	}
+  	
+  	// add captain if they don't exist
+  	if (!members.indexOf(captain) < 0) {
+  		members.push(captain);
+  	}
+
+	// now create the team
+	teamProvider.save({
+		name: req.param('name'),
+		motto: req.param('motto'),
+		campaignId: campaignId,
+		captain: captain,
+		members: members
+	}, function (error, teams) {
+		if (error) return next(error);
+		team = teams[0];
+		
+		// add a role to this user so we know they are the captain
+		userProvider.addRoleByLogin(captain, TEAM_CAPTAIN_ROLE + team.id, function(error, user) {
+			if (error) return next(error);
+
+			res.redirect("/teams/filter/" + team.campaignId);
+		});
+	});
+  },
+  
+  // update an item
+  
+  update: function(req, res, next){
+  	var captain = req.param('captain');
+  	var id = req.params.id;
+  	
+  	if (!id || !captain) {
+  		req.flash('error', 'Invalid update parameters.');
+  		res.redirect('back');
+  		return;
+  	}
+    	
+	var teamId = id;
+	var isAdmin = (req.session.user && req.session.user.roles &&
+		(req.session.user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + campaignId)>=0 ||
+		req.session.user.roles.indexOf(TEAM_CAPTAIN_ROLE + teamId)>=0 ||
+		req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
+
+	if (!isAdmin) {
+		req.push('error', 'You do not have permission to edit this team.');
+		res.redirect('back');
+		return;
+	}
+  	
+  	// load team members
+  	var members = [];
+  	// validate list of members
+  	if(req.param('members_hidden') && req.param('members_hidden').length) {
+  		members = req.param('members_hidden');
+  	} else {
+  		members = [captain];
+  	}
+  	
+  	// add captain if they don't exist
+  	if (!members.indexOf(captain) < 0) {
+  		members.push(captain);
+  	}
+  	
+  	// look up captain based on login
+  	userProvider.findByLogin(captain, function(error, user) {
+  		if (error) { return next(error); }
+  		
+  		if (!user) {
+  			req.flash('error', 'Could not find user: _'+ captain + '_.');
+  			res.redirect('back');
+  			return;
+  		}
+  		
+  		// remove role for old users, add for new user
+  		var sameCaptain = false;
+
+  		if (user.roles && user.roles.indexOf(TEAM_CAPTAIN_ROLE + id)>=0) {
+  			sameCaptain = true;
+  		}
+  	
+  	    teamProvider.update({
+			name: req.param('name'),
+			motto: req.param('motto'),
+			id: id,
+			campaignId: req.param('campaignId'),
+			captain: user.login,
+			members: members
+		}, function(error, teams) {
+			if (error) return next(error);
+			team = teams[0];
+			
+			// now we need to update user roles if there is a different captain
+			if (!sameCaptain) {
+				// clear all captain roles
+				userProvider.clearRole(TEAM_CAPTAIN_ROLE + id, function (error) {
+					if (error) return next(error);
+
+					// set a new captain
+					userProvider.addRoleByLogin(team.captain, TEAM_CAPTAIN_ROLE + id, function(error) {
+						req.flash('info', 'Successfully updated _' + team.name + '_.');
+						res.redirect('/teams/show/' + team.id);
+						return;		
+					});
+				});
+			} else {
+				req.flash('info', 'Successfully updated _' + team.name + '_.');
+				res.redirect('/teams/show/' + team.id);
+			}
+			
+		});
+  	
+  	});
+  
+
+  },
+  
+  // destroy the campaign
+  
+  destroy: function(req, res, next){
+  	teamProvider.findById(req.params.id, function(error, team) {
+  		if (error) return next(error);
+  		
+    	if (!team) {
+    		req.flash('error', 'Cannot find team.');
+    		res.redirect('back');
+    		return;
+    	}
+  		
+		var campaignId = team.campaignId;
+		
+		var isAdmin = (req.session.user && req.session.user.roles &&
+			  (req.session.user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + campaignId)>=0 ||
+			  req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
+		
+		if (!isAdmin) {
+			req.push('error', 'You do not have permission to delete teams.');
+			res.redirect('back');
+			return;
+		}
+  		
+		teamProvider.remove(req.params.id, function(error, campaignId) {
+			if (error) return next(error);
+			
+			req.flash('info', 'Successfully deleted _' + team.name + '_.');
+			res.redirect('/teams/filter/' + campaignId);
+		});
+  	});    
+  },
+};

@@ -1,0 +1,53 @@
+<div class="container">
+<div class="row">
+
+<div class="span4 columns">
+	<h3>Quick Links</h3>
+	<ul class="unstyled">
+		<li><a href="/campaigns/show/<%= campaignId%>">Back to Campaign</a></li>
+	</ul>
+</div>
+
+<div class="span12 columns">
+		
+	<%- partial('../messages') %>
+
+	<form method="post" action="/itemtypes/create">
+		<fieldset>
+		<legend>Create a new Item Type</legend>
+		
+		<div class="clearfix">
+			<label for="name">Name</label>
+			<div class="input"><input type="text" name="name" id="name" /></div>
+		</div>
+		
+			
+		<div class="clearfix">
+			<label for="description">Description</label><br />
+			<div class="input"><textarea name="description" id="description" rows=10 cols=50></textarea></div>
+		</div>
+		
+		<div class="clearfix">
+			<label for="visible">Visible in Drop Downs</label>
+			<div class="input">
+			<input type="checkbox" name="visible" />
+			</div>
+		</div>
+			
+		<div class="clearfix">
+			<label for="points">Points</label><br />
+			<div class="input"><input type="text" name="points" id="points" /></div>
+		</div>
+		
+			<input type="hidden" name="campaignId" id="campaignId" value="<%= campaignId%>" />
+			
+		<div class="actions">
+			<input class="btn" type="submit" value="Create" />
+		</div>
+	
+	</fieldset>		
+	</form>
+
+</div>
+</div>
+</div>

@@ -1,0 +1,137 @@
+<div class="container">
+<div class="row">
+
+<div class="span4 columns">
+	<h3>Quick Links</h3>
+	<ul class="unstyled">
+		<li><a href="/campaigns/show/<%= campaignId%>">Back to Campaign</a></li>
+	</ul>
+
+	<%if (isAdmin) {%>
+	<h3>Administration</h3>
+	<ul class="unstyled menu">
+	<li>
+	<a class="btn" href="/teams/edit/<%=team.id%>">Edit this Team</a>
+	</li>
+	<li>
+	<a class="btn" href="/teams/destroy/<%=team.id%>">Delete this Team</a>
+	</li>
+	</ul>
+	<%}%>
+</div>
+
+<div class="span12 columns">
+
+	<%- partial('../messages') %>
+	
+	<div class="page-header">
+		<h2><a href="/teams/show/<%= team.id%>"><%= team.name%></a></h2>
+	</div>
+	
+	<form method="post" action="/teams/update/<%= team.id %>">		
+		<fieldset>
+			<legend><%= team.motto%></legend>
+		
+			<div class="clearfix">
+			<label for="name">Name</label>
+			<div class="input"><input type="text" name="name" id="name" value="<%=team.name%>" /></div>
+			</div>
+			
+			<div class="clearfix">
+			<label for="captain">Captain</label>
+			<div class="input"><input type="text" name="captain" id="captain" value="<%=teamCaptain.login%>" autocomplete="off" /></div>
+			</div>
+			
+			<div class="clearfix">
+			<label for="motto">Motto</label><br />
+			<div class="input"><textarea name="motto" id="motto" rows=10 cols=50><%=team.motto%></textarea></div>
+			</div>
+			
+			<input type="hidden" name="guid" id="guid" value="<%=team._id%>" />
+			<input type="hidden" name="campaignId" id="campaignId" value="<%=team.campaignId%>" />
+			
+			<div class="clearfix">
+			<label for="user">Select Member</label>
+			<div class="input">
+			<input type="text" name="user" id="user" autocomplete="off" value="" />
+			<a href="javascript:void(0);" id="btn-add">Add &raquo;</a>
+			</div>
+			</div>
+			
+			<div class="clearfix">
+			<label for="members">Members</label>
+			<div class="input">
+			<select name="members[]" class="select-users" id="members" multiple="multiple" size=5>
+				<%for (var i = 0; i < team.members.length; i++) {%>
+				<option value="<%=team.members[i]%>"><%=team.members[i]%></option>
+				<%}%>
+			</select>
+			<select name="members_hidden[]" class="select-hidden" id="members_hidden" multiple="multiple" size=5>
+				<%for (var i = 0; i < team.members.length; i++) {%>
+				<option value="<%=team.members[i]%>" selected><%=team.members[i]%></option>
+				<%}%>
+			</select>
+			<br />
+			<a href="javascript:void(0);" id="btn-remove">Remove Selected</a>
+			</div>
+			</div>
+			
+			<div class="actions">
+				<input class="btn" type="submit" value="Update" />
+			</div>
+
+			</fieldset>
+			</form>
+		</div>
+
+	</div>
+	
+</div>
+
+
+<script>
+ 		// add/remove user list functionality
+		$('#btn-add').click(function(){
+			var username = $('#user').val();
+			
+			var found = $("#members option[value='" + username + "']").text();
+
+			if (!found || found.length == 0) {
+				$('#members').append("<option value='"+username+"'>"+$('#user').val()+"</option>");
+				$('#members_hidden').append("<option value='"+username+"' selected>"+$('#user').val()+"</option>");
+			}
+		});
+		
+		$('#btn-remove').click(function(){
+			$('#members option:selected').each( function() {
+				$("#members_hidden option[value='" + $(this).val() + "']").remove();
+				$(this).remove();
+			});
+		});
+		
+		var callback = function(option) {
+			$('#captain').val(option.title);
+		};
+		
+		// auto suggest for user box
+		$("#captain").fancy_suggest({
+			url: "/users/json",
+			callback: callback,
+			tpl_result_begin: '<li class="result {{class}}" id="{{id}}" result_id="{{result_id}}"><a href="#">',
+      		tpl_result_body: '<span class="title">{{title}}</span>',
+      		tpl_result_end: '</li></a>'
+		});
+		
+		var callback = function(option) {
+			$('#user').val(option.title);
+		};
+		
+		// auto suggest for user box
+		$("#user").fancy_suggest({
+			url: "/users/json",
+			callback: callback,
+			tpl_result_begin: '<li class="result {{class}}" id="{{id}}" result_id="{{result_id}}"><a href="#">',
+      		tpl_result_body: '<span class="title">{{title}}</span>',
+      		tpl_result_end: '</li></a>'
+		});
+</script>

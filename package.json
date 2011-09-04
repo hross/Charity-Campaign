@@ -1,0 +1,14 @@
+{
+    "name": "charity-campaign"
+    "description": "A charity drive application written in node.js."
+    "author": "hross"
+  , "version": "0.0.2"
+  , "private": true
+  , "dependencies": {
+      "express": "2.4.3"
+    , "ejs": ">= 0.0.1"
+    , "mongodb": ">= 0.9.6"
+    , "ldapjs": ">= 0.1.1"
+    , "async": ">= 0.1.9"
+  }
+}

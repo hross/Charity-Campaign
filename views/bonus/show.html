@@ -1,0 +1,46 @@
+<div class="container">
+<div class="row">
+
+<div class="span4 columns">
+	<h3>Quick Links</h3>
+	<ul class="unstyled">
+		<li><a href="/campaigns/show/<%= campaignId%>">Back to Campaign</a></li>
+	</ul>
+	
+	<%if (isAdmin) {%>
+	<h3>Administration</h3>
+	<ul class="unstyled menu">
+		<li>
+		<a href="/bonuses/edit/<%=bonus.id%>" class="btn">
+			Edit this Bonus
+		</a>
+		</li>
+		<li>
+		<a href="/bonuses/destroy/<%=bonus.id%>" class="btn">
+			Delete this Bonus
+		</a>
+		</li>
+	</ul>
+	<%}%>
+</div>
+
+<div class="span12 columns">
+	<%- partial('../messages') %>
+	
+	<h1 class="title"><a href="/bonuses/show/<%= bonus.id%>/<%= bonus.slug%>"><%=bonus.title%></a></h1>
+	
+	<p>From <%=bonus.start%> to <%=bonus.end%></p>
+
+	<p>For <%=bonus.name%></p>
+	
+	<p>Worth <%=bonus.points%> points per item</p>
+	
+	
+	<p><%= bonus.description%></p>
+	
+	<input type="hidden" name="campaignId" id="campaignId" value="<%= bonus.campaignId%>" />
+	
+	<p><a href="/campaigns/show/<%= bonus.campaignId%>">Back to Campaign</a></p>
+</div>
+</div>
+</div>

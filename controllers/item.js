@@ -1,0 +1,349 @@
+var config = require('../config');
+
+// instantiate item provider
+var ItemProvider = require('../providers/item').ItemProvider;
+var itemProvider = new ItemProvider(config.mongodb.host, config.mongodb.port);
+
+// instantiate item type provider
+var ItemTypeProvider = require('../providers/itemtype').ItemTypeProvider;
+var itemTypeProvider = new ItemTypeProvider(config.mongodb.host, config.mongodb.port);
+
+// instantiate team provider
+var TeamProvider = require('../providers/team').TeamProvider;
+var teamProvider = new TeamProvider(config.mongodb.host, config.mongodb.port);
+
+// instantiate bonus provider
+var BonusProvider = require('../providers/bonus').BonusProvider;
+var bonusProvider = new BonusProvider(config.mongodb.host, config.mongodb.port);
+
+// instantiate user provider
+var UserProvider = require('../providers/user').UserProvider;
+var userProvider = new UserProvider(config.mongodb.host, config.mongodb.port, config.ldap.url, config.ldap.userSearch);
+
+var dateformat = require('../providers/dateformat'); // custom date tools
+
+var CAMPAIGN_ADMIN_ROLE = config.roles.CAMPAIGN_ADMIN_ROLE;
+var ADMIN_ROLE = config.roles.ADMIN_ROLE;
+
+module.exports = {
+  
+  // list
+  
+  index: function(req, res){
+  	var teamId = req.params.parentId;
+  	if (teamId) {
+		itemProvider.findAll(teamId, 100, function(error, items) {
+			if (error) return next(error);
+			
+			var campaignId = null;
+			if (items && items.length > 0) {
+				campaignId = items[0].campaignId;
+			}
+			
+			var user = req.session.user;
+			var isAdmin = (user && user.roles &&
+				(user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + campaignId)>=0 ||
+				user.roles.indexOf(ADMIN_ROLE)>=0));
+					
+				isAdmin = isAdmin || (user && user.teams && (user.teams.indexOf(teamId) >= 0));
+			
+			res.render(null, {locals: {items: items, teamId: teamId, campaignId: campaignId, isAdmin: isAdmin}});
+		});
+	} else {
+		itemProvider.findAll(null, null, function(error, items) {
+			if (error) return next(error);
+        	res.render(null, {locals: {items: items, teamId: null}});
+    	});
+	}
+  },
+
+  // single display
+  
+  show: function(req, res, next){
+    itemProvider.findById(req.params.id, function(error, item) {
+    	if (error) return next(error);
+    	
+    	if (!item) {
+    		req.flash('error', 'Could not find this item.');
+    		res.redirect('back');
+    		return;
+    	}
+    	
+    	userProvider.findById(item.created_by, function(error, created_user) {
+    		if (error) return next(error);
+    		
+    		if (!created_user) created_user = {};
+    		
+    		teamProvider.findById(item.teamId, function(error, team) {
+    			var user = req.session.user;
+				var isAdmin = (user && user.roles &&
+					(user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + team.campaignId)>=0 ||
+					user.roles.indexOf(ADMIN_ROLE)>=0));
+					
+				isAdmin = isAdmin || (user && user.teams && (user.teams.indexOf(teamId) >= 0));
+				
+				item.created_at = dateformat.dateFormat(item.created_at, "dddd, mmmm d, yyyy HH:MM");
+				
+				res.render(null, {locals: {item: item, user: created_user, teamId: item.teamId, campaignId: item.campaignId, isAdmin: isAdmin}});
+    		});
+    	});
+    });
+  },
+
+  
+  // edit screen
+  
+  edit: function(req, res, next){
+    itemProvider.findById(req.params.id, function(error, item) {
+    	if (error) return next(error);
+        
+        var teamId = item.teamId;
+		teamProvider.findById(teamId, function(error, team) {
+			if (error) return next(error);
+			
+			if (!team || !team.campaignId) {
+				res.render(null, null);
+				return;
+			}
+			
+			var user = req.session.user;
+			var isAdmin = (req.session.user && req.session.user.roles &&
+				(req.session.user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + team.campaignId)>=0 ||
+				req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
+				
+			// make sure this user can edit items for this team
+			if (!(user.teams && (user.teams.indexOf(teamId) >= 0)) && !isAdmin) {
+				req.flash('error', 'You cannot edit an item on a team you are not a member of.');
+				res.redirect('back');
+				return;
+			}
+			
+			itemTypeProvider.findAll(team.campaignId, function(error, itemTypes) {
+				if (error) return next(error);
+				
+				var campaignId = 0;
+				if (itemTypes && itemTypes.length > 0) {
+					campaignId = itemTypes[0].campaignId;
+				} else {
+					req.flash('error', 'There do not appear to be any items to add to this campaign.');
+					res.redirect('back');
+					return;
+				}
+				
+				// we made it, render item types for this team and campaign
+				res.render(null, {locals: {item: item, itemTypes: itemTypes, teamId: item.teamId, campaignId: team.campaignId}});
+			});
+		});
+    });
+  },
+  
+  // create screen
+  
+  add: function(req, res, next){
+  	var teamId = req.params.parentId;
+  	var user = req.session.user;
+  	
+  	if (!teamId || !user) {
+  		req.flash('error', 'Unable to add an item. Invalid team or user.');
+  		res.redirect('back');
+  		return;
+  	}
+  	
+  	teamProvider.findById(teamId, function(error, team) {
+    	if (error) return next(error);
+    	if (!team || !team.campaignId) {
+			req.flash('error', 'Unable to add an item. Could not find your team.');
+			res.redirect('back');
+			return;
+    	}
+    	
+		var isAdmin = (user && user.roles &&
+			(user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + team.campaignId)>=0 ||
+			user.roles.indexOf(ADMIN_ROLE)>=0));
+			
+		// make sure this user can add to this team
+		if (!(user.teams && (user.teams.indexOf(teamId) >= 0)) && !isAdmin) {
+			req.flash('error', 'You cannot add an item to a team you are not a member of.');
+			res.redirect('back');
+			return;
+		}
+    	
+    	itemTypeProvider.findAll(team.campaignId, function(error, itemTypes) {
+			if (error) return next(error);
+			
+			// we made it, render item types for this team and campaign
+			res.render(null, {locals: {teamId: teamId, itemTypes: itemTypes, campaignId: team.campaignId}});
+		});
+    });
+  },
+  
+  // handle create post
+  
+  create: function(req, res, next) {
+    var type = req.param('type');
+    var teamId = req.param('teamId');
+    var user = req.session.user;
+    
+    itemTypeProvider.findById(type, function(error, itemType) {
+    	if (error) return next(error);
+    	
+    	if (!itemType) {
+    		req.flash('error', 'Could not find any item types.');
+    		res.redirect('back');
+    		return;
+    	}
+    	
+    	var isAdmin = (user && user.roles &&
+			(user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + itemType.campaignId)>=0 ||
+			user.roles.indexOf(ADMIN_ROLE)>=0));
+			
+		// make sure this user can add to this team
+		if (!(user.teams && (user.teams.indexOf(teamId) >= 0)) && !isAdmin) {
+			req.flash('error', 'You cannot add an item to a team you are not a member of.');
+			res.redirect('back');
+			return;
+		}
+    	
+    	// find any associated bonus points
+    	bonusProvider.findTypeWithin(itemType.id, (new Date()), function(error, bonuses) {
+    		if (error) return next(error);
+    	
+    		var bonusPoints = 0;
+    		if (bonuses) {
+    			for (var i=0; i<bonuses.length; i++) {
+    				bonusPoints += parseInt(bonuses[i].points);
+    			}
+    		}
+    		
+    		var quantity = 0;	
+    		if (req.param('quantity')) {
+    			quantity = parseInt(req.param('quantity'));
+    			if (isNaN(quantity)) quantity = 0;
+    		}
+
+    		// count it
+    		itemProvider.save({
+				type: type,
+				name: itemType.name,
+				points: parseInt(itemType.points),
+				bonus: bonusPoints,
+				campaignId: itemType.campaignId,
+				description: itemType.description,
+				teamId: teamId,
+				quantity: quantity,
+				created_by: req.session.user.id,
+				updated_by: req.session.user.id,
+				created_by_login: req.session.user.login
+			}, function(error, items) {
+				if (error) return next(error);
+				
+				if (items[0]) {
+					res.redirect("/items/show/" + items[0].id);
+				} else {
+					res.redirect('/items');
+				}
+			});
+    		
+    		
+    	});
+    });
+  },
+  
+  // update an item
+  
+  update: function(req, res, next){
+    var teamId = req.param('teamId');
+    var campaignId = req.param('campaignId');
+    var user = req.session.user;
+  
+    itemTypeProvider.findById(req.param('type'), function(error, itemType) {
+    	if (error) return next(error);
+    	
+    	if (!itemType) {
+    		req.flash('info', 'No item type specified!');
+    		res.redirect('back');
+    		return;
+    	}
+    	
+    	var isAdmin = (user && user.roles &&
+			(user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + campaignId)>=0 ||
+			user.roles.indexOf(ADMIN_ROLE)>=0));
+			
+		// make sure this user can add to this team
+		if (!(user.teams && (user.teams.indexOf(teamId) >= 0)) && !isAdmin) {
+			req.flash('error', 'You cannot add an item to a team you are not a member of.');
+			res.redirect('back');
+			return;
+		}
+    	
+    	var flagged = req.param('flagged') && (req.param('flagged') == 'on');
+    	var verified = req.param('verified') && (req.param('verified') == 'on');
+    	
+    	var bonus = 0;	
+    	if (req.param('bonus')) {
+    		bonus = parseInt(req.param('bonus'));
+    		if (isNaN(bonus)) bonus = 0;
+    	}
+    	
+    	var quantity = 0;	
+    	if (req.param('quantity')) {
+    		quantity = parseInt(req.param('quantity'));
+    		if (isNaN(quantity)) quantity = 0;
+    	}
+    	
+    	itemProvider.update({
+			type: itemType.id,
+			id: req.params.id,
+			teamId: teamId,
+			quantity: req.param('quantity'),
+			campaignId: campaignId,
+			name: itemType.name,
+			points: parseInt(itemType.points),
+			bonus: bonus,
+			description: itemType.description,
+			updated_by: req.session.user.id,
+			flagged: flagged,
+			verified: verified
+		}, function(error, items) {
+			if (error) return next(error);
+	
+			req.flash('info', 'Successfully updated _' + items[0].name + '_.');
+			res.redirect('/items/show/' + items[0].id);
+		});
+    });
+  },
+  
+  // destroy the campaign
+  
+  destroy: function(req, res, next){
+  	var user = req.session.user;
+  	
+  	itemProvider.findById(req.params.id, function(error, item) {
+  		if (error) return next(error);
+  		
+    	if (!item) {
+    		req.flash('info', 'No item type specified!');
+    		res.redirect('back');
+    		return;
+    	}
+  		
+  		var isAdmin = (user && user.roles &&
+			(user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + item.campaignId)>=0 ||
+			user.roles.indexOf(ADMIN_ROLE)>=0));
+			
+		// make sure this user can add to this team
+		if (!(user.teams && (user.teams.indexOf(item.teamId) >= 0)) && !isAdmin) {
+			req.flash('error', 'You cannot delete an item from a team you are not a member of.');
+			res.redirect('back');
+			return;
+		}
+  		
+		itemProvider.remove(req.params.id, function(error, teamId) {
+			if (error) return next(error);
+			
+			req.flash('info', 'Successfully deleted _' + item.name + '_.');
+			res.redirect('/items/filter/' + teamId);
+		});
+  	});    
+  },
+};

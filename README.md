@@ -1,0 +1,1 @@
+Charity Campaign is a node.js web application for submitting and viewing charity drive data.

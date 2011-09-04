@@ -1,0 +1,37 @@
+<div class="container">
+<div class="row">
+
+<div class="span4 columns">
+	<%if (campaignId > 0) {%>
+	<h3>Quick Links</h3>
+	<ul class="unstyled">
+		<li><a href="/campaigns/show/<%= campaignId%>">Back to Campaign</a></li>
+	</ul>
+	<%}%>
+	<%if (isAdmin) {%>
+	<h3>Administration</h3>
+	<ul class="unstyled menu">
+		<li>
+		<a href="/users/add" class="btn">Add a User</a>
+		</li>
+	</ul>
+	<%}%>
+</div>
+
+<div class="span12 columns">
+	<%- partial('../messages') %>
+
+	<div class="page-header">
+		<h2>Users</h2>
+	</div>
+
+	<table class="common-table zebra-striped">
+	<% for(var i=0; i < users.length; i++) {%>
+		<tr><td><a href="/users/show/<%= users[i].id%>/<%= users[i].slug%>"><%= users[i].login %></a></td></tr>
+	<% } %>
+	</table>
+
+</div>
+	
+</div>
+</div>

@@ -1,0 +1,99 @@
+<div class="container">
+<div class="row">
+
+<div class="span4 columns">'
+	<h3>Quick Links</h3>
+	<ul class="unstyled">
+		<li><a href="/campaigns/show/<%= campaignId%>">Back to Campaign</a></li>
+	</ul>
+
+	<h3>Administration</h3>
+	<ul class="unstyled menu">
+	<li>
+	<a class="btn" href="/bonuses/edit/<%=bonus.id%>">Edit this Bonus</a>
+	</li>
+	<li>
+	<a class="btn" href="/bonuses/destroy/<%=bonus.id%>">Delete this Bonus</a>
+	</li>
+	</ul>
+</div>
+
+<div class="span12 columns">
+
+	<%- partial('../messages') %>
+	
+	<div class="page-header">
+		<h2><a href="/bonuses/show/<%= bonus.id%>"><%=bonus.title%></a></h2>
+	</div>
+
+		<form method="post" action="/bonuses/update/<%= bonus.id %>">
+		
+		<fieldset>
+			
+			<div class="clearfix">
+			<label for="title">Title</label>
+			<div class="input"><input type="text" name="title" id="title" value="<%=bonus.title%>" /></div>
+			</div>
+
+			<div class="clearfix">
+			<label for="start">Start</label>
+			<div class="input">
+			<input type="text" name="start" id="start" value="<%=bonus.start%>" />
+			</div>
+			</div>
+			
+			<div class="clearfix">
+			<label for="end">End</label><br />
+			<div class="input">
+			<input type="text" name="end" id="end" value="<%=bonus.end%>" />
+			</div>
+			</div>
+			
+			<div class="clearfix">
+			<label for="points">Bonus Points per Item</label><br />
+			<div class="input">
+			<input type="text" name="points" id="points" value="<%=bonus.points%>" />
+			</div>
+			</div>
+			
+			<div class="clearfix">
+			<label for="type">Item Type</label>
+			<div class="input">
+			<% for(var i=0; i < itemTypes.length; i++) {%>
+				<%if (itemTypes[i].visible) {%>
+				<input type="radio" name="type" value="<%=itemTypes[i].id%>" <%= (itemTypes[i].id == bonus.type)?"checked":""%>><%=itemTypes[i].name%><br />
+				<%}%>
+			<%}%>
+			</div>
+			</div>
+			
+			<div class="clearfix">
+			<label for="description">Description</label>
+			<div class="input">
+			<textarea name="description" id="description" rows=10 cols=50><%=bonus.description%></textarea>
+			</div>
+			</div>
+			
+			
+			<input type="hidden" name="guid" id="guid" value="<%=bonus._id%>" />
+			<input type="hidden" name="campaignId" id="campaignId" value="<%=bonus.campaignId%>" />
+			
+			<div class="actions">
+			<input type="submit" value="Update" />
+			</div>
+			
+			</fieldset>
+			
+			</form>
+			
+	</div>
+	
+	</div>
+</div>
+
+<script>
+	$('#start').datetimepicker();
+	$('#end').datetimepicker();
+	$('#start').datetimepicker('setDate', (new Date("<%=bonus.start%>")) );
+	$('#end').datetimepicker('setDate', (new Date("<%=bonus.end%>")) );
+</script>

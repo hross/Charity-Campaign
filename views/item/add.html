@@ -1,0 +1,50 @@
+<div class="container">
+<div class="row">
+
+<div class="span4 columns">
+	<h3>Quick Links</h3>
+	<ul class="unstyled">
+		<li><a href="/teams/show/<%= teamId%>">Back to Team</a></li>
+	</ul>
+</div>
+
+<div class="span12 columns">
+		
+	<%- partial('../messages') %>
+
+	<form method="post" action="/items/create">
+		<fieldset>
+		<legend>Add an Item</legend>
+		
+		<div class="clearfix">
+			<label for="quantity">Quantity</label>
+			<div class="input"><input type="text" name="quantity" id="quantity" /></div>
+		</div>
+	
+		<div class="clearfix">
+			<label for="type">Item Type</label>
+			<div class="input">
+				<ul class="inputs-list">
+			<% for(var i=0; i < itemTypes.length; i++) {%>
+				<%if (itemTypes[i].visible) {%>
+				<li><label>
+				<input type="radio" name="type" value="<%=itemTypes[i].id%>">
+				<span><%=itemTypes[i].name%></span>
+				</label></li>
+				<%}%>
+			<%}%>
+				</ul>
+			</div>
+		</div>
+			
+		<input type="hidden" name="teamId" id="teamId" value="<%= teamId%>" />
+			
+		<div class="actions">
+			<input class="btn" type="submit" value="Create" />
+		</div>
+		
+		</fieldset>
+		</form>
+	</div>
+</div>	
+</div>

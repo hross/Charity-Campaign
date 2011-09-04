@@ -1,0 +1,31 @@
+<div class="container">
+<div class="row">
+
+<div class="span16 columns">
+		<%- partial('../messages') %>
+	
+		<form method="post" action="/users/validate">
+			<fieldset>
+			<legend>Login Required</legend>
+
+			<div class="clearfix">
+				<label for="login">Login</label>
+				<div class="input"><input type="text" name="login" id="login" /></div>
+			</div>
+			
+			<div class="clearfix">
+				<label for="password">Password</label>
+				<div class="input"><input type="password" name="password" id="password" /></div>
+			</div>
+			
+			<input type="hidden" name="redir" id="redir" value="<%=redir%>" />
+			
+			<div class="actions">
+				<input type="submit" class="btn" value="Login" />
+			</div>
+			</fieldset>
+			
+		</form>
+</div>
+</div>
+</div>
