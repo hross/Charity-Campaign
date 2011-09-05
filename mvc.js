@@ -31,7 +31,7 @@ function bootApplication(app) {
 
   // Example 404 page via simple Connect middleware
   app.use(function(req, res){
-    res.render('404', {locals: {url:''}});
+    res.render('404', {locals: {url:'', luser: req.session.user}});
   });
 
   // Setup ejs views as default, with .html as the extension
@@ -39,10 +39,11 @@ function bootApplication(app) {
   app.register('.html', require('ejs'));
   app.set('view engine', 'html');
 
-  // we always want a user object
+  // we always want a user object, campaign id and admin variable
   app.set('view options', {
     luser: null,
-    campaignId: null
+    campaignId: null,
+    isAdmin: false
   });
 
   // Some dynamic view helpers

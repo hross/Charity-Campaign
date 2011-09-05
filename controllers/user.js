@@ -1,3 +1,5 @@
+var form = require('connect-form');
+
 var config = require('../config');
 
 // instantiate user provider
@@ -65,6 +67,49 @@ module.exports = {
         res.render(null, {locals: {user: user, isAdmin: isAdmin}});
     });
   },
+  
+  // display upload user list form
+  csv: function(req, res, next){
+  	var isAdmin = (req.session.user && req.session.user.roles &&
+		req.session.user.roles.indexOf(ADMIN_ROLE)>=0);
+	
+	if (!isAdmin) {
+		req.flash('error', "You are not an administrator.");
+		res.redirect('back');
+		return;
+	}
+		
+	res.render(null, {locals: {isAdmin: isAdmin}});
+  },
+  
+  // upload a list of users as a CSV
+  upload: function(req, res, next){
+  
+	var isAdmin = (req.session.user && req.session.user.roles &&
+		req.session.user.roles.indexOf(ADMIN_ROLE)>=0);
+	
+	if (!isAdmin) {
+		req.flash('error', "You are not an administrator.");
+		res.redirect('back');
+		return;
+	}
+
+	req.form.complete(function(error, fields, files){
+    	if (error) { next(error); return; }
+
+      	console.log('\nuploaded %s to %s'
+        	, files.userList.filename
+        	, files.userList.path);
+        
+        req.flash('info', "Successfully created user accounts.");
+      	res.redirect('back');
+  });
+
+		
+	res.render(null, {locals: {isAdmin: isAdmin}});
+  },
+
+
   
   // create screen
   
@@ -414,6 +459,8 @@ module.exports = {
       case 'name':
         return ['/name/:login', false];
       	break;
+      case 'csv':
+      	return ['/csv', true];
       default:
       	return null;
      }
@@ -435,6 +482,8 @@ module.exports = {
 	 switch(action) {
       case ['addrole', true]:
       	return '/addrole';
+      case ['upload', true]:
+      	return '/upload';
       default:
       	return null;
      }

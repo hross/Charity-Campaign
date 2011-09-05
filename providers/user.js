@@ -1,10 +1,5 @@
 /* TODO: recursive remove bonuses, etc on user remove */
 
-//$gravatarMd5 = md5(strtolower($_GET['email']));
-//<img src="http://www.gravatar.com/avatar/" alt="">
-//
-// '912ec803b2ce49e4a541068d495ab570'
-
 // Array Remove - By John Resig (MIT Licensed)
 Array.prototype.remove = function(from, to) {
   var rest = this.slice((to || from) + 1 || this.length);
@@ -21,6 +16,7 @@ var ObjectID = require('mongodb').ObjectID;
 var ldap = require('ldapjs');
 
 var slugify = require('./slugify'); // custom slug tools
+var parse = require('./parsecsv'); // csv parsing
 var async = require('async');
 
 //TODO: add password hashing
@@ -32,7 +28,7 @@ UserProvider = function(host, port, ldapUrl, userSearch) {
   this.userSearch = userSearch;
 };
 
-UserProvider.prototype.getNextUserId= function(callback) {
+UserProvider.prototype.getNextUserId = function(callback) {
 	this.getCounterCollection(function(error, counters) {
 		if( error ) callback(error)
       	else {
@@ -239,6 +235,7 @@ UserProvider.prototype.authenticate = function(login, password, callback) {
     });
 };
 
+/*
 UserProvider.prototype.findByLogin = function(login, callback) {
     this.getCollection(function(error, user_collection) {
 		if (error) {
@@ -254,7 +251,7 @@ UserProvider.prototype.findByLogin = function(login, callback) {
 			});
 		}
     });
-};
+};*/
 
 UserProvider.prototype.save = function(users, callback) {
 	var provider = this;
@@ -264,18 +261,26 @@ UserProvider.prototype.save = function(users, callback) {
 		if (typeof(users.length)=="undefined") users = [users];
 
 		var createUser = function(user, callback) {
-			console.log("creating user...");
+		
+			provider.findByLogin(login, function(error, user) {
+		
+				// ensure no errors and user does not already exist
+				if (error) { callback(error); return; }
+				if (user) { callback(null, null); return; }
+				
+				console.log("creating user...");
 			
-			user.created_at = new Date();
-			user.update_on = new Date();
-			
-			provider.getNextUserId(function(error,id) {
-				user.gravatar = crypto.createHash('md5').update(user.email).digest("hex");
-				user.id = id;
-				user.slug = slugify.slugify(user.login);
-				user_collection.insert(user, function() {
-					console.log("created.");
-					callback(null, user);
+				user.created_at = new Date();
+				user.update_on = new Date();
+				
+				provider.getNextUserId(function(error,id) {
+					user.gravatar = crypto.createHash('md5').update(user.email).digest("hex");
+					user.id = id;
+					user.slug = slugify.slugify(user.login);
+					user_collection.insert(user, function() {
+						console.log("created.");
+						callback(null, user);
+					});
 				});
 			});
 		};
@@ -287,6 +292,50 @@ UserProvider.prototype.save = function(users, callback) {
 			callback(null, results);
 		});
     });
+};
+
+UserProvider.prototype.importCsv = function(fileName, callback) {
+	var provider = this;
+	
+	// first parse the file
+	var parseIt = function(callback) {
+		provider.getCollection(function(error, user_collection) {
+			if (error) { callback(error); return; }
+			
+			parse.parseCsvFile(fileName, function(record) {
+				if (record) {
+    				// create the user from the record
+    				//TODO: error checking here, what if the login exists?
+    				provider.save({
+						login: record.login,
+						password: record.password,
+						password2: record.password,
+						email: record.email,
+						first: record.first,
+						last: record.last,
+						account: record.account
+					}, function(error, users) {
+						if (error) return next(error);
+					
+						if (isAdmin) {
+							userProvider.addRoleByLogin(login, ADMIN_ROLE, function(error, callback) {
+								callback(null, users[0]);
+							});
+						} else {
+							callback(null, users[0]);
+						}
+					});
+				}
+    		}); // end parseCsvFile
+    		
+    	}); // end get collection
+	};
+
+    // run through all the csv rows before moving on
+	async.series([parseIt],
+		function(error, results){
+			callback(results);
+		});
 };
 
 UserProvider.prototype.joinTeam = function(user, teamId, callback) {
