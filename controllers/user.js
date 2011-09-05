@@ -85,6 +85,8 @@ module.exports = {
   // upload a list of users as a CSV
   upload: function(req, res, next){
   
+  	console.log("Starting upload...");
+  
 	var isAdmin = (req.session.user && req.session.user.roles &&
 		req.session.user.roles.indexOf(ADMIN_ROLE)>=0);
 	
@@ -103,10 +105,7 @@ module.exports = {
         
         req.flash('info', "Successfully created user accounts.");
       	res.redirect('back');
-  });
-
-		
-	res.render(null, {locals: {isAdmin: isAdmin}});
+  	});
   },
 
 
@@ -448,7 +447,7 @@ module.exports = {
   
   // generic find route function, called by the controller when it doesn't know what to do
   
-  findGetRoute: function(action){
+  findGetRoute: function (action){
 	 switch(action) {
       case 'join':
         return ['/join/:teamId', true];
@@ -466,7 +465,7 @@ module.exports = {
      }
   },
   
-  findJsonRoute: function(action) {
+  findJsonRoute: function (action) {
   	switch(action) {
       case 'json':
         return ['/json', false];
@@ -478,12 +477,14 @@ module.exports = {
   
     // generic find route function, called by the controller when it doesn't know what to do
   
-  findPostRoute: function(action){
+  findPostRoute: function (action){
 	 switch(action) {
-      case ['addrole', true]:
-      	return '/addrole';
-      case ['upload', true]:
-      	return '/upload';
+      case 'addrole':
+      	return ['/addrole', true];
+      	break;
+      case 'upload':
+      	return ['/upload', true];
+      	break;
       default:
       	return null;
      }

@@ -147,10 +147,15 @@ function bootController(app, file) {
       case 'findPostRoute':
       	// find route function is used to resolve unknown paths
       	break;
+      case 'findJsonRoute':
+      	// find route function is used to resolve unknown paths
+      	break;
       case 'resolveSecurity':
       	// TODO: stub for a security function
       	break;
       default:
+      	console.log("searching for generic actions: " + action);
+      
       	// a function we don't know how to describe with the controller
       	// use a generic findRoute function to tell us the path if it exists
       	if (actions.findGetRoute && actions.findGetRoute(action)) {
