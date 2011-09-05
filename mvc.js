@@ -43,7 +43,8 @@ function bootApplication(app) {
   app.set('view options', {
     luser: null,
     campaignId: null,
-    isAdmin: false
+    isAdmin: false,
+    adminEmail: 'admin@yoursite.com' //TODO: make this a config setting
   });
 
   // Some dynamic view helpers

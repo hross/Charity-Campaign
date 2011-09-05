@@ -262,11 +262,11 @@ UserProvider.prototype.save = function(users, callback) {
 
 		var createUser = function(user, callback) {
 		
-			provider.findByLogin(login, function(error, user) {
+			provider.findByLogin(user.login, function(error, found_user) {
 		
 				// ensure no errors and user does not already exist
 				if (error) { callback(error); return; }
-				if (user) { callback(null, null); return; }
+				if (found_user) { callback(null, null); return; }
 				
 				console.log("creating user...");
 			
@@ -296,46 +296,41 @@ UserProvider.prototype.save = function(users, callback) {
 
 UserProvider.prototype.importCsv = function(fileName, callback) {
 	var provider = this;
-	
-	// first parse the file
-	var parseIt = function(callback) {
+
+	// try to parse the csv file and return some user records
+	parse.parseCsvFile(fileName, function(error, records) {
+		if (error) { callback(error); return; }
+		
 		provider.getCollection(function(error, user_collection) {
 			if (error) { callback(error); return; }
+			if (!records) { callback(null, null); return; }
 			
-			parse.parseCsvFile(fileName, function(record) {
-				if (record) {
-    				// create the user from the record
-    				//TODO: error checking here, what if the login exists?
-    				provider.save({
-						login: record.login,
-						password: record.password,
-						password2: record.password,
-						email: record.email,
-						first: record.first,
-						last: record.last,
-						account: record.account
-					}, function(error, users) {
-						if (error) return next(error);
+			var createUser = function(record) {
+				console.log("Creating record...");
+				console.log(record);
+			
+				// create the user from the record
+				provider.save({
+					login: record.login,
+					password: record.password,
+					password2: record.password,
+					email: record.email,
+					first: record.first,
+					last: record.last,
+					account: record.account
+				}, function(error, users) {
+					if (error) return callback(error, null);
 					
-						if (isAdmin) {
-							userProvider.addRoleByLogin(login, ADMIN_ROLE, function(error, callback) {
-								callback(null, users[0]);
-							});
-						} else {
-							callback(null, users[0]);
-						}
-					});
-				}
-    		}); // end parseCsvFile
-    		
+					callback(null, users[0]);
+				});
+			};
+			
+			async.map(records, createUser, function(error, users){
+    			callback(error, users);
+			});
+			
     	}); // end get collection
-	};
-
-    // run through all the csv rows before moving on
-	async.series([parseIt],
-		function(error, results){
-			callback(results);
-		});
+    }); // end parseCsvFile
 };
 
 UserProvider.prototype.joinTeam = function(user, teamId, callback) {

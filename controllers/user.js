@@ -96,13 +96,31 @@ module.exports = {
 
 	req.form.complete(function(error, fields, files){
     	if (error) { next(error); return; }
-
-      	console.log('\nuploaded %s to %s'
-        	, files.userList.filename
-        	, files.userList.path);
-        
-        req.flash('info', "Successfully created user accounts.");
-      	res.redirect('back');
+    	
+    	if (files.userList) {
+      		console.log('Uploaded %s to %s', files.userList.filename, files.userList.path);
+      		
+    		// import the csv file of users if it exists
+    		userProvider.importCsv(files.userList.path, function(error, users) {
+    			// let us know what happened
+    			var accounts = "";
+    			if (users) {
+					for (var i = 0; i < users.length; i++) {
+						console.log("Created user: " + users[i].login);
+						if (i != 0) accounts += ", ";
+						accounts += users[i].login;
+					}
+    			}
+    			
+    			if (error) { next(error); return; }
+    			
+    			req.flash('info', 'Successfully created these accounts: ' + accounts);
+      			res.redirect('back');
+    		});
+    	} else {
+    		req.flash('info', "Could not import any user accounts.");
+      		res.redirect('back');
+    	}
   	});
   },
 
