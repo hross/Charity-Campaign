@@ -13,4 +13,4 @@ Charity Campaign is a node.js web application for submitting and viewing charity
 
 ## About
 
-My first "real world" application using [node.js](http://nodejs.org), [mongodb](http://mongodb.org) and the [Twitter bootstrap](http://twitter.github.com/bootstrap/).
+My first "real world" application using [node.js](http://nodejs.org), [mongodb](http://mongodb.org) and the [Twitter bootstrap](http://twitter.github.com/bootstrap/). A lot of the techniques/code were borrowed heavily from the express samples [here](https://github.com/visionmedia/express/blob/master/examples).
