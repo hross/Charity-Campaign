@@ -1,5 +1,3 @@
-var form = require('connect-form');
-
 var config = require('../config');
 
 // instantiate user provider

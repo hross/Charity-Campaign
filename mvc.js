@@ -154,8 +154,6 @@ function bootController(app, file) {
       	// TODO: stub for a security function
       	break;
       default:
-      	console.log("searching for generic actions: " + action);
-      
       	// a function we don't know how to describe with the controller
       	// use a generic findRoute function to tell us the path if it exists
       	if (actions.findGetRoute && actions.findGetRoute(action)) {

@@ -4,7 +4,11 @@
  */
  
 var express = require('express');
-var app = express.createServer();
+var form = require('connect-form');
+
+var app = express.createServer(
+			form({ keepExtensions: true })
+		);
 
 require('./mvc').boot(app);
 
