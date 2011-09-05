@@ -306,7 +306,7 @@ UserProvider.prototype.importCsv = function(fileName, callback) {
 			if (!records) { callback(null, null); return; }
 			
 			var createUser = function(record) {
-				console.log("Creating record...");
+				console.log("Creating from CSV record...");
 				console.log(record);
 			
 				// create the user from the record

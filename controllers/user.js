@@ -102,23 +102,29 @@ module.exports = {
       		
     		// import the csv file of users if it exists
     		userProvider.importCsv(files.userList.path, function(error, users) {
-    			// let us know what happened
     			var accounts = "";
-    			if (users) {
+    			if (error) { next(error); return; }
+    			
+    			if (!users) {
+					req.flash('info', 'No user accounts were created.');
+					res.redirect('back');
+					return;
+    			} else {
+    				if (typeof(users.length)=="undefined") users = [users];
+
 					for (var i = 0; i < users.length; i++) {
 						console.log("Created user: " + users[i].login);
 						if (i != 0) accounts += ", ";
 						accounts += users[i].login;
 					}
+					
+    				req.flash('info', 'Successfully created these accounts: ' + accounts);
+      				res.redirect('back');
+      				return;
     			}
-    			
-    			if (error) { next(error); return; }
-    			
-    			req.flash('info', 'Successfully created these accounts: ' + accounts);
-      			res.redirect('back');
     		});
     	} else {
-    		req.flash('info', "Could not import any user accounts.");
+    		req.flash('info', "Could not create any user accounts.");
       		res.redirect('back');
     	}
   	});
