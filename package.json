@@ -1,7 +1,7 @@
 {
     "name": "charity-campaign"
-    "description": "A charity drive application written in node.js."
-    "author": "hross"
+  , "description": "A charity drive application written in node.js."
+  , "author": "hross"
   , "version": "0.0.2"
   , "private": true
   , "dependencies": {
