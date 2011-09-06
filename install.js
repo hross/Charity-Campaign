@@ -1,3 +1,4 @@
+var login = "admin";
 var email = "admin@changeme.com";
 var first = "John";
 var last = "Doe";
@@ -11,10 +12,10 @@ if ("admin@changeme.com" == email) {
 }
 
 // get config settings
-var config = require('config');
+var config = require('./config');
 
 // instantiate user provider
-var UserProvider = require('providers/user').UserProvider;
+var UserProvider = require('./providers/user').UserProvider;
 var userProvider = new UserProvider(config.mongodb.host, config.mongodb.port, config.ldap.url, config.ldap.userSearch);
 
 console.log("Configuration load completed. Starting install script...");
