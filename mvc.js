@@ -31,7 +31,8 @@ function bootApplication(app) {
 
   // Example 404 page via simple Connect middleware
   app.use(function(req, res){
-    res.render('404', {locals: {url:'', luser: req.session.user}});
+    //res.render('404', {locals: {url:'', luser: req.session.user}});
+    res.render('404', {locals: {url:'', luser: ''}});
   });
 
   // Setup ejs views as default, with .html as the extension
