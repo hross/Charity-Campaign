@@ -1,3 +1,4 @@
+var login = "admin";
 var email = "admin@changeme.com";
 var first = "John";
 var last = "Doe";
@@ -11,17 +12,17 @@ if ("admin@changeme.com" == email) {
 }
 
 // get config settings
-var config = require('config');
+var config = require('./config');
 
 // instantiate user provider
-var UserProvider = require('providers/user').UserProvider;
+var UserProvider = require('./providers/user').UserProvider;
 var userProvider = new UserProvider(config.mongodb.host, config.mongodb.port, config.ldap.url, config.ldap.userSearch);
 
 console.log("Configuration load completed. Starting install script...");
 
 // create admin user
 userProvider.findByLogin(login, function(error, user) {
-	if (user) {
+        if (user) {
 		console.log("Administrative user already created. Exiting...");
 		return;
 	}
@@ -44,7 +45,7 @@ userProvider.findByLogin(login, function(error, user) {
 
 			console.log("Successfully created account.");
 
-			userProvider.addRoleByLogin(login, ADMIN_ROLE, function(error, callback) {
+			userProvider.addRoleByLogin(login, config.roles.ADMIN_ROLE, function(error, callback) {
 				console.log("Successfully added admin role to account.");
 				console.log("Congratulations! All config steps completed. Run 'node app.js' to start the application.");
 			});
