@@ -1,0 +1,77 @@
+<div class="container">
+<div class="row">
+
+<div class="span4 columns">
+	<section>
+		<h2>My Items</h2>
+		
+		<% if (teamId > 0) {%>
+		<div class="additem">
+			<a href="/items/add/<%=teamId%>">Add an Item</a>
+		</div>
+		<%}%>
+		
+		<table class="common-table zebra-striped">
+		<thead>
+			<tr>
+			<th>Created</th>
+			<th>Item</th>
+			<th>Points</th>
+			</tr>
+		</thead>
+		<tbody>
+		<% for(var i=0; i < items.length; i++) {%>
+			<tr>
+				<td><%=items[i].created_at_format%></td>
+				<td><a href="/items/show/<%= items[i].id%>/<%= items[i].slug%>"><%=items[i].quantity%> <%= items[i].name %></a></td>
+				<td><%=(items[i].points + items[i].bonus) * items[i].quantity %> points</td>
+			</tr>
+		<%}%>
+		</tbody>
+		</table>
+	</section>
+</div>
+
+<div class="span8 columns">
+
+	<section>
+		<%if (bonuses.length > 0) {%>
+		<h2><a href="/bonuses/active/<%=campaign.id%>">Currently Active Bonuses</a></h2>
+		<table class="common-table zebra-striped">
+		<% for(var i=0; i < bonuses.length; i++) {%>
+			<tr><td><a href="/bonuses/show/<%= bonuses[i].id%>/<%= bonuses[i].slug%>"><%= bonuses[i].title %></a></td></tr>
+		<% } %>
+		<% } else { %>
+			<p>There are no active bonuses.</p>
+		<% } %>
+		</table>
+	</section>
+
+	<section>
+		<h2>Current Standings</h2>
+		<table class="common-table zebra-striped" id="teams">
+			<thead>
+				<tr><th>Team</th>
+				<th>Points</th></tr>
+			</thead>
+			<tbody>
+			<% for(var i=0; i < teams.length; i++) {%>
+			<tr>
+				<td><a href="/teams/show/<%= teams[i].id%>/<%= teams[i].slug%>"><%= teams[i].name %></a></td>
+				<td><%=teams[i].points%></td>
+			</tr>
+			<% } %>
+			</tbody>
+		</table>
+	</section>
+
+</div>
+
+<div class="span4 columns">
+
+<p>Recent points go here.</p>
+
+</div>
+
+</div>
+</div>

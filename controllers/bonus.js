@@ -36,6 +36,28 @@ module.exports = {
     	});
 	}
   },
+  
+  // list active
+  
+  active: function(req, res){
+  	var campaignId = req.params.parentId;
+  	
+	var isAdmin = (req.session.user && req.session.user.roles &&
+    			  (req.session.user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + campaignId)>=0 ||
+    			  req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
+  	
+  	if (campaignId) {
+		bonusProvider.findActive(campaignId, new Date(), function(error, bonuses) {
+			if (error) return next(error);
+			res.render(null, {locals: {bonuses: bonuses, campaignId: campaignId, isAdmin: isAdmin}});
+		});
+	} else {
+		bonusProvider.findAll(null, function(error, bonuses) {
+			if (error) return next(error);
+        	res.render(null, {locals: {bonuses: bonuses, campaignId: null, isAdmin: isAdmin}});
+    	});
+	}
+  },
 
   // single display
   
