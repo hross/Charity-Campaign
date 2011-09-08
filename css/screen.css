@@ -126,6 +126,10 @@ ul.posts {
   .site .title a.extra:hover {
     color: black;
   }
+  
+  .site .content {
+  	text-align: left;
+  }
 
   .site .meta {
     color: #aaa;
