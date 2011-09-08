@@ -26,7 +26,7 @@
 			<div class="input">
 				<ul class="inputs-list">
 			<% for(var i=0; i < itemTypes.length; i++) {%>
-				<%if (itemTypes[i].visible) {%>
+				<%if (itemTypes[i].visible || isAdmin) {%>
 				<li><label>
 				<input type="radio" name="type" value="<%=itemTypes[i].id%>">
 				<span><%=itemTypes[i].name%></span>

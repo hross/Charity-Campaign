@@ -33,7 +33,7 @@
 			<label for="type">Item Type</label>
 			<div class="input">
 			<% for(var i=0; i < itemTypes.length; i++) {%>
-				<%if (itemTypes[i].visible) {%>
+				<%if (itemTypes[i].visible || isAdmin) {%>
 				<input type="radio" name="type" value="<%=itemTypes[i].id%>" <%= (itemTypes[i].id == item.type)?"checked":""%>><%=itemTypes[i].name%><br />
 				<%}%>
 			<%}%>

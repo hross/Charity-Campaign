@@ -112,7 +112,7 @@ module.exports = {
 				req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
 				
 			// make sure this user can edit items for this team
-			if (!(user.teams && (user.teams.indexOf(teamId) >= 0)) && !isAdmin) {
+			if (!(user.teams && (user.teams.indexOf(teamId) >= 0)) || !isAdmin) {
 				req.flash('error', 'You cannot edit an item on a team you are not a member of.');
 				res.redirect('back');
 				return;
@@ -131,7 +131,7 @@ module.exports = {
 				}
 				
 				// we made it, render item types for this team and campaign
-				res.render(null, {locals: {item: item, itemTypes: itemTypes, teamId: item.teamId, campaignId: team.campaignId}});
+				res.render(null, {locals: {item: item, itemTypes: itemTypes, teamId: item.teamId, campaignId: team.campaignId, isAdmin: isAdmin}});
 			});
 		});
     });
@@ -172,7 +172,7 @@ module.exports = {
 			if (error) return next(error);
 			
 			// we made it, render item types for this team and campaign
-			res.render(null, {locals: {teamId: teamId, itemTypes: itemTypes, campaignId: team.campaignId}});
+			res.render(null, {locals: {teamId: teamId, itemTypes: itemTypes, campaignId: team.campaignId, isAdmin: isAdmin}});
 		});
     });
   },
