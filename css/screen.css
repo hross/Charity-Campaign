@@ -93,6 +93,10 @@ ul.posts {
   margin-bottom: 1em;
 }
   
+  .site img {
+  	border: 1px solid #000;
+  }
+  
   .site .title .header {
   	font-size: 130%;
   }
