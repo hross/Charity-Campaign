@@ -93,6 +93,10 @@ ul.posts {
   margin-bottom: 1em;
 }
   
+  .site .title .header {
+  	font-size: 130%;
+  }
+  
   .site .title .subhead {
   	color: #000;
   	font-weight: normal;
