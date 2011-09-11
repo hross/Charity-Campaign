@@ -88,12 +88,28 @@ module.exports = {
 
     			userProvider.findByLogin(team.captain, function(error, teamCaptain) {
     				if (error) return next(error);
-    				if (!teamCaptain) teamCaptain = {};
+    				if (!teamCaptain) {
+    					teamCaptain = {};
+    					teamCaptain.id = -1;
+    					teamCaptain.name = "";
+    					teamCaptain.login = "";
+    				}
     				
-    				res.render(null, {locals: {
-    					teamCaptain: teamCaptain, team: team, canJoin: canJoin, canLeave: canLeave, 
-    					points: points, items: items, campaignId: team.campaignId, isAdmin: isAdmin
-    				}});
+    				userProvider.findByLogin(team.sponsor, function(error, teamSponsor) {
+    					if (error) return next(error);
+    					if (!teamSponsor) {
+    						teamSponsor = {};
+    						teamSponsor.id = -1;
+    						teamSponsor.name = "";
+    						teamSponsor.login = "";
+    					}
+    				
+						res.render(null, {locals: {
+							teamCaptain: teamCaptain, teamSponsor: teamSponsor, team: team, canJoin: canJoin, canLeave: canLeave, 
+							points: points, items: items, campaignId: team.campaignId, isAdmin: isAdmin
+						}});
+    				
+    				});
   				});
   			});
   		});
@@ -128,7 +144,12 @@ module.exports = {
     		if (error) return next(error);
     		if (!teamCaptain) teamCaptain = {};
     		
-    		res.render(null, {locals: {team: team, campaignId: team.campaignId, teamCaptain: teamCaptain, isAdmin: isAdmin}});
+    		userProvider.findByLogin(team.sponsor, function(error, teamCaptain) {
+				if (error) return next(error);
+				if (!teamSponsor) teamSponsor = {};
+    		
+    			res.render(null, {locals: {team: team, campaignId: team.campaignId, teamCaptain: teamCaptain, teamSponsor: teamSponsor, isAdmin: isAdmin}});
+    		});
   		});
     });
   },
@@ -176,6 +197,9 @@ module.exports = {
   	var captain = req.param('captain');
   	if (!captain) { captain = req.session.user.login; }
   	
+  	var sponsor = req.param('sponsor');
+  	if (!sponsor) sponsor = null;
+  	
   	// load team members
   	var members = [];
   	// validate list of members
@@ -185,9 +209,13 @@ module.exports = {
   		members = [captain];
   	}
   	
-  	// add captain if they don't exist
-  	if (!members.indexOf(captain) < 0) {
+  	// add captain and sponsor if they don't exist
+  	if (captain && (members.indexOf(captain) < 0)) {
   		members.push(captain);
+  	}
+  	
+  	if (sponsor && (members.indexOf(sponsor) < 0)) {
+  		members.push(sponsor);
   	}
 
 	// now create the team
@@ -196,6 +224,7 @@ module.exports = {
 		motto: req.param('motto'),
 		campaignId: campaignId,
 		captain: captain,
+		sponsor: sponsor,
 		members: members
 	}, function (error, teams) {
 		if (error) return next(error);
@@ -214,6 +243,7 @@ module.exports = {
   
   update: function(req, res, next){
   	var captain = req.param('captain');
+  	var sponsor = req.param('sponsor');
   	var id = req.params.id;
   	
   	if (!id || !captain) {
@@ -240,12 +270,18 @@ module.exports = {
   	if(req.param('members_hidden') && req.param('members_hidden').length) {
   		members = req.param('members_hidden');
   	} else {
-  		members = [captain];
+  		if (captain) {
+  			members = [captain];
+  		}
   	}
   	
   	// add captain if they don't exist
-  	if (!members.indexOf(captain) < 0) {
+  	if (captain && !members.indexOf(captain) < 0) {
   		members.push(captain);
+  	}
+
+  	if (sponsor && !members.indexOf(sponsor) < 0) {
+  		members.push(sponsor);
   	}
   	
   	// look up captain based on login
@@ -271,6 +307,7 @@ module.exports = {
 			id: id,
 			campaignId: req.param('campaignId'),
 			captain: user.login,
+			sponsor: sponsor,
 			members: members
 		}, function(error, teams) {
 			if (error) return next(error);

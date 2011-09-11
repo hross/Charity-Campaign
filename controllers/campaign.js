@@ -178,60 +178,76 @@ module.exports = {
 		bonusProvider.findActive(campaign.id, currentDate, function(error, bonuses) {
 			if (error) return next(error);
 			
-			teamProvider.findAll(campaign.id, function(error, teams) {
-				if (error) return next(error);
-				
-				// calculate team points for each team
-				var calcpoints = function(team, callback) {
-					// calculate team points and return
-					itemProvider.teamPoints(team.id, function(error, points) {
-						team.points = points;
-						
-						var isMember = (req.session.user && 
-  							(req.session.user.teams && (req.session.user.teams.indexOf(team.id) >= 0)));
-  							
-  						if (isMember) teamId = team.id;
-						
-						callback(null, team);
-					});
-				};
-				
-				async.map(teams, calcpoints, function(error, results) {
+			var bonusdetails = function(bonus, callback) {
+				itemTypeProvider.findById(bonus.type, function(error, itemType) {
+					if (error) callback(error);
+					
+					// append itemtype to bonus for further processing
+					bonus.itemType = itemType;
+					
+					callback(null, bonus); // return the bonus
+				});
+			};
+			
+			async.map(bonuses, bonusdetails, function(error, results) {
+				// results contain bonuses + itemtypes
+				bonuses = results;
+			
+				teamProvider.findAll(campaign.id, function(error, teams) {
 					if (error) return next(error);
 					
-					// sort the results by points
-					results.sort(compare_teams);
+					// calculate team points for each team
+					var calcpoints = function(team, callback) {
+						// calculate team points and return
+						itemProvider.teamPoints(team.id, function(error, points) {
+							team.points = points;
+							
+							var isMember = (req.session.user && 
+								(req.session.user.teams && (req.session.user.teams.indexOf(team.id) >= 0)));
+								
+							if (isMember) teamId = team.id;
+							
+							callback(null, team);
+						});
+					};
 					
-					// added in case there are no admins
-					if (!campaign.administrators) campaign.administrators = [];
-				
-					// convert date/times for display
-    				campaign.start = dateformat.dateFormat(campaign.start, "dddd, mmmm d, yyyy");
-    				campaign.end = dateformat.dateFormat(campaign.end, "dddd, mmmm d, yyyy");
-    				
-    				var isAdmin = (req.session.user && req.session.user.roles &&
-    					(req.session.user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + campaignId)>=0 ||
-    					req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
-    					
-    				// find last 10 recent campaign items to display
-    				itemProvider.findByUserCampaign(req.session.user.id, campaignId, 200, function(error, items) {
-    					if (error) return next(error);
-    					
-    					if (!items) items = [];
-    					
-						// format the dates for display
-						for (var i = 0; i < items.length; i++) {
-							items[i].created_at_format = dateformat.dateFormat(items[i].created_at, "mm.d.yyyy HH:MM");
-							items[i].updated_on_format = dateformat.dateFormat(items[i].updated_on, "mm.d.yyyy HH:MM");
-						}
-
-    			    	// after everything is done we are happy
-						res.render(null, {locals: {campaign: campaign, bonuses: bonuses,
-									teams: results, campaignId: campaign.id, 
-									isAdmin: isAdmin, items: items, teamId: teamId}});
-					}); // end find by user
-				}); // end async map team calcs
-			}); // end find teams
+					async.map(teams, calcpoints, function(error, results) {
+						if (error) return next(error);
+						
+						// sort the results by points
+						results.sort(compare_teams);
+						
+						// added in case there are no admins
+						if (!campaign.administrators) campaign.administrators = [];
+					
+						// convert date/times for display
+						campaign.start = dateformat.dateFormat(campaign.start, "dddd, mmmm d, yyyy");
+						campaign.end = dateformat.dateFormat(campaign.end, "dddd, mmmm d, yyyy");
+						
+						var isAdmin = (req.session.user && req.session.user.roles &&
+							(req.session.user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + campaignId)>=0 ||
+							req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
+							
+						// find last 10 recent campaign items to display
+						itemProvider.findByUserCampaign(req.session.user.id, campaignId, 200, function(error, items) {
+							if (error) return next(error);
+							
+							if (!items) items = [];
+							
+							// format the dates for display
+							for (var i = 0; i < items.length; i++) {
+								items[i].created_at_format = dateformat.dateFormat(items[i].created_at, "mm.d.yyyy HH:MM");
+								items[i].updated_on_format = dateformat.dateFormat(items[i].updated_on, "mm.d.yyyy HH:MM");
+							}
+	
+							// after everything is done we are happy
+							res.render(null, {locals: {campaign: campaign, bonuses: bonuses,
+										teams: results, campaignId: campaign.id, 
+										isAdmin: isAdmin, items: items, teamId: teamId}});
+						}); // end find by user
+					}); // end async map team calcs
+				}); // end find teams
+			}); // end map bonuses
 		}); // end find bonuses
     }); // end find campaign
   },

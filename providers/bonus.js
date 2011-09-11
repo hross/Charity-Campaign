@@ -93,6 +93,24 @@ BonusProvider.prototype.findTypeWithin = function(type, dt, callback) {
     });
 };
 
+BonusProvider.prototype.findActive = function(campaignId, dt, callback) {
+    this.getCollection(function(error, bonus_collection) {
+		if (error) {
+      		callback(error)
+      	} else {
+      		// search for bonuses for this type where dt is between start and end date
+        	bonus_collection.find({campaignId: campaignId, start: {$lte: dt}, end: {$gte: dt}}).toArray(function(error, result) {
+
+				if (error) {
+					console.log(error);
+					callback(error);
+				}
+				callback(null, result);
+			});
+		}
+    });
+};
+
 BonusProvider.prototype.save = function(bonuses, callback) {
 	var provider = this; // needed for scope reference
     this.getCollection(function(error, bonus_collection) {

@@ -24,10 +24,12 @@
 		</thead>
 		<tbody>
 			<% for(var i=0; i < itemtypes.length; i++) {%>
+			<%if (isAdmin || itemtypes[i].visible) {%>
 			<tr>
 				<td><a href="/itemtypes/show/<%= itemtypes[i].id%>/<%= itemtypes[i].slug%>"><%= itemtypes[i].name %></a></td>
 				<td><%= itemtypes[i].points %></td>
 			</tr>
+			<%}%>
 			<% } %>
 		</tbody>
 		

@@ -111,8 +111,9 @@ module.exports = {
 				(req.session.user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + team.campaignId)>=0 ||
 				req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
 				
-			// make sure this user can edit items for this team
-			if (!(user.teams && (user.teams.indexOf(teamId) >= 0)) || !isAdmin) {
+			// make sure this user can add to this team
+			var isTeam = user.teams && (user.teams.indexOf(teamId) >= 0);
+			if (!(isTeam || isAdmin)) {
 				req.flash('error', 'You cannot edit an item on a team you are not a member of.');
 				res.redirect('back');
 				return;
@@ -162,7 +163,8 @@ module.exports = {
 			user.roles.indexOf(ADMIN_ROLE)>=0));
 			
 		// make sure this user can add to this team
-		if (!(user.teams && (user.teams.indexOf(teamId) >= 0)) && !isAdmin) {
+		var isTeam = user.teams && (user.teams.indexOf(teamId) >= 0);
+		if (!(isTeam || isAdmin)) {
 			req.flash('error', 'You cannot add an item to a team you are not a member of.');
 			res.redirect('back');
 			return;
@@ -198,11 +200,15 @@ module.exports = {
 			user.roles.indexOf(ADMIN_ROLE)>=0));
 			
 		// make sure this user can add to this team
-		if (!(user.teams && (user.teams.indexOf(teamId) >= 0)) && !isAdmin) {
+		var isTeam = user.teams && (user.teams.indexOf(teamId) >= 0);
+		if (!(isTeam || isAdmin)) {
 			req.flash('error', 'You cannot add an item to a team you are not a member of.');
 			res.redirect('back');
 			return;
 		}
+		
+		// invisible items are assumed to be admin items
+		var admin = !itemType.visible;
     	
     	// find any associated bonus points
     	bonusProvider.findTypeWithin(itemType.id, (new Date()), function(error, bonuses) {
@@ -233,7 +239,8 @@ module.exports = {
 				quantity: quantity,
 				created_by: req.session.user.id,
 				updated_by: req.session.user.id,
-				created_by_login: req.session.user.login
+				created_by_login: req.session.user.login,
+				admin: admin
 			}, function(error, items) {
 				if (error) return next(error);
 				
@@ -270,15 +277,19 @@ module.exports = {
 			user.roles.indexOf(ADMIN_ROLE)>=0));
 			
 		// make sure this user can add to this team
-		if (!(user.teams && (user.teams.indexOf(teamId) >= 0)) && !isAdmin) {
+		var isTeam = user.teams && (user.teams.indexOf(teamId) >= 0);
+		if (!(isTeam || isAdmin)) {
 			req.flash('error', 'You cannot add an item to a team you are not a member of.');
 			res.redirect('back');
 			return;
 		}
+		
+		var id = req.params.id;
     	
-    	var flagged = req.param('flagged') && (req.param('flagged') == 'on');
-    	var verified = req.param('verified') && (req.param('verified') == 'on');
-    	
+    	var flagged = req.param('flagged') != undefined;
+    	var verified = req.param('verified') != undefined;
+    	var admin = req.param('admin') != undefined;
+
     	var bonus = 0;	
     	if (req.param('bonus')) {
     		bonus = parseInt(req.param('bonus'));
@@ -291,25 +302,37 @@ module.exports = {
     		if (isNaN(quantity)) quantity = 0;
     	}
     	
-    	itemProvider.update({
-			type: itemType.id,
-			id: req.params.id,
-			teamId: teamId,
-			quantity: req.param('quantity'),
-			campaignId: campaignId,
-			name: itemType.name,
-			points: parseInt(itemType.points),
-			bonus: bonus,
-			description: itemType.description,
-			updated_by: req.session.user.id,
-			flagged: flagged,
-			verified: verified
-		}, function(error, items) {
-			if (error) return next(error);
-	
-			req.flash('info', 'Successfully updated _' + items[0].name + '_.');
-			res.redirect('/items/show/' + items[0].id);
-		});
+    	itemProvider.findById(id, function(error, oldItem) {
+    		if (error) return next(error);
+    		
+    		var item = {};
+			item.type = itemType.id;
+			item.id = id;
+			item.teamId = oldItem.teamId;
+			item.campaignId = oldItem.campaignId;
+			item.quantity = req.param('quantity');
+			item.name = itemType.name;
+			item.points = parseInt(itemType.points);
+			item.bonus = bonus;
+			item.description = itemType.description;
+			item.updated_by = req.session.user.id;
+			item.flagged = flagged;
+			
+			if (isAdmin) {
+				item.verified = verified;
+				item.admin = admin;
+			} else {
+				item.verified = oldItem.verified;
+				item.admin = oldItem.admin;
+			}
+			
+			itemProvider.update(item, function(error, items) {
+				if (error) return next(error);
+		
+				req.flash('info', 'Successfully updated _' + items[0].name + '_.');
+				res.redirect('/items/show/' + items[0].id);
+			});
+    	});
     });
   },
   
@@ -332,7 +355,8 @@ module.exports = {
 			user.roles.indexOf(ADMIN_ROLE)>=0));
 			
 		// make sure this user can add to this team
-		if (!(user.teams && (user.teams.indexOf(item.teamId) >= 0)) && !isAdmin) {
+		var isTeam = user.teams && (user.teams.indexOf(teamId) >= 0);
+		if (!(isTeam || isAdmin)) {
 			req.flash('error', 'You cannot delete an item from a team you are not a member of.');
 			res.redirect('back');
 			return;

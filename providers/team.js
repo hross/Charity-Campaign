@@ -125,6 +125,7 @@ TeamProvider.prototype.update = function(teams, callback) {
 				{$set: {name: team.name, motto: team.motto, 
 				update_on: team.update_on, 
 				captain: team.captain, 
+				sponsor: team.sponsor,
 				members: team.members}},{}, function() {
 				
 				console.log("updated.");

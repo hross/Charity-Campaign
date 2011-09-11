@@ -39,7 +39,7 @@
 		<h2><a href="/bonuses/active/<%=campaign.id%>">Currently Active Bonuses</a></h2>
 		<table class="common-table zebra-striped">
 		<% for(var i=0; i < bonuses.length; i++) {%>
-			<tr><td><a href="/bonuses/show/<%= bonuses[i].id%>/<%= bonuses[i].slug%>"><%= bonuses[i].title %></a></td></tr>
+			<tr><td><a href="/bonuses/show/<%= bonuses[i].id%>/<%= bonuses[i].slug%>"><%= bonuses[i].title %></td><td><a href="/bonuses/show/<%= bonuses[i].id%>/<%= bonuses[i].slug%>"><%=bonuses[i].points%> points per <%=bonuses[i].itemType.name%></a></td><td><span id="bonuscd<%=i%>" class="countdown"></span></td></tr>
 		<% } %>
 		<% } else { %>
 			<p>There are no active bonuses.</p>
@@ -75,3 +75,11 @@
 
 </div>
 </div>
+
+<script>
+	// countdown timers for active bonuses
+	<% for(var i=0; i < bonuses.length; i++) {%>
+	var cdate = new Date('<%=bonuses[i].end.toUTCString()%>');
+	$('#bonuscd<%=i%>').countdown({until: cdate});
+	<%}%>
+</script>

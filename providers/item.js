@@ -103,6 +103,21 @@ ItemProvider.prototype.findByUser = function(userId, limit, callback) {
     });
 };
 
+ItemProvider.prototype.findByUserCampaign = function(userId, campaignId, limit, callback) {
+    this.getCollection(function(error, item_collection) {
+		if (error) { callback(error); return; }
+
+		var params = {sort: [['created_at','desc']]};
+		if (limit) params['limit'] = limit;
+
+		item_collection.find({created_by: userId, campaignId: campaignId}, params).toArray(function(error, results) {
+			if (error) { callback(error); return; }
+
+			callback(null, results);
+		});
+    });
+};
+
 ItemProvider.prototype.findById = function(id, callback) {
     this.getCollection(function(error, item_collection) {
 		if (error) {
@@ -166,16 +181,14 @@ ItemProvider.prototype.update = function(items, callback) {
 			
 			item.update_on = new Date();
 			item.slug = slugify.slugify(item.name);
-			
-			updates.push(function(callback) {
-				item_collection.update({id:item.id}, 
-					{$set: {campaignId: item.campaignId, type: item.type, name:item.name, 
-					bonus: item.bonus, description: item.description, quantity: item.quantity, 
-					verified: item.verified, flagged: item.flagged, points: item.points, slug: item.slug,
-					user: item.userId, update_on: item.update_on}},{}, function() {
-					console.log("updated.");
-					callback(null, item);
-				});
+
+			item_collection.update({id:item.id}, 
+				{$set: {campaignId: item.campaignId, type: item.type, name:item.name, 
+				bonus: item.bonus, description: item.description, quantity: item.quantity, 
+				verified: item.verified, flagged: item.flagged, admin: item.admin, points: item.points, slug: item.slug,
+				user: item.userId, update_on: item.update_on}},{}, function() {
+				console.log("updated.");
+				callback(null, item);
 			});
 		};
 		  
