@@ -51,7 +51,13 @@
 			<div class="points"><%= points%> points</div>
 			<div class="info">
 				<div class="motto"><%= team.motto%></div>
+				<%if (teamCaptain.login) {%>
 				<div class="captain">Team Captain: <a href="/users/show/<%=teamCaptain.id%>/<%=teamCaptain.slug%>"><%=teamCaptain.login%></a></div>
+				<%}%>
+				
+				<%if (teamSponsor.login) {%>
+				<div class="sponsor">Team Sponsor: <a href="/users/show/<%=teamSponsor.id%>/<%=teamSponsor.slug%>"><%=teamSponsor.login%></a></div>
+				<%}%>
 			</div>
 			<div class="info">
 				<div class="additem">
@@ -71,8 +77,12 @@
 			<ul>
 			<% for(var i=0; i < items.length; i++) {%>
 				<li><%=items[i].created_at_format%> - <a href="/items/show/<%= items[i].id%>/<%= items[i].slug%>"><%=items[i].quantity%> <%= items[i].name %></a>
-				(<%=(items[i].points + items[i].bonus) * items[i].quantity %> points) by
-				<a href="/users/name/<%=items[i].created_by_login%>"><%=items[i].created_by_login%></a></li>
+				(<%=(items[i].points + items[i].bonus) * items[i].quantity %> points)
+				
+				<%if (!items[i].admin) {%>
+				 by <a href="/users/name/<%=items[i].created_by_login%>"><%=items[i].created_by_login%></a>
+				 <%}%>
+				</li>
 			<%}%>
 			</ul>
 

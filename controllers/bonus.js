@@ -271,4 +271,16 @@ module.exports = {
 		});
   	});    
   },
+  
+   // generic find route function, called by the controller when it doesn't know what to do
+  
+  findGetRoute: function (action){
+	 switch(action) {
+      case 'active':
+        return ['/active/:parentId', false];
+      	break;
+      default:
+      	return null;
+     }
+  },
 };

@@ -90,18 +90,12 @@ module.exports = {
     				if (error) return next(error);
     				if (!teamCaptain) {
     					teamCaptain = {};
-    					teamCaptain.id = -1;
-    					teamCaptain.name = "";
-    					teamCaptain.login = "";
     				}
     				
     				userProvider.findByLogin(team.sponsor, function(error, teamSponsor) {
     					if (error) return next(error);
     					if (!teamSponsor) {
     						teamSponsor = {};
-    						teamSponsor.id = -1;
-    						teamSponsor.name = "";
-    						teamSponsor.login = "";
     					}
     				
 						res.render(null, {locals: {
@@ -142,11 +136,17 @@ module.exports = {
 
 		userProvider.findByLogin(team.captain, function(error, teamCaptain) {
     		if (error) return next(error);
-    		if (!teamCaptain) teamCaptain = {};
+    		if (!teamCaptain) {
+    			teamCaptain = {};
+    			teamCaptain.login = "";
+    		}
     		
-    		userProvider.findByLogin(team.sponsor, function(error, teamCaptain) {
+    		userProvider.findByLogin(team.sponsor, function(error, teamSponsor) {
 				if (error) return next(error);
-				if (!teamSponsor) teamSponsor = {};
+				if (!teamSponsor) {
+					teamSponsor = {};
+					teamSponsor.login = "";
+				}
     		
     			res.render(null, {locals: {team: team, campaignId: team.campaignId, teamCaptain: teamCaptain, teamSponsor: teamSponsor, isAdmin: isAdmin}});
     		});
@@ -245,6 +245,7 @@ module.exports = {
   	var captain = req.param('captain');
   	var sponsor = req.param('sponsor');
   	var id = req.params.id;
+  	var campaignId = req.params.campaignId;
   	
   	if (!id || !captain) {
   		req.flash('error', 'Invalid update parameters.');

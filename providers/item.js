@@ -95,7 +95,7 @@ ItemProvider.prototype.findByUser = function(userId, limit, callback) {
 		var params = {sort: [['created_at','desc']]};
 		if (limit) params['limit'] = limit;
 
-		item_collection.find({created_by: userId}, params).toArray(function(error, results) {
+		item_collection.find({created_by: userId, admin: false}, params).toArray(function(error, results) {
 			if (error) { callback(error); return; }
 
 			callback(null, results);
@@ -110,7 +110,7 @@ ItemProvider.prototype.findByUserCampaign = function(userId, campaignId, limit, 
 		var params = {sort: [['created_at','desc']]};
 		if (limit) params['limit'] = limit;
 
-		item_collection.find({created_by: userId, campaignId: campaignId}, params).toArray(function(error, results) {
+		item_collection.find({created_by: userId, campaignId: campaignId, admin: false || undefined}, params).toArray(function(error, results) {
 			if (error) { callback(error); return; }
 
 			callback(null, results);
