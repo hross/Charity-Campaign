@@ -1,11 +1,6 @@
 /* TODO: recursive remove bonuses, etc on user remove */
 
-// Array Remove - By John Resig (MIT Licensed)
-Array.prototype.remove = function(from, to) {
-  var rest = this.slice((to || from) + 1 || this.length);
-  this.length = from < 0 ? this.length + from : from;
-  return this.push.apply(this, rest);
-};
+require('../lib/util.js'); // misc utility functions
 
 var crypto = require('crypto');
 var Db = require('mongodb').Db;
@@ -15,8 +10,8 @@ var BSON = require('mongodb').BSON;
 var ObjectID = require('mongodb').ObjectID;
 var ldap = require('ldapjs');
 
-var slugify = require('./slugify'); // custom slug tools
-var parse = require('./parsecsv'); // csv parsing
+var slugify = require('../lib/slugify'); // custom slug tools
+var parse = require('../lib/parsecsv'); // csv parsing
 var async = require('async');
 
 //TODO: add password hashing

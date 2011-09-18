@@ -11,7 +11,7 @@ var bonusProvider = new BonusProvider(config.mongodb.host, config.mongodb.port);
 var ItemTypeProvider = require('../providers/itemtype').ItemTypeProvider;
 var itemTypeProvider = new ItemTypeProvider(config.mongodb.host, config.mongodb.port);
 
-var dateformat = require('../providers/dateformat'); // custom date tools
+var dateformat = require('../lib/dateformat'); // custom date tools
 
 var CAMPAIGN_ADMIN_ROLE = config.roles.CAMPAIGN_ADMIN_ROLE;
 var ADMIN_ROLE = config.roles.ADMIN_ROLE;

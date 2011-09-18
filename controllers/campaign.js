@@ -24,7 +24,7 @@ var itemProvider = new ItemProvider(config.mongodb.host, config.mongodb.port);
 var UserProvider = require('../providers/user').UserProvider;
 var userProvider = new UserProvider(config.mongodb.host, config.mongodb.port, config.ldap.url, config.ldap.userSearch);
 
-var dateformat = require('../providers/dateformat'); // custom date tools
+var dateformat = require('../lib/dateformat'); // custom date tools
 
 var async = require('async');
 

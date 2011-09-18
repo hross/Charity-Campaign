@@ -12,7 +12,7 @@ var userProvider = new UserProvider(config.mongodb.host, config.mongodb.port, co
 var ItemProvider = require('../providers/item').ItemProvider;
 var itemProvider = new ItemProvider(config.mongodb.host, config.mongodb.port);
 
-var dateformat = require('../providers/dateformat'); // custom date tools
+var dateformat = require('../lib/dateformat'); // custom date tools
 
 var TEAM_CAPTAIN_ROLE = config.roles.TEAM_CAPTAIN_ROLE;
 var CAMPAIGN_ADMIN_ROLE = config.roles.CAMPAIGN_ADMIN_ROLE;
@@ -277,11 +277,12 @@ module.exports = {
   	}
   	
   	// add captain if they don't exist
-  	if (captain && !members.indexOf(captain) < 0) {
+  	if (captain && (members.indexOf(captain) < 0)) {
   		members.push(captain);
   	}
 
-  	if (sponsor && !members.indexOf(sponsor) < 0) {
+  	if (sponsor && (members.indexOf(sponsor) < 0)) {
+  	
   		members.push(sponsor);
   	}
   	

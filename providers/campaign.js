@@ -6,7 +6,7 @@ var Server = require('mongodb').Server;
 var BSON = require('mongodb').BSON;
 var ObjectID = require('mongodb').ObjectID;
 
-var slugify = require('./slugify'); // custom slug tools
+var slugify = require('../lib/slugify'); // custom slug tools
 var async = require('async');
 
 CampaignProvider = function(host, port) {
