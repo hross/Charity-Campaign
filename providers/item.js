@@ -50,7 +50,7 @@ ItemProvider.prototype.findByCampaign = function(campaignId, limit, callback) {
 		var params = {sort: [['created_at','desc']]};
 		if (limit) params['limit'] = limit;
 		
-        item_collection.find({campaignId: campaignId}, params).toArray(function(error, results) {
+        item_collection.find({campaignId: campaignId, admin: false || undefined}, params).toArray(function(error, results) {
         	if (error) { callback(error); return; }
 
           	callback(null, results);
@@ -95,7 +95,7 @@ ItemProvider.prototype.findByUser = function(userId, limit, callback) {
 		var params = {sort: [['created_at','desc']]};
 		if (limit) params['limit'] = limit;
 
-		item_collection.find({created_by: userId, admin: false}, params).toArray(function(error, results) {
+		item_collection.find({created_by: userId, admin: false || undefined}, params).toArray(function(error, results) {
 			if (error) { callback(error); return; }
 
 			callback(null, results);
@@ -261,7 +261,7 @@ ItemProvider.prototype.userPoints = function(userId, campaignId, callback) {
       
 		item_collection.group(
 			{created_by: true},	// keys (this is our "group by")
-			{created_by: userId, campaignId: campaignId}, 	// condition (this is our filter)
+			{created_by: userId, campaignId: campaignId, admin: false || undefined}, 	// condition (this is our filter)
 			{sum: 0},			// initial
 			function (doc, prev) { prev.sum += (parseInt(doc.points) + parseInt(doc.bonus)) * parseInt(doc.quantity); }, // reduce
 			false,				// command
@@ -285,7 +285,7 @@ ItemProvider.prototype.userPointTotals = function(campaignId, callback) {
       
 		item_collection.group(
 			{created_by: true},	// keys (this is our "group by")
-			{campaignId: campaignId}, 	// condition (this is our filter)
+			{campaignId: campaignId, admin: false || undefined}, 	// condition (this is our filter)
 			{points: 0},			// initial
 			function (doc, prev) { prev.points += (parseInt(doc.points) + parseInt(doc.bonus)) * parseInt(doc.quantity); }, // reduce
 			false,				// command
