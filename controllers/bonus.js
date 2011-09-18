@@ -187,12 +187,9 @@ module.exports = {
     	
     	// input validation here
     	try {
-    		title = sanitize(title).xss();
-    		description = sanitize(description).xss();
-    		check(start).isDate('Start date is not a date');
-    		check(end).isDate('End date is not a date.');
-    		check(points).isInt('Points must be an integer.');
-    		type = sanitize(type).xss();
+    		check(start, 'Start date is not a date').isDate();
+    		check(end, 'End date is not a date.').isDate();
+    		check(points, 'Points must be an integer.').isInt();
     	} catch (e) {
     		req.flash('error', e.message);
     		res.redirect('back');
@@ -252,18 +249,15 @@ module.exports = {
 		var	type = req.param("type");
     	
     	// input validation here
-    	//try {
-    		title = sanitize(title).xss();
-    		description = sanitize(description).xss();
-    		check(start).isDate('Start date is not a date');
-    		check(end).isDate('End date is not a date.');
-    		check(points).isInt('Points must be an integer.');
-    		type = sanitize(type).xss();
-    	/*} catch (e) {
+    	try {
+    		check(start, 'Start date is not a date').isDate();
+    		check(end, 'End date is not a date.').isDate();
+    		check(points, 'Points must be an integer.').isInt();
+    	} catch (e) {
     		req.flash('error', e.message);
     		res.redirect('back');
     		return;
-    	}*/
+    	}
   
 		bonusProvider.update({
 			title: title,

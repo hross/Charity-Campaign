@@ -1,3 +1,6 @@
+var check = require('validator').check,
+    sanitize = require('validator').sanitize;
+    
 var config = require('../config');
 
 // instantiate item provider
@@ -222,9 +225,18 @@ module.exports = {
     		}
     		
     		var quantity = 0;	
-    		if (req.param('quantity')) {
-    			quantity = parseInt(req.param('quantity'));
-    			if (isNaN(quantity)) quantity = 0;
+    		var q = req.param('quantity');
+    		if (q) {
+				// input validation here
+				try {
+					check(q, 'Quantity must be an integer.').isInt();
+				} catch (e) {
+					req.flash('error', e.message);
+					res.redirect('back');
+					return;
+				}
+    		
+    			quantity = parseInt(q);
     		}
 
     		// count it
