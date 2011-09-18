@@ -1,3 +1,6 @@
+var check = require('validator').check,
+    sanitize = require('validator').sanitize;
+    
 var config = require('../config');
 
 // instantiate bonus provider
@@ -175,15 +178,36 @@ module.exports = {
     		return;
     	}
   
+  		var title = req.param('title');
+		var	description = req.param('description');
+		var	start = new Date(req.param('start'));
+		var	end = new Date(req.param('end'));
+		var	points = req.param('points');
+		var	type = req.param("type");
+    	
+    	// input validation here
+    	try {
+    		title = sanitize(title).xss();
+    		description = sanitize(description).xss();
+    		check(start).isDate('Start date is not a date');
+    		check(end).isDate('End date is not a date.');
+    		check(points).isInt('Points must be an integer.');
+    		type = sanitize(type).xss();
+    	} catch (e) {
+    		req.flash('error', e.message);
+    		res.redirect('back');
+    		return;
+    	}
+  
 		bonusProvider.save({
-			title: req.param('title'),
-			description: req.param('description'),
+			title: title,
+			description: description,
 			name: itemType.name,
 			campaignId: campaignId,
-			start: new Date(req.param('start')),
-			end: new Date(req.param('end')),
-			points: req.param('points'),
-			type: req.param("type")
+			start: start,
+			end: end,
+			points: points,
+			type: type
 		}, function( error, bonuses) {
 			if (error) return next(error);
 			
@@ -219,17 +243,38 @@ module.exports = {
     		res.redirect('/bonuses/filter/' + req.param('campaignId'));
     		return;
     	}
+    	
+    	var title = req.param('title');
+		var	description = req.param('description');
+		var	start = new Date(req.param('start'));
+		var	end = new Date(req.param('end'));
+		var	points = req.param('points');
+		var	type = req.param("type");
+    	
+    	// input validation here
+    	//try {
+    		title = sanitize(title).xss();
+    		description = sanitize(description).xss();
+    		check(start).isDate('Start date is not a date');
+    		check(end).isDate('End date is not a date.');
+    		check(points).isInt('Points must be an integer.');
+    		type = sanitize(type).xss();
+    	/*} catch (e) {
+    		req.flash('error', e.message);
+    		res.redirect('back');
+    		return;
+    	}*/
   
 		bonusProvider.update({
-			title: req.param('title'),
-			description: req.param('description'),
+			title: title,
+			description: description,
 			name: itemType.name,
 			id: req.params.id,
 			campaignId: campaignId,
-			start: new Date(req.param('start')),
-			end: new Date(req.param('end')),
-			points: req.param('points'),
-			type: req.param("type")
+			start: start,
+			end: end,
+			points: points,
+			type: type
 		}, function(error, bonuses) {
 			if (error) return next(error);
 	
