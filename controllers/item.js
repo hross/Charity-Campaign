@@ -125,17 +125,21 @@ module.exports = {
 			itemTypeProvider.findAll(team.campaignId, function(error, itemTypes) {
 				if (error) return next(error);
 				
-				var campaignId = 0;
-				if (itemTypes && itemTypes.length > 0) {
-					campaignId = itemTypes[0].campaignId;
-				} else {
-					req.flash('error', 'There do not appear to be any items to add to this campaign.');
-					res.redirect('back');
-					return;
-				}
-				
-				// we made it, render item types for this team and campaign
-				res.render(null, {locals: {item: item, itemTypes: itemTypes, teamId: item.teamId, campaignId: team.campaignId, isAdmin: isAdmin}});
+				officeProvider.findAll(team.campaignId, function(error, offices) {
+					if (error) return next(error);
+					
+					var campaignId = 0;
+					if (itemTypes && itemTypes.length > 0) {
+						campaignId = itemTypes[0].campaignId;
+					} else {
+						req.flash('error', 'There do not appear to be any items to add to this campaign.');
+						res.redirect('back');
+						return;
+					}
+					
+					// we made it, render item types for this team and campaign
+					res.render(null, {locals: {item: item, itemTypes: itemTypes, offices: offices, teamId: item.teamId, campaignId: team.campaignId, isAdmin: isAdmin}});
+				});
 			});
 		});
     });
@@ -176,8 +180,12 @@ module.exports = {
     	itemTypeProvider.findAll(team.campaignId, function(error, itemTypes) {
 			if (error) return next(error);
 			
-			// we made it, render item types for this team and campaign
-			res.render(null, {locals: {teamId: teamId, itemTypes: itemTypes, campaignId: team.campaignId, isAdmin: isAdmin}});
+			officeProvider.findAll(team.campaignId, function(error, offices) {
+				if (error) return next(error);
+			
+				// we made it, render item types for this team and campaign
+				res.render(null, {locals: {teamId: teamId, itemTypes: itemTypes, offices: offices, campaignId: team.campaignId, isAdmin: isAdmin}});
+			});
 		});
     });
   },
