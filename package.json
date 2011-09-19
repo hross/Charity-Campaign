@@ -18,7 +18,7 @@
   , "bugs" :
     { "mail" : "",
       "web" : "http://github.com/hross/Charity-Campaign/issues"
-    },
+    }
   
   , "repository": {
     "type": "git",
