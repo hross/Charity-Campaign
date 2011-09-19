@@ -12,6 +12,7 @@
     , "async": ">= 0.1.9"
     , "connect-form": ">= 0.2.1"
     , "validator": ">= 0.2.7"
+    , "formidable": ">= 1.0.2"
   }
   
   , "bugs" :
