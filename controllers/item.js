@@ -1,5 +1,5 @@
-var check = require('validator').check,
-    sanitize = require('validator').sanitize;
+/*var check = require('validator').check,
+    sanitize = require('validator').sanitize;*/
     
 var config = require('../config');
 
@@ -227,6 +227,7 @@ module.exports = {
     		var quantity = 0;	
     		var q = req.param('quantity');
     		if (q) {
+    			/*
 				// input validation here
 				try {
 					check(q, 'Quantity must be an integer.').isInt();
@@ -235,7 +236,7 @@ module.exports = {
 					res.redirect('back');
 					return;
 				}
-    		
+    			*/
     			quantity = parseInt(q);
     		}
 

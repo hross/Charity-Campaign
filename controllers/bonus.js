@@ -1,5 +1,5 @@
-var check = require('validator').check,
-    sanitize = require('validator').sanitize;
+/*var check = require('validator').check,
+    sanitize = require('validator').sanitize;*/
     
 var config = require('../config');
 
@@ -185,6 +185,7 @@ module.exports = {
 		var	points = req.param('points');
 		var	type = req.param("type");
     	
+    	/*
     	// input validation here
     	try {
     		check(start, 'Start date is not a date').isDate();
@@ -194,7 +195,7 @@ module.exports = {
     		req.flash('error', e.message);
     		res.redirect('back');
     		return;
-    	}
+    	}*/
   
 		bonusProvider.save({
 			title: title,
@@ -248,7 +249,7 @@ module.exports = {
 		var	points = req.param('points');
 		var	type = req.param("type");
     	
-    	// input validation here
+    	/*// input validation here
     	try {
     		check(start, 'Start date is not a date').isDate();
     		check(end, 'End date is not a date.').isDate();
@@ -257,7 +258,7 @@ module.exports = {
     		req.flash('error', e.message);
     		res.redirect('back');
     		return;
-    	}
+    	}*/
   
 		bonusProvider.update({
 			title: title,

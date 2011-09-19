@@ -11,7 +11,6 @@
     , "ldapjs": ">= 0.1.1"
     , "async": ">= 0.1.9"
     , "connect-form": ">= 0.2.1"
-    , "validator": ">= 0.2.7"
   }
   
   , "bugs" :
