@@ -75,6 +75,23 @@ OfficeProvider.prototype.findById = function(id, callback) {
     });
 };
 
+OfficeProvider.prototype.findByName = function(name, callback) {
+    this.getCollection(function(error, office_collection) {
+		if (error) {
+      		callback(error)
+      	} else {
+        	//office_collection.db.bson_serializer.ObjectID.createFromHexString(id)
+        	office_collection.findOne({name: name}, function(error, result) {
+				if (error) {
+					console.log(error);
+					callback(error);
+				}
+				callback(null, result);
+			});
+		}
+    });
+};
+
 OfficeProvider.prototype.save = function(offices, callback) {
 	var provider = this;
     this.getCollection(function(error, office_collection) {
@@ -85,16 +102,25 @@ OfficeProvider.prototype.save = function(offices, callback) {
 		var createOffice = function(office, callback) {
 			console.log("creating office...");
 			
-			office.created_at = new Date();
-			office.update_on = new Date();
-			
-			provider.getNextOfficeId(function(error,id) {
-				office.id = id;
-				office.slug = slugify.slugify(office.name);
+			provider.findByName(office.name, function(error, foffice) {
+				if (foffice) {
+					var e = {};
+					e.message = "Office already exists!";
+					callback(e);
+					return;
+				}
 				
-				office_collection.insert(office, function() {
-					console.log("created.");
-					callback(null, office);
+				office.created_at = new Date();
+				office.update_on = new Date();
+				
+				provider.getNextOfficeId(function(error,id) {
+					office.id = id;
+					office.slug = slugify.slugify(office.name);
+					
+					office_collection.insert(office, function() {
+						console.log("created.");
+						callback(null, office);
+					});
 				});
 			});
 		};
@@ -119,10 +145,19 @@ OfficeProvider.prototype.update = function(offices, callback) {
 			office.update_on = new Date();
 			office.slug = slugify.slugify(office.name);
 			
-			office_collection.update({id:office.id}, 
-				{$set: {name: office.name, description: office.description, update_on: office.update_on}},{}, function() {
-				console.log("updated.");
-				callback(null, office);
+			provider.findByName(office.name, function(error, foffice) {
+				if (foffice) {
+					var e = {};
+					e.message = "Office already exists!";
+					callback(e);
+					return;
+				}
+			
+				office_collection.update({id:office.id}, 
+					{$set: {name: office.name, description: office.description, update_on: office.update_on}},{}, function() {
+					console.log("updated.");
+					callback(null, office);
+				});
 			});
 		};
 		  
