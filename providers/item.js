@@ -65,7 +65,7 @@ ItemProvider.prototype.findByCampaignUnverified = function(campaignId, limit, ca
 		var params = {sort: [['created_at','desc']]};
 		if (limit) params['limit'] = limit;
 		
-        item_collection.find({campaignId: campaignId, $not: [{verified: true}], $or: [{admin: false}, {admin: undefined}]}, params).toArray(function(error, results) {
+        item_collection.find({campaignId: campaignId, verified: false, $or: [{admin: false}, {admin: undefined}]}, params).toArray(function(error, results) {
         	if (error) { callback(error); return; }
 
           	callback(null, results);
