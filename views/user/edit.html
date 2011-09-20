@@ -70,7 +70,7 @@
 			
 		<div class="clearfix">
 			<label for="isadmin">Administrator</label>
-			<div class="input"><input type="checkbox" name="isadmin"  <%if(user.roles && user.roles.indexOf("Administrator") > 0) {%>checked<%}%>/></div>
+			<div class="input"><input type="checkbox" name="isadmin"  <%if(adminRole) {%>checked<%}%>/></div>
 		</div>
 
 		<div class="clearfix">

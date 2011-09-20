@@ -62,7 +62,10 @@ module.exports = {
   
 	userProvider.findById(req.params.id, function(error, user) {
 		if (error) return next(error);
-        res.render(null, {locals: {user: user, isAdmin: isAdmin}});
+		
+		var adminRole = user.roles && (user.roles.indexOf(ADMIN_ROLE) >= 0);
+		
+        res.render(null, {locals: {user: user, isAdmin: isAdmin, adminRole: adminRole}});
     });
   },
   
