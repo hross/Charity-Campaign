@@ -186,7 +186,7 @@ ItemProvider.prototype.update = function(items, callback) {
 				{$set: {campaignId: item.campaignId, type: item.type, name:item.name, 
 				bonus: item.bonus, description: item.description, quantity: item.quantity, 
 				verified: item.verified, flagged: item.flagged, admin: item.admin, points: item.points, slug: item.slug,
-				user: item.userId, update_on: item.update_on}},{}, function() {
+				user: item.userId, update_on: item.update_on, office: item.office}},{}, function() {
 				console.log("updated.");
 				callback(null, item);
 			});
@@ -201,12 +201,23 @@ ItemProvider.prototype.update = function(items, callback) {
     });
 };
 
-ItemProvider.prototype.flag = function(itemId, callback) {
+ItemProvider.prototype.flag = function(login, itemId, callback) {
     this.getCollection(function(error, item_collection) {
     	if (error) { callback(error); return; }
       
-      	item_collection.update({id:itemId}, {$set: {flagged: true}},{}, function() {
+      	item_collection.update({id:itemId}, {$set: {flagged: true, flagged_by: login}},{}, function() {
 			console.log("Item " + itemId + " flagged.");
+			callback(null, null);
+		});
+    });
+};
+
+ItemProvider.prototype.verify = function(login, itemId, callback) {
+    this.getCollection(function(error, item_collection) {
+    	if (error) { callback(error); return; }
+      
+      	item_collection.update({id:itemId}, {$set: {verified: true, verified_by: login}},{}, function() {
+			console.log("Item " + itemId + " verified.");
 			callback(null, null);
 		});
     });

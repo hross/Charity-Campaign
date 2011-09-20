@@ -1,6 +1,3 @@
-/*var check = require('validator').check,
-    sanitize = require('validator').sanitize;*/
-    
 var config = require('../config');
 
 // instantiate item provider
@@ -86,6 +83,7 @@ module.exports = {
 				var isAdmin = (user && user.roles &&
 					(user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + team.campaignId)>=0 ||
 					user.roles.indexOf(ADMIN_ROLE)>=0));
+				var teamId = item.teamId;
 					
 				isAdmin = isAdmin || (user && user.teams && (user.teams.indexOf(teamId) >= 0));
 				
@@ -240,19 +238,22 @@ module.exports = {
     		
     		var quantity = 0;	
     		var q = req.param('quantity');
-    		if (q) {
-    			/*
-				// input validation here
-				try {
-					check(q, 'Quantity must be an integer.').isInt();
-				} catch (e) {
-					req.flash('error', e.message);
-					res.redirect('back');
-					return;
+			var quantity = 0;	
+			
+			try {
+				if (req.param('quantity')) {
+					quantity = parseInt(req.param('quantity'));
+					if (isNaN(quantity)) quantity = 0;
 				}
-    			*/
-    			quantity = parseInt(q);
-    		}
+			} catch (e) {
+				quantity = 0;
+			}
+			
+			if (0 == quantity) {
+				req.flash('error', 'Quantity must be a number greater than 0.');
+				res.redirect('back');
+				return;
+			}
 
     		// count it
     		itemProvider.save({
@@ -324,16 +325,33 @@ module.exports = {
     		if (isNaN(bonus)) bonus = 0;
     	}
     	
-    	var quantity = 0;	
-    	if (req.param('quantity')) {
-    		quantity = parseInt(req.param('quantity'));
-    		if (isNaN(quantity)) quantity = 0;
-    	}
+    	var quantity = 0;
     	
+    	try {
+			if (req.param('quantity')) {
+				quantity = parseInt(req.param('quantity'));
+				if (isNaN(quantity)) quantity = 0;
+			}
+		} catch (e) {
+			quantity = 0;
+		}
+		
+		if (0 == quantity) {
+			req.flash('error', 'Quantity must be a number greater than 0.');
+			res.redirect('back');
+			return;
+		}
+			
     	var office = req.param('office');
     	
     	itemProvider.findById(id, function(error, oldItem) {
     		if (error) return next(error);
+    		
+    		if (!oldItem) {
+    			req.flash('error', 'Could not find original item to update.');
+				res.redirect('back');
+				return;
+    		}
     		
     		var item = {};
 			item.type = itemType.id;
@@ -381,12 +399,14 @@ module.exports = {
     		return;
     	}
   		
+  		var teamId = item.teamId;
   		var isAdmin = (user && user.roles &&
 			(user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + item.campaignId)>=0 ||
 			user.roles.indexOf(ADMIN_ROLE)>=0));
 			
 		// make sure this user can add to this team
 		var isTeam = user.teams && (user.teams.indexOf(teamId) >= 0);
+		
 		if (!(isTeam || isAdmin)) {
 			req.flash('error', 'You cannot delete an item from a team you are not a member of.');
 			res.redirect('back');
@@ -400,5 +420,50 @@ module.exports = {
 			res.redirect('/items/filter/' + teamId);
 		});
   	});    
+  },
+  
+  // verify the item and return true/false
+  
+  verify: function(req, res, next) {
+  	var user = req.session.user;
+
+	var results = [];
+	
+
+	itemProvider.findById(req.params.id, function(error, item) {
+	  	var isAdmin = (user && user.roles &&
+			(user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + item.campaignId)>=0 ||
+			user.roles.indexOf(ADMIN_ROLE)>=0));
+			
+		if (!isAdmin) { 
+			res.send({verified: false});
+			return;
+		}
+		
+		itemProvider.verify(user.login, req.params.id, function(error, users) {
+			if (error) {
+				res.send({verified: false});
+				return;
+			}
+			
+			itemProvider.findById(req.params.id, function(error, item) {
+				if (!item) {
+					res.send({verified: false});
+					return;
+				}
+				res.send({verified: (!error && item && item.verified), verified_by: item.verified_by});
+			});
+		});
+  	});
+  },
+  
+  findJsonRoute: function (action) {
+  	switch(action) {
+      case 'verify':
+        return ['/verify/:id', true];
+      	break;
+      default:
+      	return null;
+      }
   },
 };

@@ -2,13 +2,80 @@
 <div class="row">
 
 <div class="span4 columns">
+	<h3>Quick Links</h3>
+	<ul class="unstyled">
+		<li><a href="/campaigns/show/<%= campaignId%>">Back to Campaign</a></li>
+	</ul>
+	
+	<%if (isAdmin) {%>
+	<h3>Administration</h3>
+	<ul class="unstyled menu">
+		<li>
+		<a href="/bonuses/add/<%=campaign.id%>">Add Bonus</a>
+		</li>
+		<li>
+		<a href="/itemtypes/add/<%=campaign.id%>">Add Item Type</a>
+		</li>
+		<li>
+		<a href="/teams/add/<%=campaign.id%>">Add Team</a>
+		</li>
+		<li>
+		<a class="btn" href="/campaigns/edit/<%=campaign.id%>">Edit this Campaign</a>
+		</li>
+		<li>
+		<a class="btn" href="/campaigns/destroy/<%=campaign.id%>">Delete this Campaign</a>
+		</li>
+	</ul>
+	<%}%>
 </div>
 
 <div class="span12 columns">
+	<%- partial('../messages') %>
 
-<p>This is the audit page.</p>
+	<div class="page-header">
+		<h2><a href="/campaigns/show/<%= campaign.id%>/<%= campaign.slug%>"><%= campaign.title%></a></h2>
+	</div>
+	
+	<section>
+		<h2>All Items</h2>
+		<table class="common-table zebra-striped" id="items">
+		<thead>
+			<tr><th>Created</th>
+			<th>Item</th>
+			<th>Points</th>
+			<th>By</th>
+			<th>Verified</th></tr>
+		</thead>
+		<tbody>
+		<% for(var i=0; i < items.length; i++) {%>
+			<tr>
+				<td><%=items[i].created_at_format%></td>
+				<td><a href="/items/show/<%= items[i].id%>/<%= items[i].slug%>"><%=items[i].quantity%> <%= items[i].name %></a></td>
+				<td><%=(items[i].points + items[i].bonus) * items[i].quantity %> points</td>
+				<td><a href="/users/name/<%=items[i].created_by_login%>"><%=items[i].created_by_login%></a></td>
+				<td><%if (!items[i].verified) {%><a class="verifylink" href="/items/verify/<%=items[i].id%>">Verify</a><% } else { %>by <%=items[i].verified_by%><%}%></td>
+			</tr>
+		<%}%>
+		</tbody>
+		</table>
+	</section>
 
 </div>
 
 </div>
 </div>
+
+<script>
+	$("table#items").tablesorter({ sortList: [[1,1]] });
+	
+	$(".verifylink").click(function() {
+		var jsonUrl = $(this).attr('href');
+		$.getJSON(jsonUrl, function(data) {
+			if (data && data.verified) {
+				alert(data);
+				$(this).parent().append('by ' + data.verified_by);
+			}
+		});
+		return false;
+	});
+</script>
