@@ -11,6 +11,10 @@ var itemProvider = new ItemProvider(config.mongodb.host, config.mongodb.port);
 var ItemTypeProvider = require('../providers/itemtype').ItemTypeProvider;
 var itemTypeProvider = new ItemTypeProvider(config.mongodb.host, config.mongodb.port);
 
+// instantiate office provider
+var OfficeProvider = require('../providers/office').OfficeProvider;
+var officeProvider = new OfficeProvider(config.mongodb.host, config.mongodb.port);
+
 // instantiate team provider
 var TeamProvider = require('../providers/team').TeamProvider;
 var teamProvider = new TeamProvider(config.mongodb.host, config.mongodb.port);
@@ -232,6 +236,8 @@ module.exports = {
     			}
     		}
     		
+    		var office = req.param('office');
+    		
     		var quantity = 0;	
     		var q = req.param('quantity');
     		if (q) {
@@ -261,7 +267,8 @@ module.exports = {
 				created_by: req.session.user.id,
 				updated_by: req.session.user.id,
 				created_by_login: req.session.user.login,
-				admin: admin
+				admin: admin,
+				office: office
 			}, function(error, items) {
 				if (error) return next(error);
 				
@@ -323,6 +330,8 @@ module.exports = {
     		if (isNaN(quantity)) quantity = 0;
     	}
     	
+    	var office = req.param('office');
+    	
     	itemProvider.findById(id, function(error, oldItem) {
     		if (error) return next(error);
     		
@@ -338,6 +347,7 @@ module.exports = {
 			item.description = itemType.description;
 			item.updated_by = req.session.user.id;
 			item.flagged = flagged;
+			item.office = office;
 			
 			if (isAdmin) {
 				item.verified = verified;

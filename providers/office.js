@@ -47,7 +47,7 @@ OfficeProvider.prototype.findAll = function(campaignId, callback) {
     this.getCollection(function(error, office_collection) {
       if( error ) callback(error)
       else {
-        office_collection.find({campaignId: campaignId}).toArray(function(error, results) {
+        office_collection.find({campaignId: campaignId}, {sort: [['name','asc']]}).toArray(function(error, results) {
           if( error ) {
           	callback(error);
           } else {

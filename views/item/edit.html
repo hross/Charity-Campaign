@@ -39,6 +39,15 @@
 			<%}%>
 			</div>
 			</div>
+			
+			<div class="clearfix">
+			<label for="office">Office</label>
+			<div class="input">
+			<% for(var i=0; i < offices.length; i++) {%>
+				<input type="radio" name="office" id="office" value="<%=offices[i].name%>" <%= (offices[i].name == item.office)?"checked":""%>><%=offices[i].name%><br />
+			<%}%>
+			</div>
+			</div>
 		
 			
 			<div class="clearfix">
