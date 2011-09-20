@@ -70,10 +70,11 @@
 	
 	$(".verifylink").click(function() {
 		var jsonUrl = $(this).attr('href');
+		var url = $(this);
 		$.getJSON(jsonUrl, function(data) {
 			if (data && data.verified) {
-				alert(data);
-				$(this).parent().append('by ' + data.verified_by);
+				url.parent().append(document.createTextNode('by ' + data.verified_by));
+				url.remove();
 			}
 		});
 		return false;
