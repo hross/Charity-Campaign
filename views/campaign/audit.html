@@ -20,6 +20,9 @@
 		<a href="/teams/add/<%=campaign.id%>">Add Team</a>
 		</li>
 		<li>
+		<a href="/campaigns/audit/<%= campaign.id%>/true">Audit Campaign</a>
+		</li>
+		<li>
 		<a class="btn" href="/campaigns/edit/<%=campaign.id%>">Edit this Campaign</a>
 		</li>
 		<li>
@@ -35,6 +38,11 @@
 	<div class="page-header">
 		<h2><a href="/campaigns/show/<%= campaign.id%>/<%= campaign.slug%>"><%= campaign.title%></a></h2>
 	</div>
+	
+	<section>
+		<p><a href="/campaigns/audit/<%= campaign.id%>/true">Show only Unverified Items</a></p>
+		<p><a href="/campaigns/audit/<%= campaign.id%>/false">Show All Items</a></p>
+	</section>
 	
 	<section>
 		<h2>All Items</h2>
@@ -66,7 +74,7 @@
 </div>
 
 <script>
-	$("table#items").tablesorter({ sortList: [[1,1]] });
+	$("table#items").tablesorter({ sortList: [[0,1]] });
 	
 	$(".verifylink").click(function() {
 		var jsonUrl = $(this).attr('href');

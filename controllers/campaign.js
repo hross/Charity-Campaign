@@ -256,6 +256,7 @@ module.exports = {
 
   audit: function(req, res, next){
   	var campaignId = req.params.id;
+  	var unverified = req.params.unverified && (req.params.unverified == 'true');
 
     campaignProvider.findById(campaignId, function(error, campaign) {
     	if (error) return next(error);
@@ -280,19 +281,36 @@ module.exports = {
 		}
 		
 		// find recent campaign items to display
-		itemProvider.findByCampaign(campaignId, 1000, function(error, items) {
-			if (error) return next(error);
-			
-			if (!items) items = [];
-			
-			// format the dates for display
-			for (var i = 0; i < items.length; i++) {
-				items[i].created_at_format = dateformat.dateFormat(items[i].created_at, "dddd, mmmm d, yyyy HH:MM");
-				items[i].updated_on_format = dateformat.dateFormat(items[i].updated_on, "dddd, mmmm d, yyyy HH:MM");
-			}
-
-			res.render(null, {locals: {items: items, isAdmin: isAdmin, campaignId: campaignId, campaign: campaign}});
-		});
+		if (unverified) {
+			console.log("unverified only");
+			itemProvider.findByCampaignUnverified(campaignId, 1000, function(error, items) {
+				if (error) return next(error);
+				
+				if (!items) items = [];
+				
+				// format the dates for display
+				for (var i = 0; i < items.length; i++) {
+					items[i].created_at_format = dateformat.dateFormat(items[i].created_at, "mm/dd/yyyy");
+					items[i].updated_on_format = dateformat.dateFormat(items[i].updated_on, "mm/dd/yyyy");
+				}
+	
+				res.render(null, {locals: {items: items, isAdmin: isAdmin, campaignId: campaignId, campaign: campaign}});
+			});
+		} else {
+			itemProvider.findByCampaign(campaignId, 1000, function(error, items) {
+				if (error) return next(error);
+				
+				if (!items) items = [];
+				
+				// format the dates for display
+				for (var i = 0; i < items.length; i++) {
+					items[i].created_at_format = dateformat.dateFormat(items[i].created_at, "mm/dd/yyyy");
+					items[i].updated_on_format = dateformat.dateFormat(items[i].updated_on, "mm/dd/yyyy");
+				}
+	
+				res.render(null, {locals: {items: items, isAdmin: isAdmin, campaignId: campaignId, campaign: campaign}});
+			});
+		}
     });
   },
   
@@ -479,7 +497,7 @@ module.exports = {
         return ['/dashboard/:id', true];
       	break;
       case 'audit':
-        return ['/audit/:id', true];
+        return ['/audit/:id/:unverified', true];
       	break;
       default:
       	return null;

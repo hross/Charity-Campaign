@@ -58,6 +58,21 @@ ItemProvider.prototype.findByCampaign = function(campaignId, limit, callback) {
     });
 };
 
+ItemProvider.prototype.findByCampaignUnverified = function(campaignId, limit, callback) {
+    this.getCollection(function(error, item_collection) {
+		if (error) { callback(error); return; }
+
+		var params = {sort: [['created_at','desc']]};
+		if (limit) params['limit'] = limit;
+		
+        item_collection.find({campaignId: campaignId, $not: [{verified: true}], $or: [{admin: false}, {admin: undefined}]}, params).toArray(function(error, results) {
+        	if (error) { callback(error); return; }
+
+          	callback(null, results);
+		});
+    });
+};
+
 ItemProvider.prototype.findAll = function(teamId, limit, callback) {
     this.getCollection(function(error, item_collection) {
 		if (error) { callback(error); return; }
