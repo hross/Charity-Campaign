@@ -230,7 +230,7 @@ ItemProvider.prototype.flag = function(login, itemId, callback) {
 ItemProvider.prototype.verify = function(login, itemId, callback) {
     this.getCollection(function(error, item_collection) {
     	if (error) { callback(error); return; }
-      
+
       	item_collection.update({id:itemId}, {$set: {verified: true, verified_by: login}},{}, function() {
 			console.log("Item " + itemId + " verified.");
 			callback(null, null);

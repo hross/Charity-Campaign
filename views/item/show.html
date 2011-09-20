@@ -33,7 +33,15 @@
 	<p>Points per Item: <%=item.points%></p>
 	<p>Bonus points per Item: <%=item.bonus%></p>
 	<p>Located in office: <%=item.office%></p>
-	<p>Administrative item: <%=item.admin%></p>
+	
+	<!-- flagging section only shows up if this item is unverified -->
+	<%if (!item.verified) {%>
+	<%if (item.flagged) {%>
+		<p>Flagged by <%=item.flagged_by%></p>
+	<%} else {%>
+		<p><a class="btn flaglink" href="/items/flag/<%=item.id%>">Flag this Item for Review</a></p>
+	<%}%>
+	<%}%>
 	
 	<p>Worth <%=(item.points + item.bonus) * item.quantity %> total points</p>
 	
@@ -42,3 +50,17 @@
 	
 </div>
 </div>
+
+<script>
+	$(".flaglink").click(function() {
+		var jsonUrl = $(this).attr('href');
+		var url = $(this);
+		$.getJSON(jsonUrl, function(data) {
+			if (data && data.flagged) {
+				url.parent().append(document.createTextNode('Flagged by ' + data.flagged_by));
+				url.remove();
+			}
+		});
+		return false;
+	});
+</script>

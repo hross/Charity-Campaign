@@ -266,7 +266,7 @@ module.exports = {
 				teamId: teamId,
 				quantity: quantity,
 				created_by: req.session.user.id,
-				updated_by: req.session.user.id,
+				updated_by: req.session.user.login,
 				created_by_login: req.session.user.login,
 				admin: admin,
 				office: office
@@ -363,9 +363,17 @@ module.exports = {
 			item.points = parseInt(itemType.points);
 			item.bonus = bonus;
 			item.description = itemType.description;
-			item.updated_by = req.session.user.id;
+			item.updated_by = req.session.user.login;
 			item.flagged = flagged;
 			item.office = office;
+			
+			if (!oldItem.flagged) {
+				item.flagged_by = req.session.user.login;
+			}
+			
+			if (!oldItem.verified) {
+				item.verified_by = req.session.user.login;
+			}
 			
 			if (isAdmin) {
 				item.verified = verified;
@@ -457,10 +465,40 @@ module.exports = {
   	});
   },
   
+  // flag the item and return true/false
+  
+  flag: function(req, res, next) {
+  	var user = req.session.user;
+
+	var results = [];
+	
+
+	itemProvider.findById(req.params.id, function(error, item) {
+		
+		itemProvider.flag(user.login, req.params.id, function(error, users) {
+			if (error) {
+				res.send({verified: false});
+				return;
+			}
+			
+			itemProvider.findById(req.params.id, function(error, item) {
+				if (!item) {
+					res.send({flagged: false});
+					return;
+				}
+				res.send({flagged: (!error && item && item.flagged), flagged_by: item.flagged_by});
+			});
+		});
+  	});
+  },
+  
   findJsonRoute: function (action) {
   	switch(action) {
       case 'verify':
         return ['/verify/:id', true];
+      	break;
+      case 'flag':
+        return ['/flag/:id', true];
       	break;
       default:
       	return null;
