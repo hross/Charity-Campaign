@@ -12,7 +12,7 @@
 		
 	<%- partial('../messages') %>
 
-	<form method="post" action="/items/create">
+	<form id="itemform" method="post" action="/items/create">
 		<fieldset>
 		<legend>Add an Item</legend>
 		
@@ -38,12 +38,14 @@
 		</div>
 		
 		<div class="clearfix">
-			<label for="office">Office</label>
-			<div class="input">
-			<% for(var i=0; i < offices.length; i++) {%>
-				<input type="radio" id="office" name="office" value="<%=offices[i].name%>" <%=(i==0)?"checked":""%>/><%=offices[i].name%><br />
+			<% if (offices && offices.length > 0) {%>
+				<label for="office">Office</label>
+				<div class="input">
+				<% for(var i=0; i < offices.length; i++) {%>
+					<input type="radio" id="office" name="office" value="<%=offices[i].name%>" <%=(i==0)?"checked":""%>/><%=offices[i].name%><br />
+				<%}%>
+				</div>
 			<%}%>
-			</div>
 		</div>
 			
 		<input type="hidden" name="teamId" id="teamId" value="<%= teamId%>" />
@@ -57,3 +59,36 @@
 	</div>
 </div>	
 </div>
+
+<script>
+$().ready(function() {
+	$("#itemform").validate({
+			rules: {
+				quantity: {
+					required: true,
+					min: 1
+				},
+				type: {
+					required: true
+				},
+			<% if (offices && offices.length > 0) {%>
+				office: {
+					required: true
+				}
+			<%}%>
+			},
+			messages: {
+				quantity: {
+					required: "Please enter a quantity",
+					minlength: "You must enter a quantity greater than 0."
+				},
+				type: {
+					required: "Please choose a type."
+				},
+				office: {
+					required: "Please choose an office."
+				}
+			}
+		});
+});
+</script>

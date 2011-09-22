@@ -87,3 +87,15 @@
 .select-hidden {
 	display: none;
 }
+
+label.error {
+	float: none;
+	margin-left: 10px;
+	color: #FF0000;
+}
+
+.inputs-list label.error {
+	float: right;
+	margin-right: 100px;
+	color: #FF0000;
+}
