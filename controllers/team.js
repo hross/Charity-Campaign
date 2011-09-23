@@ -13,6 +13,9 @@ var ItemProvider = require('../providers/item').ItemProvider;
 var itemProvider = new ItemProvider(config.mongodb.host, config.mongodb.port);
 
 var dateformat = require('../lib/dateformat'); // custom date tools
+require('../lib/util.js'); // utility functions
+
+var _ = require('underscore')._
 
 var TEAM_CAPTAIN_ROLE = config.roles.TEAM_CAPTAIN_ROLE;
 var CAMPAIGN_ADMIN_ROLE = config.roles.CAMPAIGN_ADMIN_ROLE;
@@ -97,11 +100,15 @@ module.exports = {
     					if (!teamSponsor) {
     						teamSponsor = {};
     					}
+    					
+    					userProvider.findByTeam(team.id, function(error, members) {
+    						team.members = members;
     				
-						res.render(null, {locals: {
-							teamCaptain: teamCaptain, teamSponsor: teamSponsor, team: team, canJoin: canJoin, canLeave: canLeave, 
-							points: points, items: items, campaignId: team.campaignId, isAdmin: isAdmin
-						}});
+							res.render(null, {locals: {
+								teamCaptain: teamCaptain, teamSponsor: teamSponsor, team: team, canJoin: canJoin, canLeave: canLeave, 
+								points: points, items: items, campaignId: team.campaignId, isAdmin: isAdmin
+							}});
+						});
     				
     				});
   				});
@@ -147,8 +154,12 @@ module.exports = {
 					teamSponsor = {};
 					teamSponsor.login = "";
 				}
-    		
-    			res.render(null, {locals: {team: team, campaignId: team.campaignId, teamCaptain: teamCaptain, teamSponsor: teamSponsor, isAdmin: isAdmin}});
+				
+				userProvider.findByTeam(team.id, function(error, members) {
+    				team.members = members;
+
+    				res.render(null, {locals: {team: team, campaignId: team.campaignId, teamCaptain: teamCaptain, teamSponsor: teamSponsor, isAdmin: isAdmin}});
+    			});
     		});
   		});
     });
@@ -224,17 +235,21 @@ module.exports = {
 		motto: req.param('motto'),
 		campaignId: campaignId,
 		captain: captain,
-		sponsor: sponsor,
-		members: members
+		sponsor: sponsor
 	}, function (error, teams) {
 		if (error) return next(error);
 		team = teams[0];
 		
-		// add a role to this user so we know they are the captain
-		userProvider.addRoleByLogin(captain, TEAM_CAPTAIN_ROLE + team.id, function(error, user) {
-			if (error) return next(error);
-
-			res.redirect("/teams/filter/" + team.campaignId);
+		// add new users to teams
+		userProvider.joinTeamByLogin(captain, function(error, captainUser) {
+			userProvider.joinTeamByLogin(sponsor, function(error, sponsorUser) {
+				// add a role to this user so we know they are the captain
+				userProvider.addRoleByLogin(captain, TEAM_CAPTAIN_ROLE + team.id, function(error, user) {
+					if (error) return next(error);
+		
+					res.redirect("/teams/filter/" + team.campaignId);
+				});
+			});
 		});
 	});
   },
@@ -282,61 +297,101 @@ module.exports = {
   	}
 
   	if (sponsor && (members.indexOf(sponsor) < 0)) {
-  	
   		members.push(sponsor);
   	}
   	
-  	// look up captain based on login
-  	userProvider.findByLogin(captain, function(error, user) {
-  		if (error) { return next(error); }
-  		
-  		if (!user) {
-  			req.flash('error', 'Could not find user: _'+ captain + '_.');
+  	// get old team info
+  	teamProvider.findById(id, function(error, oldTeam) {
+  		if (error) {
+  			req.push('error', 'Could not find the team you are trying to join.');
   			res.redirect('back');
   			return;
   		}
   		
-  		// remove role for old users, add for new user
-  		var sameCaptain = false;
-
-  		if (user.roles && user.roles.indexOf(TEAM_CAPTAIN_ROLE + id)>=0) {
-  			sameCaptain = true;
-  		}
-  	
-  	    teamProvider.update({
-			name: req.param('name'),
-			motto: req.param('motto'),
-			id: id,
-			campaignId: req.param('campaignId'),
-			captain: user.login,
-			sponsor: sponsor,
-			members: members
-		}, function(error, teams) {
-			if (error) return next(error);
-			team = teams[0];
-			
-			// now we need to update user roles if there is a different captain
-			if (!sameCaptain) {
-				// clear all captain roles
-				userProvider.clearRole(TEAM_CAPTAIN_ROLE + id, function (error) {
-					if (error) return next(error);
-
-					// set a new captain
-					userProvider.addRoleByLogin(team.captain, TEAM_CAPTAIN_ROLE + id, function(error) {
-						req.flash('info', 'Successfully updated _' + team.name + '_.');
-						res.redirect('/teams/show/' + team.id);
-						return;		
+  		// find old team members
+  		userProvider.findByTeam(id, function(error, users) {
+  			var removeTeam = function(login, callback) {
+  				userProvider.findByLogin(login, function(error, user) {
+					// strip team from this user
+					userProvider.leaveTeam(user, oldTeam, function(error, user) {
+						if (error) { callback(error); return; }
+						
+						callback(null, user);
 					});
 				});
-			} else {
-				req.flash('info', 'Successfully updated _' + team.name + '_.');
-				res.redirect('/teams/show/' + team.id);
-			}
-			
-		});
-  	
+  			};
+  		
+  			var addTeam = function(user, callback) {
+  				// add team to this user
+				userProvider.joinTeam(user, oldTeam, function(error, user) {
+					if (error) { callback(error); return; }
+					
+					callback(null, user);
+				});
+  			};
+  			
+  			var rmvs = _.select(users, function(user) { return !_.include(members, user.login); });
+  			var adds = _.select(members, function(member){ return _.any(users, function(user){user.login == member})}); //TODO: will this really properly detect users?
+  			
+  			async.forEach(adds, addTeam, function(error) {
+  				async.forEach(rmvs, removeTeam, function(error) {
+  					// adds and removes to user base are completed
+  					// now do the rest of our team maintenance
+  					
+					// look up captain based on login
+					userProvider.findByLogin(captain, function(error, user) {
+						if (error) { return next(error); }
+						
+						if (!user) {
+							req.flash('error', 'Could not find user: _'+ captain + '_.');
+							res.redirect('back');
+							return;
+						}
+						
+						// remove role for old users, add for new user
+						var sameCaptain = false;
+				
+						if (user.roles && user.roles.indexOf(TEAM_CAPTAIN_ROLE + id)>=0) {
+							sameCaptain = true;
+						}
+					
+						teamProvider.update({
+							name: req.param('name'),
+							motto: req.param('motto'),
+							id: id,
+							campaignId: req.param('campaignId'),
+							captain: user.login,
+							sponsor: sponsor,
+						}, function(error, teams) {
+							if (error) return next(error);
+							team = teams[0];
+							
+							// now we need to update user roles if there is a different captain
+							if (!sameCaptain) {
+								// clear all captain roles
+								userProvider.clearRole(TEAM_CAPTAIN_ROLE + id, function (error) {
+									if (error) return next(error);
+				
+									// set a new captain
+									userProvider.addRoleByLogin(team.captain, TEAM_CAPTAIN_ROLE + id, function(error) {
+										req.flash('info', 'Successfully updated _' + team.name + '_.');
+										res.redirect('/teams/show/' + team.id);
+										return;		
+									});
+								});
+							} else {
+								req.flash('info', 'Successfully updated _' + team.name + '_.');
+								res.redirect('/teams/show/' + team.id);
+							}
+							
+						});
+					});
+  				});
+  			});
+  			
+  		});
+  		
   	});
-  
 
   },
   
@@ -367,8 +422,22 @@ module.exports = {
 		teamProvider.remove(req.params.id, function(error, campaignId) {
 			if (error) return next(error);
 			
-			req.flash('info', 'Successfully deleted _' + team.name + '_.');
-			res.redirect('/teams/filter/' + campaignId);
+			userProvider.findByTeam(req.params.id, function(error, users) {
+			
+				var removeTeam = function(user, callback) {
+					// strip team from this user
+					userProvider.leaveTeam(user, oldTeam, function(error, user) {
+						if (error) { callback(error); return; }
+						
+						callback(null, user);
+					});
+				};
+				
+				async.forEach(users, removeTeam, function(error) {
+					req.flash('info', 'Successfully deleted _' + team.name + '_.');
+					res.redirect('/teams/filter/' + campaignId);
+				});
+			});
 		});
   	});    
   },

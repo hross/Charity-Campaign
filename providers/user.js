@@ -80,6 +80,7 @@ UserProvider.prototype.findByCampaign = function(campaignId, callback) {
     });
 };
 
+
 UserProvider.prototype.findById = function(id, callback) {
     this.getCollection(function(error, user_collection) {
 		if (error) {
@@ -114,6 +115,18 @@ UserProvider.prototype.findByLogin = function(login, callback) {
     });
 };
 
+UserProvider.prototype.findByTeam = function(teamId, callback) {
+    this.getCollection(function(error, user_collection) {
+      	if (error) callback(error);
+      
+		user_collection.find({teams: teamId}, {sort: [['login','asc']]}).toArray(function(error, users) {
+		  if (error) { callback(error); return; }
+		  
+		  callback(null, users);
+		});
+    });
+};
+
 UserProvider.prototype.searchLogin = function(term, limit, callback) {
     this.getCollection(function(error, user_collection) {
 		if (error) {
@@ -128,18 +141,6 @@ UserProvider.prototype.searchLogin = function(term, limit, callback) {
 				callback(null, result);
 			});
 		}
-    });
-};
-
-UserProvider.prototype.findByTeam = function(teamId, callback) {
-    this.getCollection(function(error, user_collection) {
-      	if (error) callback(error);
-      
-		user_collection.find({teams: teamId}, {sort: [['login','asc']]}).toArray(function(error, users) {
-		  if (error) { callback(error); return; }
-		  
-		  callback(null, users);
-		});
     });
 };
 
@@ -340,6 +341,28 @@ UserProvider.prototype.importCsv = function(fileName, callback) {
 			
     	}); // end get collection
     }); // end parseCsvFile
+};
+
+UserProvider.prototype.joinTeamByLogin = function(login, team, callback) {
+	var provider = this;
+	provider.findByLogin(login, function(error, user) {
+		provider.joinTeam(user, team, function(error, user) {
+			if (error) { callback(error); return; }
+			
+			callback(null, user);
+		});
+	});
+};
+
+UserProvider.prototype.leaveTeamByLogin = function(login, team, callback) {
+	var provider = this;
+	provider.findByLogin(login, function(error, user) {
+		provider.leaveTeam(user, team, function(error, user) {
+			if (error) { callback(error); return; }
+			
+			callback(null, user);
+		});
+	});
 };
 
 UserProvider.prototype.joinTeam = function(user, team, callback) {
