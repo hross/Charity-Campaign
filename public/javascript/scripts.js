@@ -7,8 +7,31 @@ function validateEmail($email) {
 	}
 }
 
+function confirm(message, callback) {
+	$('#confirm').modal({
+		closeHTML: "<a href='#' title='Close' class='modal-close'>x</a>",
+		position: ["20%",],
+		overlayId: 'confirm-overlay',
+		containerId: 'confirm-container', 
+		onShow: function (dialog) {
+			var modal = this;
+
+			$('.message', dialog.data[0]).append(message);
+
+			// if the user clicks "yes"
+			$('.yes', dialog.data[0]).click(function () {
+				// call the callback
+				if ($.isFunction(callback)) {
+					callback.apply();
+				}
+				// close the dialog
+				modal.close(); // or $.modal.close();
+			});
+		}
+	});
+}
+
 $(function() {
-	// TODO: append datetime picker to all datetime picker classes
 	$(".datetimepick").datetimepicker();
 	
 	// hide messages click handler
@@ -16,15 +39,15 @@ $(function() {
 		$(this).parent().fadeOut("slow");
 	});
 
-/*
-	//TODO: add email validation for forms
-	$("form").validate({
- 		submitHandler: function(form) {
- 			//validateEmail();
- 		
-   			form.submit();
- 		}
- 	});*/
- 	
- 	//TODO: add are you sure popup to delete links via jquery classes
+	// show modal dialog for delete buttons
+	$('.delete').click(function (e) {
+		e.preventDefault();
+		
+		var continueLink = $(this).attr('href');
+
+		// call back only fires on 'yes'
+		confirm("Are you sure?", function () {
+			window.location.href = continueLink;
+		});
+	});
 });

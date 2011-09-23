@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="/stylesheets/jquery-ui-1.8.14.custom.css" />
     <link rel="stylesheet" href="/stylesheets/jquery.fancy_suggest.css" />
     <link rel="stylesheet" href="/stylesheets/jquery.countdown.css" />
+    <link rel="stylesheet" href="/stylesheets/confirm.css" />
     
     <!-- date/time picker -->
     <script type="text/javascript" src="/javascript/jquery-1.6.2.min.js"></script>
@@ -31,10 +32,23 @@
 	<!-- form validation -->
 	<script type="text/javascript" src="/javascript/jquery.validate.min.js"></script>
 	
+	<!-- modal confirm dialogs-->
+	<script type="text/javascript" src="/javascript/jquery.simplemodal.js"></script>
+	
 	<script type="text/javascript" src="/javascript/jquery.tablesorter.min.js"></script>
 	<script type="text/javascript" src="/javascript/scripts.js"></script>
 </head>
 <body>
+
+<!-- modal dialog -->
+<div id='confirm'>
+	<div class='header'><span>Confirmation</span></div>
+	<div class='message'></div>
+	<div class='buttons'>
+		<a class="yes btn" href="">Yes</a>
+		<a class="no simplemodal-close btn" href="">No</a>
+	</div>
+</div>
 
 <!-- Topbar
     ================================================== -->
