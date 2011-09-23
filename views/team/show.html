@@ -13,7 +13,10 @@
 	
 	<h3>Quick Links</h3>
 	<ul class="unstyled">
-		<li><a href="/items/add/<%=team.id%>">Add an Item</a></li>			
+		<% if (canLeave) {%>
+		<li><a href="/items/add/<%=team.id%>">Add an Item</a></li>
+		<%}%>
+		
 		<li><a href="/items/filter/<%=team.id%>">List Items</a></li>
 		<br />
 		<% if (canJoin) {%>
