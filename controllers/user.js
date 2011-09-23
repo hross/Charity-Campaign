@@ -8,6 +8,10 @@ var userProvider = new UserProvider(config.mongodb.host, config.mongodb.port, co
 var ItemProvider = require('../providers/item').ItemProvider;
 var itemProvider = new ItemProvider(config.mongodb.host, config.mongodb.port);
 
+// instantiate team provider
+var TeamProvider = require('../providers/team').TeamProvider;
+var teamProvider = new TeamProvider(config.mongodb.host, config.mongodb.port);
+
 var ADMIN_ROLE = config.roles.ADMIN_ROLE;
 
 module.exports = {
@@ -17,8 +21,10 @@ module.exports = {
   index: function(req, res){
 	var isAdmin = (req.session.user && req.session.user.roles &&
 		req.session.user.roles.indexOf(ADMIN_ROLE)>=0);
+		
+	var campaignId = req.session.parentId;
   
-	userProvider.findAll(function(error, users) {
+	userProvider.findByCampaign(campaignId, function(error, users) {
         res.render(null, {locals: {users: users, isAdmin: isAdmin}});
     });
   },
@@ -291,7 +297,7 @@ module.exports = {
   		return;
   	}
   
-  	// join the team if there is a user
+  	// add this role if there is a user
 	userProvider.addRole(user, role, function(error, user) {
     	if (error) return next(error);
 		
@@ -312,14 +318,30 @@ module.exports = {
   		res.redirect('back');
   		return;
   	}
-  
-  	// join the team if there is a user
-	userProvider.joinTeam(user, teamId, function( error, user) {
+
+	teamProvider.findById(teamId, function(error, team) {
     	if (error) return next(error);
-		
-		req.session.user = user;
-		req.flash('info', 'Successfully joined the team.');
-		res.redirect('back');
+    	
+    	if (!team) {
+    		req.flash('error', 'Cannot find this team.');
+    		res.redirect('back');
+    		return;
+    	}
+  
+		// join the team if there is a user
+		userProvider.joinTeam(user, team, function( error, user) {
+			if (error) return next(error);
+			
+			if (!user) {
+				req.flash('error', 'Could not join the team.');
+				res.redirect('back');
+				return;
+			}
+			
+			req.session.user = user;
+			req.flash('info', 'Successfully joined the team.');
+			res.redirect('back');
+		});
     });
   },
   
@@ -334,14 +356,30 @@ module.exports = {
   		res.redirect('back');
   		return;
   	}
-  
-  	// join the team if there is a user
-	userProvider.leaveTeam(user, teamId, function(error, user) {
+  	
+  	teamProvider.findById(teamId, function(error, team) {
     	if (error) return next(error);
-
-		req.session.user = user;
-		req.flash('info', 'Successfully left the team.');
-		res.redirect('back');
+    	
+    	if (!team) {
+    		req.flash('error', 'Cannot find this team.');
+    		res.redirect('back');
+    		return;
+    	}
+    	
+    	// leave the team if there is a user
+		userProvider.leaveTeam(user, team, function(error, user) {
+			if (error) return next(error);
+			
+			if (!user) {
+				req.flash('error', 'Could not leave the team.');
+				res.redirect('back');
+				return;
+			}
+	
+			req.session.user = user;
+			req.flash('info', 'Successfully left the team.');
+			res.redirect('back');
+		});
     });
   },
   

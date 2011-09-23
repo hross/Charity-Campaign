@@ -49,8 +49,9 @@ UserProvider.prototype.getCounterCollection= function(callback) {
 
 UserProvider.prototype.getCollection= function(callback) {
   this.db.collection('users', function(error, user_collection) {
-    if( error ) callback(error);
-    else callback(null, user_collection);
+    if (error) { callback(error); return; }
+    
+    callback(null, user_collection);
   });
 };
 
@@ -59,17 +60,30 @@ UserProvider.prototype.findAll = function(callback) {
       if( error ) callback(error)
       else {
         user_collection.find().toArray(function(error, results) {
-          if( error ) callback(error)
-          else callback(null, results)
+			if (error) { callback(error); return; }
+          
+        	callback(null, results);
         });
       }
+    });
+};
+
+UserProvider.prototype.findByCampaign = function(campaignId, callback) {
+    this.getCollection(function(error, user_collection) {
+		if (error) { callback(error); return; }
+      
+		user_collection.find({campaigns: campaignId}).toArray(function(error, results) {
+			if (error) { callback(error); return; }
+			
+			callback(null, results);
+		});
     });
 };
 
 UserProvider.prototype.findById = function(id, callback) {
     this.getCollection(function(error, user_collection) {
 		if (error) {
-      		callback(error)
+      		callback(error);
       	} else {
         	//user_collection.db.bson_serializer.ObjectID.createFromHexString(id)
         	user_collection.findOne({id: id}, function(error, result) {
@@ -119,13 +133,13 @@ UserProvider.prototype.searchLogin = function(term, limit, callback) {
 
 UserProvider.prototype.findByTeam = function(teamId, callback) {
     this.getCollection(function(error, user_collection) {
-      if( error ) callback(error)
-      else {
-        user_collection.find({teams: teamId}, {sort: [['login','asc']]}).toArray(function(error, users) {
-          if (error) callback(error)
-          else callback(null, users)
-        });
-      }
+      	if (error) callback(error);
+      
+		user_collection.find({teams: teamId}, {sort: [['login','asc']]}).toArray(function(error, users) {
+		  if (error) { callback(error); return; }
+		  
+		  callback(null, users);
+		});
     });
 };
 
@@ -328,7 +342,29 @@ UserProvider.prototype.importCsv = function(fileName, callback) {
     }); // end parseCsvFile
 };
 
-UserProvider.prototype.joinTeam = function(user, teamId, callback) {
+UserProvider.prototype.joinTeam = function(user, team, callback) {
+	var provider = this;
+	provider.leaveTeamById(user, team.id, function(error, user) {
+		if (error) { callback(error); return; }
+		
+		provider.leaveCampaign(user, team.campaignId, function(error, user) {
+			callback(error, user);
+		});
+	});
+};
+
+UserProvider.prototype.leaveTeam = function(user, team, callback) {
+	var provider = this;
+	provider.joinTeamById(user, team.id, function(error, user) {
+		if (error) { callback(error); return; }
+		
+		provider.joinCampaign(user, team.campaignId, function(error, user) {
+			callback(error, user);
+		});
+	});
+};
+
+UserProvider.prototype.joinTeamById = function(user, teamId, callback) {
 	this.getCollection(function(error, user_collection) {
       if (error) {
       	callback(error);
@@ -353,10 +389,12 @@ UserProvider.prototype.joinTeam = function(user, teamId, callback) {
 			
 			// build a list of parents with the new id
 			var teams = result.teams;
+			
 			if (!teams || (teams.indexOf(teamId) < 0)) {
 				// if this isn't already a parent, add it
 				if (!teams) teams = [];
 				teams.push(teamId);
+
 				user_collection.update({id: user.id}, {$set: {teams: teams}}, {}, function(error) {
 					if (error) { callback(error); return; }
 					
@@ -371,7 +409,7 @@ UserProvider.prototype.joinTeam = function(user, teamId, callback) {
 	}); 
 };
 
-UserProvider.prototype.leaveTeam = function(user, teamId, callback) {
+UserProvider.prototype.leaveTeamById = function(user, teamId, callback) {
 	this.getCollection(function(error, user_collection) {
       if (error) {
       	callback(error);
@@ -411,6 +449,93 @@ UserProvider.prototype.leaveTeam = function(user, teamId, callback) {
 	  });
 	}); 
 };
+
+UserProvider.prototype.joinCampaign = function(user, campaignId, callback) {
+	this.getCollection(function(error, user_collection) {
+      if (error) {
+      	callback(error);
+      	return;
+      }
+
+	  if ((!user) || (!user.id)) {
+	  	 callback(error);
+	  	 return;
+	  }
+	  
+	  // find the user account to update
+	  user_collection.findOne({id: user.id}, function(error, result) {
+			if (error) {
+				callback(error);
+			}
+			
+			if (!result) {
+				// id not found
+				callback(null);
+			}
+			
+			// build a list of parents with the new id
+			var campaigns = result.campaigns;
+			
+			if (!campaigns || (campaigns.indexOf(campaignId) < 0)) {
+				// if this isn't already a parent, add it
+				if (!campaigns) campaigns = [];
+				campaigns.push(campaignId);
+
+				user_collection.update({id: user.id}, {$set: {campaigns: campaigns}}, {}, function(error) {
+					if (error) { callback(error); return; }
+					
+					console.log("updated.");
+					result.campaigns = campaigns;
+					callback(null, result);
+				});
+			} else {
+				callback(null, result);
+			}
+	  });
+	}); 
+};
+
+UserProvider.prototype.leaveCampaign = function(user, campaignId, callback) {
+	this.getCollection(function(error, user_collection) {
+      if (error) {
+      	callback(error);
+      	return;
+      }
+
+	  if ((!user) || (!user.id)) {
+	  	 callback(error);
+	  	 return;
+	  }
+	  
+	  // find the user account to update
+	  user_collection.findOne({id: user.id}, function(error, result) {
+			if (error) {
+				callback(error);
+			}
+			
+			if (!result) {
+				// id not found
+				callback(null);
+			}
+			
+			// build a list of parents with the new id
+			var campaigns = result.campaigns;
+			if (campaigns && (campaigns.indexOf(campaignId) >= 0)) {
+				// remove the team id
+				campaigns.remove(campaigns.indexOf(teamId))
+				user_collection.update({id: user.id}, {$set: {campaigns: campaigns}}, {}, function(error) {
+					if (error) { callback(error); return; }
+
+					result.campaigns = campaigns;
+					callback(null, result);
+				});
+			} else {
+				callback(null, result);
+			}
+	  });
+	}); 
+};
+
 
 UserProvider.prototype.addRoleByLogin = function(login, role, callback) {
 	var provider = this; // need this for the proper scope reference below
