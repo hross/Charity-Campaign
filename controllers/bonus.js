@@ -11,6 +11,10 @@ var bonusProvider = new BonusProvider(config.mongodb.host, config.mongodb.port);
 var ItemTypeProvider = require('../providers/itemtype').ItemTypeProvider;
 var itemTypeProvider = new ItemTypeProvider(config.mongodb.host, config.mongodb.port);
 
+// instantiate item provider
+var ItemProvider = require('../providers/item').ItemProvider;
+var itemProvider = new ItemProvider(config.mongodb.host, config.mongodb.port);
+
 var dateformat = require('../lib/dateformat'); // custom date tools
 
 var CAMPAIGN_ADMIN_ROLE = config.roles.CAMPAIGN_ADMIN_ROLE;
@@ -83,7 +87,17 @@ module.exports = {
     	// convert date/times for display
     	bonus.start = dateformat.dateFormat(bonus.start, "dddd, mmmm d, yyyy HH:MM");
     	bonus.end = dateformat.dateFormat(bonus.end, "dddd, mmmm d, yyyy HH:MM");
-        res.render(null, {locals:{bonus: bonus, campaignId: campaignId, isAdmin: isAdmin}});
+    	
+    	itemProvider.findByBonus(bonus.id, 100, function(error, items) {
+    		
+    		if (items) {
+    			for (var i = 0; i < items.length; i++) {
+    				items[i].created_at_format = dateformat.dateFormat(items[i].created_at, "dddd, mmmm d, yyyy HH:MM");
+    			}
+    		}
+    	
+    		res.render(null, {locals:{bonus: bonus, campaignId: campaignId, isAdmin: isAdmin, items: items}});
+    	});
     });
   },
   

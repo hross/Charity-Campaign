@@ -226,11 +226,14 @@ module.exports = {
     	// find any associated bonus points
     	bonusProvider.findTypeWithin(itemType.id, (new Date()), function(error, bonuses) {
     		if (error) return next(error);
+    		
+    		ibonuses = []; // keep track of applied bonuses
     	
     		var bonusPoints = 0;
     		if (bonuses) {
     			for (var i=0; i<bonuses.length; i++) {
     				bonusPoints += parseInt(bonuses[i].points);
+    				ibonuses.push(bonuses[i].id);
     			}
     		}
     		
@@ -269,7 +272,8 @@ module.exports = {
 				updated_by: req.session.user.login,
 				created_by_login: req.session.user.login,
 				admin: admin,
-				office: office
+				office: office,
+				bonuses: ibonuses
 			}, function(error, items) {
 				if (error) return next(error);
 				
@@ -318,12 +322,6 @@ module.exports = {
     	var flagged = req.param('flagged') != undefined;
     	var verified = req.param('verified') != undefined;
     	var admin = req.param('admin') != undefined;
-
-    	var bonus = 0;	
-    	if (req.param('bonus')) {
-    		bonus = parseInt(req.param('bonus'));
-    		if (isNaN(bonus)) bonus = 0;
-    	}
     	
     	var quantity = 0;
     	
@@ -361,7 +359,6 @@ module.exports = {
 			item.quantity = req.param('quantity');
 			item.name = itemType.name;
 			item.points = parseInt(itemType.points);
-			item.bonus = bonus;
 			item.description = itemType.description;
 			item.updated_by = req.session.user.login;
 			item.flagged = flagged;
@@ -383,11 +380,28 @@ module.exports = {
 				item.admin = oldItem.admin;
 			}
 			
-			itemProvider.update(item, function(error, items) {
+			// find any associated bonus points and calculate bonus from original creation date
+    		bonusProvider.findTypeWithin(oldItem.type, oldItem.created_at, function(error, bonuses) {
 				if (error) return next(error);
-		
-				req.flash('info', 'Successfully updated _' + items[0].name + '_.');
-				res.redirect('/items/show/' + items[0].id);
+				
+				item.bonuses = []; // keep track of applied bonuses
+			
+				var bonusPoints = 0;
+				if (bonuses) {
+					for (var i=0; i<bonuses.length; i++) {
+						bonusPoints += parseInt(bonuses[i].points);
+						item.bonuses.push(bonuses[i].id);
+					}
+				}
+			
+				item.bonus = bonusPoints;
+				
+				itemProvider.update(item, function(error, items) {
+					if (error) return next(error);
+			
+					req.flash('info', 'Successfully updated _' + items[0].name + '_.');
+					res.redirect('/items/show/' + items[0].id);
+				});
 			});
     	});
     });

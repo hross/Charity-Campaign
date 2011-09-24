@@ -103,6 +103,21 @@ ItemProvider.prototype.findByTeam = function(teamId, limit, callback) {
     });
 };
 
+ItemProvider.prototype.findByBonus = function(bonusId, limit, callback) {
+    this.getCollection(function(error, item_collection) {
+		if (error) { callback(error); return; }
+
+		var params = {sort: [['created_at','desc']]};
+		if (limit) params['limit'] = limit;
+		
+        item_collection.find({bonuses: bonusId}, params).toArray(function(error, results) {
+        	if (error) { callback(error); return; }
+
+          	callback(null, results);
+		});
+    });
+};
+
 ItemProvider.prototype.findByUser = function(userId, limit, callback) {
     this.getCollection(function(error, item_collection) {
 		if (error) { callback(error); return; }
