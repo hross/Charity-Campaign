@@ -318,21 +318,27 @@ UserProvider.prototype.importCsv = function(fileName, callback) {
 			var createUser = function(record) {
 				console.log("Creating from CSV record...");
 				console.log(record);
-			
-				// create the user from the record
-				provider.save({
-					login: record.login,
-					password: record.password,
-					password2: record.password,
-					email: record.email,
-					first: record.first,
-					last: record.last,
-					account: record.account
-				}, function(error, users) {
-					if (error) return callback(error, null);
-					
-					callback(null, users[0]);
-				});
+				
+				if (record.login && record.password && record.email && record.first && record.last && record.account) {
+					// create the user from the record
+					provider.save({
+						login: record.login,
+						password: record.password,
+						password2: record.password,
+						email: record.email,
+						first: record.first,
+						last: record.last,
+						account: record.account
+					}, function(error, users) {
+						if (error) return callback(error, null);
+						
+						callback(null, users[0]);
+					});
+				} else {
+					console.log("Could not create from CSV record...");
+					console.log(record);
+					callback(null, null);
+				}
 			};
 			
 			async.map(records, createUser, function(error, users){
