@@ -22,10 +22,10 @@ module.exports = {
 	var isAdmin = (req.session.user && req.session.user.roles &&
 		req.session.user.roles.indexOf(ADMIN_ROLE)>=0);
 		
-	var campaignId = req.session.parentId;
+	var campaignId = req.params.parentId;
   
 	userProvider.findByCampaign(campaignId, function(error, users) {
-        res.render(null, {locals: {users: users, isAdmin: isAdmin}});
+        res.render(null, {locals: {users: users, isAdmin: isAdmin, campaignId: campaignId}});
     });
   },
 

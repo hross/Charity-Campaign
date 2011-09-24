@@ -15,7 +15,9 @@ var itemProvider = new ItemProvider(config.mongodb.host, config.mongodb.port);
 var dateformat = require('../lib/dateformat'); // custom date tools
 require('../lib/util.js'); // utility functions
 
-var _ = require('underscore')._
+var _ = require('underscore')._;
+var async = require('async');
+
 
 var TEAM_CAPTAIN_ROLE = config.roles.TEAM_CAPTAIN_ROLE;
 var CAMPAIGN_ADMIN_ROLE = config.roles.CAMPAIGN_ADMIN_ROLE;
@@ -310,20 +312,18 @@ module.exports = {
   		
   		// find old team members
   		userProvider.findByTeam(id, function(error, users) {
-  			var removeTeam = function(login, callback) {
-  				userProvider.findByLogin(login, function(error, user) {
-					// strip team from this user
-					userProvider.leaveTeam(user, oldTeam, function(error, user) {
-						if (error) { callback(error); return; }
-						
-						callback(null, user);
-					});
+  			var removeTeam = function(user, callback) {
+				// strip team from this user
+				userProvider.leaveTeam(user, oldTeam, function(error, user) {
+					if (error) { callback(error); return; }
+					
+					callback(null, user);
 				});
   			};
   		
-  			var addTeam = function(user, callback) {
+  			var addTeam = function(login, callback) {
   				// add team to this user
-				userProvider.joinTeam(user, oldTeam, function(error, user) {
+				userProvider.joinTeamByLogin(login, oldTeam, function(error, user) {
 					if (error) { callback(error); return; }
 					
 					callback(null, user);
@@ -331,7 +331,7 @@ module.exports = {
   			};
   			
   			var rmvs = _.select(users, function(user) { return !_.include(members, user.login); });
-  			var adds = _.select(members, function(member){ return _.any(users, function(user){user.login == member})}); //TODO: will this really properly detect users?
+  			var adds = _.select(members, function(member){ return !_.any(users, function(user){user.login == member})}); //TODO: will this really properly detect users?
   			
   			async.forEach(adds, addTeam, function(error) {
   				async.forEach(rmvs, removeTeam, function(error) {

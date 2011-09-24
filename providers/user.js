@@ -365,7 +365,7 @@ UserProvider.prototype.leaveTeamByLogin = function(login, team, callback) {
 	});
 };
 
-UserProvider.prototype.joinTeam = function(user, team, callback) {
+UserProvider.prototype.leaveTeam = function(user, team, callback) {
 	var provider = this;
 	provider.leaveTeamById(user, team.id, function(error, user) {
 		if (error) { callback(error); return; }
@@ -376,8 +376,14 @@ UserProvider.prototype.joinTeam = function(user, team, callback) {
 	});
 };
 
-UserProvider.prototype.leaveTeam = function(user, team, callback) {
+UserProvider.prototype.joinTeam = function(user, team, callback) {
 	var provider = this;
+	
+	//HRB - remove
+	console.log("joining:");
+	console.log(team);
+	console.log(user);
+	
 	provider.joinTeamById(user, team.id, function(error, user) {
 		if (error) { callback(error); return; }
 		
@@ -412,6 +418,12 @@ UserProvider.prototype.joinTeamById = function(user, teamId, callback) {
 			
 			// build a list of parents with the new id
 			var teams = result.teams;
+			
+			//HRB - remove
+			console.log("teams: ");
+			console.log(teams);
+			console.log("team id: ");
+			console.log(teamId);
 			
 			if (!teams || (teams.indexOf(teamId) < 0)) {
 				// if this isn't already a parent, add it

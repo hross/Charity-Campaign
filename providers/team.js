@@ -135,10 +135,7 @@ TeamProvider.prototype.update = function(teams, callback) {
 		  
 		async.map(teams, updateTeam, function(error, results) {
 			if (error) callback(error);
-			
-			console.log("im in update.");
-			console.log(callback);
-			
+
 			// after everything is done we are happy
 			callback(null, results);
 		});
