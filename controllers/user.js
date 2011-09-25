@@ -48,8 +48,13 @@ module.exports = {
     		
     		var isAdmin = (req.session.user && req.session.user.roles && 
 				(req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
+				
+			if (!user.teams) user.teams = [];
+			
+			teamProvider.findAllById(user.teams, function(error, teams) {
     		
-    		res.render(null, {locals: {user: user, items: items, isAdmin: isAdmin}});
+    			res.render(null, {locals: {user: user, items: items, teams: teams, isAdmin: isAdmin}});
+    		});
     	});
     });
   },

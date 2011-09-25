@@ -160,10 +160,6 @@ module.exports = {
   
   dashboard: function(req, res, next){
   	var campaignId = req.params.id;
-  	
-	// which team in the campaign is this user on
-	// we need this to render the add item button
-	var teamId = -1;
 
     campaignProvider.findById(campaignId, function(error, campaign) {
     	if (error) return next(error);
@@ -202,10 +198,9 @@ module.exports = {
 						itemProvider.teamPoints(team.id, function(error, points) {
 							team.points = points;
 							
-							var isMember = (req.session.user && 
+							// add membership property for this team
+							team.isMember = (req.session.user && 
 								(req.session.user.teams && (req.session.user.teams.indexOf(team.id) >= 0)));
-								
-							if (isMember) teamId = team.id;
 							
 							callback(null, team);
 						});
@@ -243,7 +238,7 @@ module.exports = {
 							// after everything is done we are happy
 							res.render(null, {locals: {campaign: campaign, bonuses: bonuses,
 										teams: results, campaignId: campaign.id, 
-										isAdmin: isAdmin, items: items, teamId: teamId}});
+										isAdmin: isAdmin, items: items}});
 						}); // end find by user
 					}); // end async map team calcs
 				}); // end find teams

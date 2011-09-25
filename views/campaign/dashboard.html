@@ -31,14 +31,17 @@
 
 <div class="span5 columns">
 	<section>
-		<h2>My Items</h2>
-		
-		<% if (teamId > 0) {%>
-		<div class="additem">
-			<a href="/items/add/<%=teamId%>">Add an Item</a>
-		</div>
+		<h2>My Teams</h2>
+		<% for(var i=0; i < teams.length; i++) {%>
+			<%if (teams[i].isMember) {%>
+				<div class="additem">
+					<a href="/teams/<%=teams[i].id%>"><%=teams[i].name%></a>
+					 - <a href="/items/add/<%=teams[i].id%>">Add an Item</a>
+				</div>
+			<%}%>
 		<%}%>
 		
+		<h2>My Items</h2>
 		<table class="common-table zebra-striped">
 		<thead>
 			<tr>

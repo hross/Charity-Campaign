@@ -75,6 +75,23 @@ TeamProvider.prototype.findById = function(id, callback) {
     });
 };
 
+TeamProvider.prototype.findAllById = function(ids, callback) {
+	if (typeof(ids.length)=="undefined") ids = [ids];
+	
+    this.getCollection(function(error, team_collection) {
+      if( error ) callback(error)
+      else {
+        team_collection.find({id: {$in: ids}}).toArray(function(error, results) {
+          if( error ) {
+          	callback(error);
+          } else {
+          	callback(null, results);
+          }
+        });
+      }
+    });
+};
+
 TeamProvider.prototype.save = function(teams, callback) {
 	var provider = this;
     this.getCollection(function(error, team_collection) {

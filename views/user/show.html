@@ -33,7 +33,7 @@
 		<h2><a href="/users/show/<%= user.id%>/<%= user.slug%>"><%= user.login%></a></h2>
 	</div>
 	
-	<div class="clearfix">
+	<div>
 		<a href="http://en.gravatar.com/emails/"><img class="gravatar" src="http://www.gravatar.com/avatar/<%=user.gravatar%>?s=96&d=identicon&r=PG" alt="" /></a>
 		
 		<div class="details">
@@ -42,27 +42,40 @@
 			<p><a href="mailto:<%=user.email%>"><%=user.email%></a></p>
 		</div>
 	</div>
-		
+	
+	<div class="clearfix"></div>
+
+	<%if (user.roles) {%>		
 		<div class="roles">
-			<%if (user.roles) {%>
 			<h2>Roles</h2>
 			<ul>
 			<%for(var i=0;i<user.roles.length;i++){%>
 				<li><%=user.roles[i]%></li>
 			<%}%>
 			</ul>
-			<%}%>
 		</div>
-		
-		<div class="items">
-			<h2>Recent Items</h2>
+	<%}%>
+	
+	<%if (user.teams) {%>
+		<div class="teams">
+			<h2>Teams</h2>
 			<ul>
-			<% for(var i=0; i < items.length; i++) {%>
-				<li><%=items[i].created_at%> - <a href="/items/show/<%= items[i].id%>/<%= items[i].slug%>"><%=items[i].quantity%> <%= items[i].name %></a>
-				(<%=(items[i].points + items[i].bonus) * items[i].quantity %> points)</li>
+			<% for(var i=0; i < teams.length; i++) {%>
+				<li><a href="/teams/show/<%= teams[i].id%>/<%= teams[i].slug%>"><%=teams[i].name%></a></li>
 			<%}%>
 			</ul>
 		</div>
+	<%}%>
+	
+	<div class="items">
+		<h2>Recent Items</h2>
+		<ul>
+		<% for(var i=0; i < items.length; i++) {%>
+			<li><%=items[i].created_at%> - <a href="/items/show/<%= items[i].id%>/<%= items[i].slug%>"><%=items[i].quantity%> <%= items[i].name %></a>
+			(<%=(items[i].points + items[i].bonus) * items[i].quantity %> points)</li>
+		<%}%>
+		</ul>
+	</div>
 
 </div>	
 </div>
