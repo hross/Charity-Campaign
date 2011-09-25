@@ -35,7 +35,7 @@
 	<p>Located in office: <%=item.office%></p>
 	
 	<!-- flagging section only shows up if this item is unverified -->
-	<%if (!item.verified) {%>
+	<%if (!item.verified && canFlag) {%>
 	<%if (item.flagged) {%>
 		<p>Flagged by <%=item.flagged_by%></p>
 	<%} else {%>

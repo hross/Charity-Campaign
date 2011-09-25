@@ -1,5 +1,9 @@
 var config = require('../config');
 
+// instantiate campaign provider
+var CampaignProvider = require('../providers/campaign').CampaignProvider;
+var campaignProvider = new CampaignProvider(config.mongodb.host, config.mongodb.port);
+
 // instantiate item provider
 var ItemProvider = require('../providers/item').ItemProvider;
 var itemProvider = new ItemProvider(config.mongodb.host, config.mongodb.port);
@@ -89,7 +93,11 @@ module.exports = {
 				
 				item.created_at = dateformat.dateFormat(item.created_at, "dddd, mmmm d, yyyy HH:MM");
 				
-				res.render(null, {locals: {item: item, user: created_user, teamId: item.teamId, campaignId: item.campaignId, isAdmin: isAdmin}});
+				campaignProvider.findById(item.campaignId, function (error, campaign) {
+					res.render(null, {locals: {item: item, user: created_user, 
+						teamId: item.teamId, campaignId: item.campaignId, isAdmin: isAdmin, 
+						canFlag: (campaign && campaign.allowflag)}});
+				});
     		});
     	});
     });
