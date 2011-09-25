@@ -117,7 +117,8 @@ CampaignProvider.prototype.update = function(campaigns, callback) {
 		
 			campaign_collection.update({id:campaign.id}, 
 					{$set: {title: campaign.title, slug: campaign.slug, administrators: campaign.administrators, 
-					description: campaign.description, start: campaign.start, end: campaign.end, update_on: campaign.update_on}},
+					description: campaign.description, start: campaign.start, end: campaign.end, update_on: campaign.update_on,
+					allowjoins: campaign.allowjoins, allowflag: campaign.allowflag}},
 					{}, function(error) {
 				
 				if (error) { callback(error); return; }

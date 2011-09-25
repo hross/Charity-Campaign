@@ -12,6 +12,10 @@ var userProvider = new UserProvider(config.mongodb.host, config.mongodb.port, co
 var ItemProvider = require('../providers/item').ItemProvider;
 var itemProvider = new ItemProvider(config.mongodb.host, config.mongodb.port);
 
+// instantiate campaign provider
+var CampaignProvider = require('../providers/campaign').CampaignProvider;
+var campaignProvider = new CampaignProvider(config.mongodb.host, config.mongodb.port);
+
 var dateformat = require('../lib/dateformat'); // custom date tools
 require('../lib/util.js'); // utility functions
 
@@ -105,11 +109,18 @@ module.exports = {
     					
     					userProvider.findByTeam(team.id, function(error, members) {
     						team.members = members;
+    						
+    						campaignProvider.findById(team.campaignId, function(error, campaign) {
+    							
+    							// make user this campaign allows auto leave/join
+    							canJoin = canJoin && campaign && campaign.allowjoins;
+    							canLeave = canLeave && campaign && campaign.allowjoins;
     				
-							res.render(null, {locals: {
-								teamCaptain: teamCaptain, teamSponsor: teamSponsor, team: team, canJoin: canJoin, canLeave: canLeave, 
-								points: points, items: items, campaignId: team.campaignId, isAdmin: isAdmin
-							}});
+								res.render(null, {locals: {
+									teamCaptain: teamCaptain, teamSponsor: teamSponsor, team: team, canJoin: canJoin, canLeave: canLeave, 
+									points: points, items: items, campaignId: team.campaignId, isAdmin: isAdmin
+								}});
+							});
 						});
     				
     				});

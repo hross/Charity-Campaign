@@ -132,10 +132,14 @@ module.exports = {
 							
 							// find the user info for each user in the point list
 							var userInfo = function(info, callback) {
-								userProvider.findByLogin(info.created_by_login, function(error, user) {
+								userProvider.findById(info.created_by, function(error, user) {
 									// construct user object with points and return
-									if (user) user.points = info.points;
-									callback(error, user);
+									if (user) {
+										user.points = info.points;
+										callback(error, user);
+									} else {
+										callback(null, null);
+									}
 								});
 							};
 							  
@@ -419,6 +423,9 @@ module.exports = {
 		res.redirect('back');
 		return;
 	}
+	
+	var allowjoins = req.param('allowjoins') != undefined;
+	var allowflag = req.param('allowflag') != undefined;
   
 	campaignProvider.update({
         title: req.param('title'),
@@ -426,7 +433,9 @@ module.exports = {
         id: campaignId,
         start: new Date(req.param('start')),
 		end: new Date(req.param('end')),
-		administrators: administrators
+		administrators: administrators,
+		allowflag: allowflag,
+		allowjoins: allowjoins
     }, function( error, campaigns) {
     	if (error) return next(error);
     	

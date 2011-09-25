@@ -54,6 +54,20 @@
 			</div>
 			
 			<div class="clearfix">
+				<label for="allowjoins">Allow Users to Join/Leave</label>
+				<div class="input">
+					<input type="checkbox" name="allowjoins" value="allowjoins" <%if(campaign.allowjoins) {%>checked<%}%> />
+				</div>
+			</div>
+			
+			<div class="clearfix">
+				<label for="allowflag">Allow Users to Flag Items</label>
+				<div class="input">
+					<input type="checkbox" name="allowflag" value="allowflag" <%if(campaign.allowflag) {%>checked<%}%> />
+				</div>
+			</div>
+			
+			<div class="clearfix">
 				<label for="user">Select User</label>
 				<div class="input">
 				<input type="text" name="user" id="user" autocomplete="off" value="" />
