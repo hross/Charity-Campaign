@@ -340,7 +340,9 @@ UserProvider.prototype.importCsv = function(fileName, callback) {
 						email: record.email,
 						first: record.first,
 						last: record.last,
-						account: record.account
+						account: record.account,
+						teams: record.teams,
+						campaigns: record.campaigns
 					}, function(error, users) {
 						if (error) return callback(error, null);
 						
