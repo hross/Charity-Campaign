@@ -73,7 +73,7 @@ module.exports = {
     		return;
     	}
     	
-    	userProvider.findById(item.created_by, function(error, created_user) {
+    	userProvider.findByLogin(item.created_by_login, function(error, created_user) {
     		if (error) return next(error);
     		
     		if (!created_user) created_user = {};

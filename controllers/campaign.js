@@ -132,7 +132,7 @@ module.exports = {
 							
 							// find the user info for each user in the point list
 							var userInfo = function(info, callback) {
-								userProvider.findById(info.created_by, function(error, user) {
+								userProvider.findByLogin(info.created_by_login, function(error, user) {
 									// construct user object with points and return
 									if (user) user.points = info.points;
 									callback(error, user);
