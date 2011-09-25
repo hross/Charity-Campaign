@@ -319,6 +319,18 @@ UserProvider.prototype.importCsv = function(fileName, callback) {
 				console.log("Creating from CSV record...");
 				console.log(record);
 				
+				if (!record.team) {
+					record.teams = [];
+				} else {
+					record.teams = [team];
+				}
+
+				if (!record.campaign) {
+					record.campaigns = [];
+				} else {
+					record.campaigns = [campaign];
+				}
+				
 				if (record.login && record.password && record.email && record.first && record.last && record.account) {
 					// create the user from the record
 					provider.save({
