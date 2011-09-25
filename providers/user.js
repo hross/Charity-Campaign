@@ -3,6 +3,8 @@
 require('../lib/util.js'); // misc utility functions
 
 var crypto = require('crypto');
+var md5 = crypto.createHash('md5');
+
 var Db = require('mongodb').Db;
 var Connection = require('mongodb').Connection;
 var Server = require('mongodb').Server;
@@ -12,9 +14,8 @@ var ldap = require('ldapjs');
 
 var slugify = require('../lib/slugify'); // custom slug tools
 var parse = require('../lib/parsecsv'); // csv parsing
-var async = require('async');
 
-//TODO: add password hashing
+var async = require('async');
 
 UserProvider = function(host, port, ldapUrl, userSearch) {
   this.db= new Db('charity-campaign', new Server(host, port, {auto_reconnect: true}, {}));
@@ -167,7 +168,8 @@ UserProvider.prototype.authenticateLdap = function(login, password, callback) {
 				
 				if (!result.account) {
 					// this is not an LDAP account
-					if (result.password == password) {
+					var passwordHash = md5.update(password).digest("hex");
+					if (result.password == passwordHash) {
 						// password match
 						callback(null, result);
 						return;
@@ -284,9 +286,12 @@ UserProvider.prototype.save = function(users, callback) {
 				user.update_on = new Date();
 				
 				provider.getNextUserId(function(error,id) {
-					user.gravatar = crypto.createHash('md5').update(user.email).digest("hex");
+					user.gravatar = md5.update(user.email).digest("hex");
 					user.id = id;
 					user.slug = slugify.slugify(user.login);
+					
+					user.password = md5.update(user.password).digest("hex");
+					
 					user_collection.insert(user, function() {
 						console.log("created.");
 						callback(null, user);
@@ -332,6 +337,8 @@ UserProvider.prototype.importCsv = function(fileName, callback) {
 				}
 				
 				if (record.login && record.password && record.email && record.first && record.last) {
+					record.password = md5.update(record.password).digest("hex");
+				
 					// create the user from the record
 					provider.save({
 						login: record.login,
@@ -764,6 +771,8 @@ UserProvider.prototype.update = function(users, callback) {
 			account: user.account};
 			
 			if (user.password && (user.password.length > 0)) {
+				user.password = md5.update(user.password).digest("hex");
+			
 				params['password'] = user.password;
 			}
 			
