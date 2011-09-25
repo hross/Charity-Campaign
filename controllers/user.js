@@ -24,9 +24,16 @@ module.exports = {
 		
 	var campaignId = req.params.parentId;
   
-	userProvider.findByCampaign(campaignId, function(error, users) {
-        res.render(null, {locals: {users: users, isAdmin: isAdmin, campaignId: campaignId}});
-    });
+  	if (campaignId) {
+		userProvider.findByCampaign(campaignId, function(error, users) {
+			res.render(null, {locals: {users: users, isAdmin: isAdmin, campaignId: campaignId}});
+		});
+    } else {
+    	userProvider.findAll(function(error, users) {
+			res.render(null, {locals: {users: users, isAdmin: isAdmin, campaignId: campaignId}});
+		});
+
+    }
   },
 
   // single display

@@ -322,16 +322,16 @@ UserProvider.prototype.importCsv = function(fileName, callback) {
 				if (!record.team) {
 					record.teams = [];
 				} else {
-					record.teams = [team];
+					record.teams = [record.team];
 				}
 
 				if (!record.campaign) {
 					record.campaigns = [];
 				} else {
-					record.campaigns = [campaign];
+					record.campaigns = [record.campaign];
 				}
 				
-				if (record.login && record.password && record.email && record.first && record.last && record.account) {
+				if (record.login && record.password && record.email && record.first && record.last) {
 					// create the user from the record
 					provider.save({
 						login: record.login,
@@ -347,11 +347,13 @@ UserProvider.prototype.importCsv = function(fileName, callback) {
 						if (error) return callback(error, null);
 						
 						callback(null, users[0]);
+						return;
 					});
 				} else {
 					console.log("Could not create from CSV record...");
 					console.log(record);
 					callback(null, null);
+					return;
 				}
 			};
 			
