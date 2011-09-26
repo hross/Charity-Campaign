@@ -35,7 +35,7 @@
 		<% for(var i=0; i < teams.length; i++) {%>
 			<%if (teams[i].isMember) {%>
 				<div class="additem">
-					<a href="/teams/<%=teams[i].id%>"><%=teams[i].name%></a>
+					<a href="/teams/show/<%=teams[i].id%>"><%=teams[i].name%></a>
 					 - <a href="/items/add/<%=teams[i].id%>">Add an Item</a>
 				</div>
 			<%}%>

@@ -151,8 +151,6 @@ module.exports = {
   	});
   },
 
-
-  
   // create screen
   
   add: function(req, res, next){

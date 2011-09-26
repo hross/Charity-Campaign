@@ -29,6 +29,9 @@ var UserProvider = require('../providers/user').UserProvider;
 var userProvider = new UserProvider(config.mongodb.host, config.mongodb.port, config.ldap.url, config.ldap.userSearch);
 
 var dateformat = require('../lib/dateformat'); // custom date tools
+var parse = require('../lib/parsecsv'); // csv parsing
+
+var async = require('async');
 
 var CAMPAIGN_ADMIN_ROLE = config.roles.CAMPAIGN_ADMIN_ROLE;
 var ADMIN_ROLE = config.roles.ADMIN_ROLE;
@@ -291,8 +294,6 @@ module.exports = {
 					res.redirect('/items');
 				}
 			});
-    		
-    		
     	});
     });
   },
@@ -514,6 +515,133 @@ module.exports = {
   	});
   },
   
+    // display upload item list form
+  csv: function(req, res, next){
+  	var isAdmin = (req.session.user && req.session.user.roles &&
+		req.session.user.roles.indexOf(ADMIN_ROLE)>=0);
+	
+	if (!isAdmin) {
+		req.flash('error', "You are not an administrator.");
+		res.redirect('back');
+		return;
+	}
+		
+	res.render(null, {locals: {isAdmin: isAdmin}});
+  },
+  
+  // upload a list of users as a CSV
+  upload: function(req, res, next){
+  
+  	console.log("Starting upload...");
+  
+	var isAdmin = (req.session.user && req.session.user.roles &&
+		req.session.user.roles.indexOf(ADMIN_ROLE)>=0);
+	
+	if (!isAdmin) {
+		req.flash('error', "You are not an administrator.");
+		res.redirect('back');
+		return;
+	}
+
+	req.form.complete(function(error, fields, files){
+    	if (error) { next(error); return; }
+    	
+    	if (files.itemList) {
+      		console.log('Uploaded %s to %s', files.itemList.filename, files.itemList.path);
+      		
+      		// try to parse the csv file and return some user records
+			parse.parseCsvFile(files.itemList.path, function(error, records) {
+				if (error) { 		
+					req.flash('error', "Could not parse uploaded file.");
+					res.redirect('back'); 
+				}
+
+				var createItem = function(record, callback) {
+					console.log("Creating item from CSV record...");
+					console.log(record);
+					
+					console.log(record.typeid);
+					// create item from the record
+					itemTypeProvider.findById(record.typeid, function(error, itemType) {
+						if (error) return next(error);
+						
+						if (!itemType) {
+							callback(null, null);
+							return;
+						}
+						
+						// invisible items are assumed to be admin items
+						var admin = !itemType.visible;
+						
+						// find any associated bonus points
+						bonusProvider.findTypeWithin(itemType.id, (new Date()), function(error, bonuses) {
+							if (error) return next(error);
+							
+							ibonuses = []; // keep track of applied bonuses
+						
+							var bonusPoints = 0;
+							if (bonuses) {
+								for (var i=0; i<bonuses.length; i++) {
+									bonusPoints += parseInt(bonuses[i].points);
+									ibonuses.push(bonuses[i].id);
+								}
+							}
+				
+							// get user info
+							userProvider.findByLogin(record.login, function(error, user) {
+								itemProvider.save({
+									type: itemType.id,
+									name: itemType.name,
+									points: parseInt(itemType.points),
+									bonus: bonusPoints,
+									campaignId: itemType.campaignId,
+									description: itemType.description,
+									teamId: record.teamid + '',
+									quantity: record.quantity,
+									created_by: user.id,
+									updated_by: user.login,
+									created_by_login: user.login,
+									admin: admin,
+									office: record.office,
+									bonuses: ibonuses
+								}, function(error, items) {
+									if (error) return next(error);
+									
+									if (items[0]) {
+										callback(null, items[0]);
+									} else {
+										callback(null, null);
+									}
+								});
+							});
+						});
+					});
+				};
+				
+				async.map(records, createItem, function(error, items){
+					req.flash('info', 'Successfully created these items: ' + items);
+					res.redirect('back');
+					return;
+				});
+    		}); // end parseCsvFile
+    	} else {
+    		req.flash('info', "Could not create any items.");
+      		res.redirect('back');
+    	}
+  	});
+  },
+  
+  // generic find route function, called by the controller when it doesn't know what to do
+  
+  findGetRoute: function (action){
+	 switch(action) {
+      case 'csv':
+      	return ['/csv', true];
+      default:
+      	return null;
+     }
+  },
+  
   findJsonRoute: function (action) {
   	switch(action) {
       case 'verify':
@@ -526,4 +654,14 @@ module.exports = {
       	return null;
       }
   },
+  
+  findPostRoute: function (action){
+	 switch(action) {
+      case 'upload':
+      	return ['/upload', true];
+      	break;
+      default:
+      	return null;
+     }
+  },  
 };

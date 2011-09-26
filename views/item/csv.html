@@ -1,0 +1,49 @@
+<div class="container">
+<div class="row">
+
+<div class="span4 columns">
+	<%if (campaignId > 0) {%>
+	<h3>Quick Links</h3>
+	<ul class="unstyled">
+		<li><a href="/campaigns/show/<%= campaignId%>">Back to Campaign</a></li>
+	</ul>
+	<%}%>
+
+	<%if (isAdmin) {%>
+	<h3>Administration</h3>
+	<ul class="unstyled menu">
+		<li>
+		<a href="/items">All Items</a>
+		</li>
+	</ul>
+	<%}%>
+</div>
+
+<div class="span12 columns">
+
+	<%- partial('../messages') %>
+
+	<form method="post" action="/items/upload" enctype="multipart/form-data">
+		<fieldset>
+			<legend>Upload a List of Items</legend>
+
+			<div class="clearfix">
+				<label for="itemList">Item CSV</label>
+				<div class="input"><input type="file" name="itemList" /></div>
+			</div>
+			
+			<div class="clearfix">
+				<p>Upload a list of items.</p>
+				<a href="/assets/items.csv">Download a sample item list CSV</a>
+			</div>
+			
+			<div class="actions">
+				<input class="btn" type="submit" value="Submit" />
+			</div>
+			
+			</fieldset>
+		</form>
+
+</div>
+
+</div>	
