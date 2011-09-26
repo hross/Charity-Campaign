@@ -72,7 +72,7 @@
           
           <ul class="nav secondary-nav">
 				<%if (!luser) {%>
-					<li><a href="/users/validate?redir=<%=url%>">Login</a></li>
+					<li><a href="/users/validate">Login</a></li>
 				<%} else {%>
 					<li><a href="/users/show/<%= luser.id%>/<%= luser.slug%>">Welcome, <%=luser.login%></a></li>
 					<li><a class="iconlink" href="/users/invalidate"><img src="/images/door_out.png" alt="Logout" /></a></li>

@@ -438,6 +438,14 @@ module.exports = {
 			if (user) {
 			  req.session.user = user; // log the user in
 			  console.log("redirect: " + redir);
+			  
+			  if ("/" == redir) {
+			  	// if there is no redirect, try to find a campaign to redirect to
+			  	if (user.campaigns && (user.campaigns.length > 0)) {
+			  		redir = "/campaigns/dashboard/" + user.campaigns[0];
+			  	}
+			  }
+			  
 			  res.redirect(redir); // redirect to previous url or base
 			} else {
 			  // re-render the login page
