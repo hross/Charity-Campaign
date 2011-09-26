@@ -14,38 +14,42 @@ exports.boot = function(app){
 // App settings and middleware
 
 function bootApplication(app) {
-  app.use(express.logger(':method :url :status'));
-  app.use(express.bodyParser());
-  app.use(express.methodOverride());
-  app.use(express.cookieParser());
-  app.use(express.session({ secret: 'keyboard cat' }));
-  app.use(app.router);
-  app.use(express.static(__dirname + '/public'));
 
-/* TODO: uncomment this when live so we don't see dirty errors
-  // Example 500 page
-  app.use(function(err, req, res, next){
-    res.render('500');
-  });
-*/
+	app.configure('development', function(){
+		app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+	});
+	
+	app.configure('development', function(){
+		app.use(function(err, req, res, next){
+   			res.render('500');
+ 		});
+	});
 
-  // Example 404 page via simple Connect middleware
-  app.use(function(req, res){
-    res.render('404', {locals: {url:'', luser: null}});
-  });
+	app.use(express.logger(':method :url :status'));
+	app.use(express.bodyParser());
+	app.use(express.methodOverride());
+	app.use(express.cookieParser());
+	app.use(express.session({ secret: 'keyboard cat' }));
+	app.use(app.router);
+	app.use(express.static(__dirname + '/public'));
 
-  // Setup ejs views as default, with .html as the extension
-  app.set('views', __dirname + '/views');
-  app.register('.html', require('ejs'));
-  app.set('view engine', 'html');
+	// Example 404 page via simple Connect middleware
+	app.use(function(req, res){
+		res.render('404', {locals: {url:'', luser: null}});
+	});
 
-  // we always want a user object, campaign id and admin variable
-  app.set('view options', {
-    luser: null,
-    campaignId: null,
-    isAdmin: false,
-    adminEmail: 'admin@yoursite.com' //TODO: make this a config setting
-  });
+	// Setup ejs views as default, with .html as the extension
+	app.set('views', __dirname + '/views');
+	app.register('.html', require('ejs'));
+	app.set('view engine', 'html');
+	
+	// we always want a user object, campaign id and admin variable
+	app.set('view options', {
+		luser: null,
+		campaignId: null,
+		isAdmin: false,
+		adminEmail: 'admin@yoursite.com' //TODO: make this a config setting
+	});
 
   // Some dynamic view helpers
   app.dynamicHelpers({
