@@ -84,8 +84,9 @@ module.exports = {
 				// calculate team points for each team
 				var calcpoints = function(team, callback) {
 					// calculate team points and return
-					itemProvider.teamPoints(team.id, function(error, points) {
+					itemProvider.teamPoints(team.id, function(error, points, bonusPoints) {
 						team.points = points;
+						team.bonusPoints = bonusPoints;
 						callback(null, team);
 					});
 				};
@@ -203,8 +204,9 @@ module.exports = {
 							(req.session.user.teams && (req.session.user.teams.indexOf(team.id) >= 0)));
 						
 						// calculate team points
-						itemProvider.teamPoints(team.id, function(error, points) {
+						itemProvider.teamPoints(team.id, function(error, points, bonusPoints) {
 							team.points = points;
+							team.bonusPoints = bonusPoints;
 							
 							// find last 20 team items to display
 							itemProvider.findByTeam(team.id, 20, function(error, items) {

@@ -77,7 +77,7 @@ module.exports = {
 			req.session.user.roles.indexOf(TEAM_CAPTAIN_ROLE + teamId)>=0 ||
 			req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
     	
-    	itemProvider.teamPoints(req.params.id, function(error, points) {
+    	itemProvider.teamPoints(req.params.id, function(error, points, bonusPoints) {
     		if (error) return next(error);
     		
     		if (!points) points = 0;
@@ -111,7 +111,7 @@ module.exports = {
     						team.members = members;
     						
     						campaignProvider.findById(team.campaignId, function(error, campaign) {
-    							
+
     							// make user this campaign allows auto leave/join
     							canJoin = canJoin && campaign && campaign.allowjoins;
     							canLeave = canLeave && campaign && campaign.allowjoins;

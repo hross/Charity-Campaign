@@ -29,46 +29,49 @@
 
 <div class="row">
 
-<div class="span5 columns">
-	<section>
-		<h2>My Teams</h2>
-		<% for(var i=0; i < teams.length; i++) {%>
+
+<div class="span16 columns">
+
+<!-- display tabs -->
+<ul id="dashtabs" class="tabs">
+    <li class="active"><a href="#standings">Current Standings</a></li>
+    <li><a href="#myitems">My Items</a></li>
+    
+    <% for(var i=0; i < teams.length; i++) {%>
 			<%if (teams[i].isMember) {%>
-				<div class="additem">
-					<a href="/teams/show/<%=teams[i].id%>"><%=teams[i].name%></a>
-					 - <a href="/items/add/<%=teams[i].id%>">Add an Item</a>
-				</div>
-				
-				<%if (teams[i].items) {%>
-					<table class="common-table zebra-striped">
-					<thead>
-						<tr>
-						<th>Created</th>
-						<th>Item</th>
-						<th>Points</th>
-						</tr>
-					</thead>
-					<tbody>
-					<% for(var i=0; i < teams[i].items.length; i++) {%>
-						<tr>
-							<td><%=teams[i].items[i].created_at_format%></td>
-							<td><a href="/items/show/<%= teams[i].items[i].id%>/<%= teams[i].items[i].slug%>"><%=items[i].quantity%> <%= items[i].name %></a></td>
-							<td><%=(teams[i].items[i].points + teams[i].items[i].bonus) * teams[i].items[i].quantity %> points</td>
-						</tr>
-					<%}%>
-					</tbody>
-					</table>
-				<%}%>
+    <li><a href="#team<%=i%>"><%=teams[i].name%> Items</a></li>
 			<%}%>
-		<%}%>
-		
-		<h2>My Items</h2>
-		<table class="common-table zebra-striped">
+	<%}%>
+</ul>
+
+<div id="standings" class="tabview">
+	<table class="common-table zebra-striped sortable" id="teams">
+		<thead>
+			<tr><th>Team</th>
+			<th>Total Points</th>
+			<th>Bonus Points</th></tr>
+		</thead>
+		<tbody>
+		<% for(var i=0; i < teams.length; i++) {%>
+		<tr>
+			<td><a href="/teams/show/<%= teams[i].id%>/<%= teams[i].slug%>"><%= teams[i].name %></a></td>
+			<td><%=teams[i].points%></td>
+			<td><%=teams[i].bonusPoints%></td>
+		</tr>
+		<% } %>
+		</tbody>
+	</table>
+</div>
+
+<!-- build my items tab -->
+<div id="myitems" class="tabview" style="display:none;">
+	<table class="common-table zebra-striped sortable">
 		<thead>
 			<tr>
 			<th>Created</th>
 			<th>Item</th>
-			<th>Points</th>
+			<th>Total Points</th>
+			<th>Bonus Points</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -76,49 +79,79 @@
 			<tr>
 				<td><%=items[i].created_at_format%></td>
 				<td><a href="/items/show/<%= items[i].id%>/<%= items[i].slug%>"><%=items[i].quantity%> <%= items[i].name %></a></td>
-				<td><%=(items[i].points + items[i].bonus) * items[i].quantity %> points</td>
+				<td><%=(items[i].points + items[i].bonus) * items[i].quantity %></td>
+				<td><%=items[i].bonus * items[i].quantity %></td>
 			</tr>
 		<%}%>
 		</tbody>
-		</table>
-	</section>
+	</table>
 </div>
 
-<div class="span11 columns">
-
-	<section>
-		<h2>Current Standings</h2>
-		<table class="common-table zebra-striped" id="teams">
+<!-- build team specific tabs -->
+<% for(var i=0; i < teams.length; i++) {%>
+	<%if (teams[i].isMember) {%>
+		<div id="team<%=i%>" class="tabview" style="display:none;">
+			<div class="additem">
+				<a href="/teams/show/<%=teams[i].id%>">Go to Team Home</a>
+				 - <a href="/items/add/<%=teams[i].id%>">Add an Item</a>
+			</div>
+		
+		<%if (teams[i].items) {%>
+			<table class="common-table zebra-striped sortable">
 			<thead>
-				<tr><th>Team</th>
-				<th>Points</th></tr>
+				<tr>
+				<th>Created</th>
+				<th>Item</th>
+				<th>Total Points</th>
+				<th>Bonus Points</th>
+				</tr>
 			</thead>
 			<tbody>
-			<% for(var i=0; i < teams.length; i++) {%>
-			<tr>
-				<td><a href="/teams/show/<%= teams[i].id%>/<%= teams[i].slug%>"><%= teams[i].name %></a></td>
-				<td><%=teams[i].points%></td>
-			</tr>
-			<% } %>
+			<% for(var j=0; j < teams[i].items.length; j++) {%>
+				<tr>
+					<td><%=teams[i].items[j].created_at_format%></td>
+					<td><a href="/items/show/<%= teams[i].items[j].id%>/<%= teams[i].items[j].slug%>"><%=items[i].quantity%> <%= items[i].name %></a></td>
+					<td><%=(teams[i].items[j].points + teams[i].items[j].bonus) * teams[i].items[j].quantity %></td>
+					<td><%=teams[i].items[j].bonus * teams[i].items[j].quantity %></td>
+				</tr>
+			<%}%>
 			</tbody>
-		</table>
-	</section>
+			</table>
+		<%}%>
+		</div>
+	<%}%>
+<%}%>
+</div>
 
 </div>
 
-<!--div class="span4 columns">
-
-<p>Recent points go here.</p>
-
-</div-->
-
-</div>
 </div>
 
 <script>
-	// countdown timers for active bonuses
-	<% for(var i=0; i < bonuses.length; i++) {%>
-	var cdate = new Date('<%=bonuses[i].end.toUTCString()%>');
-	$('#bonuscd<%=i%>').countdown({until: cdate});
-	<%}%>
+
+	$(document).ready(function() {
+		// countdown timers for active bonuses
+		<% for(var i=0; i < bonuses.length; i++) {%>
+		var cdate = new Date('<%=bonuses[i].end.toUTCString()%>');
+		$('#bonuscd<%=i%>').countdown({until: cdate});
+		<%}%>
+		
+		// add tab logic
+		$("#dashtabs a").click(function (){
+			// set active tab
+			$("#dashtabs li").removeClass("active");
+			$(this).parent().addClass("active");
+			
+			// hide all current tab views
+			$(".tabview").hide();
+			
+			// show the proper tab view
+			$($(this).attr('href')).show();
+			
+			// disable redirect
+			return false;
+		});
+		
+		 $(".sortable").tablesorter();
+	});
 </script>

@@ -279,18 +279,29 @@ ItemProvider.prototype.teamPoints = function(teamId, callback) {
 		item_collection.group(
 			{teamId: true},	// keys (this is our "group by")
 			{teamId: teamId}, 	// condition (this is our filter)
-			{sum: 0},			// initial
-			function (doc, prev) { prev.sum += (parseInt(doc.points) + parseInt(doc.bonus)) * parseInt(doc.quantity); }, // reduce
+			{sum: 0, bonus: 0},			// initial
+			function (doc, prev) {
+				if (doc.admin) {
+					prev.bonus += (parseInt(doc.points) + parseInt(doc.bonus)) * parseInt(doc.quantity);
+				} else {
+					prev.bonus += parseInt(doc.bonus) * parseInt(doc.quantity); 
+				}
+				prev.sum += (parseInt(doc.points) + parseInt(doc.bonus)) * parseInt(doc.quantity); 
+			}, // reduce
 			false,				// command
 		function(error, results) {
 			if (error) { callback(error); return; }
 	
 			if (results && results.length > 0) {
 				var sum = results[0].sum;
+				var bonus = results[0].bonus;
+				
 				if (!sum || isNaN(sum)) sum = 0;
-				callback(null, sum);
+				if (!bonus || isNaN(bonus)) bonus = 0;
+				
+				callback(null, sum, bonus);
 			} else {
-				callback(null, 0);
+				callback(null, 0, 0);
 			}
 		});
     });
