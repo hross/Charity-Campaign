@@ -32,10 +32,13 @@
 	<h3>Administration</h3>
 	<ul class="unstyled menu">
 	<li>
-	<a class="btn" href="/teams/edit/<%=team.id%>">Edit this Team</a>
+		<a href="/teams/audit/<%= team.id%>/true">Audit Team</a>
 	</li>
 	<li>
-	<a class="btn delete" href="/teams/destroy/<%=team.id%>">Delete this Team</a>
+	<a class="btn" href="/teams/edit/<%=team.id%>">Edit Team</a>
+	</li>
+	<li>
+	<a class="btn delete" href="/teams/destroy/<%=team.id%>">Delete Team</a>
 	</li>
 	</ul>
 	<%}%>
