@@ -1,0 +1,99 @@
+<div class="container">
+<div class="row">
+
+<div class="span4 columns">
+	<h3>Members</h3>
+	<ul class="unstyled">
+		<%if (team.members) {%>
+		<% for(var i=0; i < team.members.length; i++) {%>
+		<li><a href="/users/name/<%= team.members[i].login%>"><%=team.members[i].login%></a></li>
+		<%}%>
+		<%}%>
+	</ul>
+	
+	<h3>Quick Links</h3>
+	<ul class="unstyled">
+		<% if (canLeave) {%>
+		<li><a href="/items/add/<%=team.id%>">Add an Item</a></li>
+		<%}%>
+		
+		<li><a href="/items/filter/<%=team.id%>">List Items</a></li>
+		<br />
+		<% if (canJoin) {%>
+			<li><a href="/users/join/<%=team.id%>">Join this team</a></li>
+		<%}%>
+	
+		<% if (canLeave) {%>
+			<li><a href="/users/leave/<%=team.id%>">Leave this team</a></li>
+		<%}%>
+	</ul>
+
+	<%if (isAdmin) {%>
+	<h3>Administration</h3>
+	<ul class="unstyled menu">
+	<li>
+	<a class="btn" href="/teams/edit/<%=team.id%>">Edit this Team</a>
+	</li>
+	<li>
+	<a class="btn delete" href="/teams/destroy/<%=team.id%>">Delete this Team</a>
+	</li>
+	</ul>
+	<%}%>
+</div>
+
+<div class="span12 columns">
+	<%- partial('../messages') %>
+	
+	<div class="page-header">
+		<h2><a href="/teams/show/<%=team.id%>/<%=team.slug%>"><%= team.name%></a></h2>
+	</div>
+	
+	<section>
+		<p><a href="/teams/audit/<%= team.id%>/true">Show only Unverified Items</a></p>
+		<p><a href="/teams/audit/<%= team.id%>/false">Show All Items</a></p>
+	</section>
+	
+	<section>
+		<h2>All Items</h2>
+		<table class="common-table zebra-striped" id="items">
+		<thead>
+			<tr><th>Created</th>
+			<th>Item</th>
+			<th>Points</th>
+			<th>By</th>
+			<th>Verified</th></tr>
+		</thead>
+		<tbody>
+		<% for(var i=0; i < items.length; i++) {%>
+			<tr>
+				<td><%=items[i].created_at_format%></td>
+				<td><a href="/items/show/<%= items[i].id%>/<%= items[i].slug%>"><%=items[i].quantity%> <%= items[i].name %></a></td>
+				<td><%=(items[i].points + items[i].bonus) * items[i].quantity %> points</td>
+				<td><a href="/users/name/<%=items[i].created_by_login%>"><%=items[i].created_by_login%></a></td>
+				<td><%if (!items[i].verified) {%><a class="verifylink" href="/items/verify/<%=items[i].id%>">Verify</a><% } else { %>by <%=items[i].verified_by%><%}%></td>
+			</tr>
+		<%}%>
+		</tbody>
+		</table>
+	</section>
+
+</div>
+
+</div>
+</div>
+
+<script>
+	$("table#items").tablesorter({ sortList: [[0,1]] });
+	
+	$(".verifylink").click(function() {
+		var jsonUrl = $(this).attr('href');
+		var url = $(this);
+		$.getJSON(jsonUrl, function(data) {
+			if (data && data.verified) {
+				url.parent().append(document.createTextNode('by ' + data.verified_by));
+				url.remove();
+			}
+		});
+		return false;
+	});
+</script>

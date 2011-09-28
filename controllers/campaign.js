@@ -109,7 +109,7 @@ module.exports = {
     					req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
     					
     				// find recent campaign items to display
-    				itemProvider.findByCampaign(campaignId, 5, function(error, items) {
+    				itemProvider.findByCampaign(campaignId, false, 5, function(error, items) {
     					if (error) return next(error);
     					
     					if (!items) items = [];
@@ -311,7 +311,7 @@ module.exports = {
 				res.render(null, {locals: {items: items, isAdmin: isAdmin, campaignId: campaignId, campaign: campaign}});
 			});
 		} else {
-			itemProvider.findByCampaign(campaignId, 1000, function(error, items) {
+			itemProvider.findByCampaign(campaignId, true, 1000, function(error, items) {
 				if (error) return next(error);
 				
 				if (!items) items = [];

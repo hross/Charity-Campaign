@@ -267,7 +267,7 @@ module.exports = {
 	});
   },
   
-  // update an item
+  // update a team
   
   update: function(req, res, next){
   	var captain = req.param('captain');
@@ -406,7 +406,7 @@ module.exports = {
 
   },
   
-  // destroy the campaign
+  // destroy the team
   
   destroy: function(req, res, next){
   	teamProvider.findById(req.params.id, function(error, team) {
@@ -451,5 +451,77 @@ module.exports = {
 			});
 		});
   	});    
+  },
+  
+  // audit page
+
+  audit: function(req, res, next){
+  	var teamId = req.params.id;
+  	var unverified = req.params.unverified && (req.params.unverified == 'true');
+
+    teamProvider.findById(teamId, function(error, team) {
+    	if (error) return next(error);
+    	
+    	if (!team) {
+    		req.flash('error', 'Could not find team.');
+    		res.redirect('back');
+    		return;
+    	}
+    	
+		var isAdmin = (req.session.user && req.session.user.roles &&
+			(req.session.user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + campaignId)>=0 ||
+			req.session.user.roles.indexOf(TEAM_CAPTAIN_ROLE + teamId)>=0 ||
+			req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
+		
+		if (!isAdmin) {
+			req.flash('error', 'You do not have permission to audit this team.');
+			res.redirect('back');
+			return;
+		}
+		
+		// find recent team items to display
+		if (unverified) {
+			console.log("unverified only");
+			itemProvider.findByTeam(team.id, 1000, function(error, items) {
+				if (error) return next(error);
+				
+				if (!items) items = [];
+				
+				// format the dates for display
+				for (var i = 0; i < items.length; i++) {
+					items[i].created_at_format = dateformat.dateFormat(items[i].created_at, "mm/dd/yyyy");
+					items[i].updated_on_format = dateformat.dateFormat(items[i].updated_on, "mm/dd/yyyy");
+				}
+	
+				res.render(null, {locals: {items: items, isAdmin: isAdmin, campaignId: campaignId, team: team}});
+			});
+		} else {
+			itemProvider.findByTeam(team.id, 1000, function(error, items) {
+				if (error) return next(error);
+				
+				if (!items) items = [];
+				
+				// format the dates for display
+				for (var i = 0; i < items.length; i++) {
+					items[i].created_at_format = dateformat.dateFormat(items[i].created_at, "mm/dd/yyyy");
+					items[i].updated_on_format = dateformat.dateFormat(items[i].updated_on, "mm/dd/yyyy");
+				}
+	
+				res.render(null, {locals: {items: items, isAdmin: isAdmin, campaignId: campaignId, team: team}});
+			});
+		}
+    });
+  },
+  
+  // generic find route function, called by the controller when it doesn't know what to do
+  
+  findGetRoute: function (action){
+	 switch(action) {
+      case 'audit':
+        return ['/audit/:id/:unverified', true];
+      	break;
+      default:
+      	return null;
+     }
   },
 };
