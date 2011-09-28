@@ -92,8 +92,8 @@
 	<%if (teams[i].isMember) {%>
 		<div id="team<%=i%>" class="tabview" style="display:none;">
 			<div class="additem">
-				<a href="/teams/show/<%=teams[i].id%>">Go to Team Home</a>
-				 - <a href="/items/add/<%=teams[i].id%>">Add an Item</a>
+				 <a href="/items/add/<%=teams[i].id%>" class="btn primary">Add an Item</a>
+				 <a href="/teams/show/<%=teams[i].id%>" class="btn">Team Details</a>
 			</div>
 		
 		<%if (teams[i].items) {%>
