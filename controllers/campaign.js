@@ -197,22 +197,27 @@ module.exports = {
 					if (error) return next(error);
 					
 					// calculate team points for each team
-					var calcpoints = function(team, callback) {
-						// calculate team points and return
+					var teamInfo = function(team, callback) {
+						// add membership property for this team
+						team.isMember = (req.session.user && 
+							(req.session.user.teams && (req.session.user.teams.indexOf(team.id) >= 0)));
+						
+						// calculate team points
 						itemProvider.teamPoints(team.id, function(error, points) {
 							team.points = points;
 							
-							// add membership property for this team
-							team.isMember = (req.session.user && 
-								(req.session.user.teams && (req.session.user.teams.indexOf(team.id) >= 0)));
-							
-							callback(null, team);
+							// find last 20 team items to display
+							itemProvider.findByTeam(team.id, 20, function(error, items) {
+								team.items = items;
+								callback(null, team);
+							});
 						});
 					};
 					
-					async.map(teams, calcpoints, function(error, results) {
+					async.map(teams, teamInfo, function(error, results) {
 						if (error) return next(error);
 						
+						//TODO: use underscore for this sort
 						// sort the results by points
 						results.sort(compare_teams);
 						
@@ -227,8 +232,8 @@ module.exports = {
 							(req.session.user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + campaignId)>=0 ||
 							req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
 							
-						// find last 10 recent campaign items to display
-						itemProvider.findByUserCampaign(req.session.user.id, campaignId, 200, function(error, items) {
+						// find last 20 recent campaign items to display
+						itemProvider.findByUserCampaign(req.session.user.id, campaignId, 20, function(error, items) {
 							if (error) return next(error);
 							
 							if (!items) items = [];

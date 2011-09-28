@@ -38,6 +38,27 @@
 					<a href="/teams/show/<%=teams[i].id%>"><%=teams[i].name%></a>
 					 - <a href="/items/add/<%=teams[i].id%>">Add an Item</a>
 				</div>
+				
+				<%if (teams[i].items) {%>
+					<table class="common-table zebra-striped">
+					<thead>
+						<tr>
+						<th>Created</th>
+						<th>Item</th>
+						<th>Points</th>
+						</tr>
+					</thead>
+					<tbody>
+					<% for(var i=0; i < team.items.length; i++) {%>
+						<tr>
+							<td><%=team.items[i].created_at_format%></td>
+							<td><a href="/items/show/<%= team.items[i].id%>/<%= team.items[i].slug%>"><%=items[i].quantity%> <%= items[i].name %></a></td>
+							<td><%=(team.items[i].points + team.items[i].bonus) * team.items[i].quantity %> points</td>
+						</tr>
+					<%}%>
+					</tbody>
+					</table>
+				<%}%>
 			<%}%>
 		<%}%>
 		
