@@ -58,6 +58,21 @@ ItemProvider.prototype.findByCampaign = function(campaignId, admin, limit, callb
     });
 };
 
+ItemProvider.prototype.findAllByCampaign = function(campaignId, limit, callback) {
+    this.getCollection(function(error, item_collection) {
+		if (error) { callback(error); return; }
+
+		var params = {sort: [['created_at','desc']]};
+		if (limit) params['limit'] = limit;
+		
+        item_collection.find({campaignId: campaignId}, params).toArray(function(error, results) {
+        	if (error) { callback(error); return; }
+
+          	callback(null, results);
+		});
+    });
+};
+
 ItemProvider.prototype.findByCampaignUnverified = function(campaignId, limit, callback) {
     this.getCollection(function(error, item_collection) {
 		if (error) { callback(error); return; }

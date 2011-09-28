@@ -39,14 +39,13 @@
 		<h2><a href="/campaigns/show/<%= campaign.id%>/<%= campaign.slug%>"><%= campaign.title%></a></h2>
 	</div>
 	
-	<section>
-		<p><a href="/campaigns/audit/<%= campaign.id%>/true">Show only Unverified Items</a></p>
-		<p><a href="/campaigns/audit/<%= campaign.id%>/false">Show All Items</a></p>
-	</section>
-	
-	<section>
-		<h2>All Items</h2>
-		<table class="common-table zebra-striped" id="items">
+	<!-- display tabs -->
+	<ul class="tabs">
+		<li <%if (verified) { %>class="active"<%}%>><a href="/campaigns/audit/<%= campaign.id%>/false">All Items</a></li>
+		<li <%if (!verified) { %>class="active"<%}%>><a href="/campaigns/audit/<%= campaign.id%>/true">Unverified Items</a></li>
+	</ul>
+
+	<table class="common-table zebra-striped" id="items">
 		<thead>
 			<tr><th>Created</th>
 			<th>Item</th>
@@ -65,8 +64,7 @@
 			</tr>
 		<%}%>
 		</tbody>
-		</table>
-	</section>
+	</table>
 
 </div>
 

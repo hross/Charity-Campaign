@@ -308,10 +308,10 @@ module.exports = {
 					items[i].updated_on_format = dateformat.dateFormat(items[i].updated_on, "mm/dd/yyyy");
 				}
 	
-				res.render(null, {locals: {items: items, isAdmin: isAdmin, campaignId: campaignId, campaign: campaign}});
+				res.render(null, {locals: {items: items, isAdmin: isAdmin, campaignId: campaignId, campaign: campaign, verified: false}});
 			});
 		} else {
-			itemProvider.findByCampaign(campaignId, true, 1000, function(error, items) {
+			itemProvider.findAllByCampaign(campaignId, 1000, function(error, items) {
 				if (error) return next(error);
 				
 				if (!items) items = [];
@@ -322,7 +322,7 @@ module.exports = {
 					items[i].updated_on_format = dateformat.dateFormat(items[i].updated_on, "mm/dd/yyyy");
 				}
 	
-				res.render(null, {locals: {items: items, isAdmin: isAdmin, campaignId: campaignId, campaign: campaign}});
+				res.render(null, {locals: {items: items, isAdmin: isAdmin, campaignId: campaignId, campaign: campaign, verified: true}});
 			});
 		}
     });

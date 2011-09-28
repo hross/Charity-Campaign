@@ -13,19 +13,8 @@
 	
 	<h3>Quick Links</h3>
 	<ul class="unstyled">
-		<% if (canLeave) {%>
 		<li><a href="/items/add/<%=team.id%>">Add an Item</a></li>
-		<%}%>
-		
 		<li><a href="/items/filter/<%=team.id%>">List Items</a></li>
-		<br />
-		<% if (canJoin) {%>
-			<li><a href="/users/join/<%=team.id%>">Join this team</a></li>
-		<%}%>
-	
-		<% if (canLeave) {%>
-			<li><a href="/users/leave/<%=team.id%>">Leave this team</a></li>
-		<%}%>
 	</ul>
 
 	<%if (isAdmin) {%>
@@ -48,14 +37,14 @@
 		<h2><a href="/teams/show/<%=team.id%>/<%=team.slug%>"><%= team.name%></a></h2>
 	</div>
 	
-	<section>
-		<p><a href="/teams/audit/<%= team.id%>/true">Show only Unverified Items</a></p>
-		<p><a href="/teams/audit/<%= team.id%>/false">Show All Items</a></p>
-	</section>
+
+	<!-- display tabs -->
+	<ul class="tabs">
+		<li <%if (verified) { %>class="active"<%}%>><a href="/teams/audit/<%= team.id%>/false">All Items</a></li>
+		<li <%if (!verified) { %>class="active"<%}%>><a href="/teams/audit/<%= team.id%>/true">Unverified Items</a></li>
+	</ul>
 	
-	<section>
-		<h2>All Items</h2>
-		<table class="common-table zebra-striped" id="items">
+	<table class="common-table zebra-striped" id="items">
 		<thead>
 			<tr><th>Created</th>
 			<th>Item</th>
@@ -75,7 +64,6 @@
 		<%}%>
 		</tbody>
 		</table>
-	</section>
 
 </div>
 

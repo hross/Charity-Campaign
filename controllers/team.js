@@ -462,6 +462,8 @@ module.exports = {
     teamProvider.findById(teamId, function(error, team) {
     	if (error) return next(error);
     	
+    	var campaignId = team.campaignId;
+    	
     	if (!team) {
     		req.flash('error', 'Could not find team.');
     		res.redirect('back');
@@ -482,7 +484,7 @@ module.exports = {
 		// find recent team items to display
 		if (unverified) {
 			console.log("unverified only");
-			itemProvider.findByTeam(team.id, 1000, function(error, items) {
+			itemProvider.findByTeamUnverified(team.id, 1000, function(error, items) {
 				if (error) return next(error);
 				
 				if (!items) items = [];
@@ -493,7 +495,7 @@ module.exports = {
 					items[i].updated_on_format = dateformat.dateFormat(items[i].updated_on, "mm/dd/yyyy");
 				}
 	
-				res.render(null, {locals: {items: items, isAdmin: isAdmin, campaignId: campaignId, team: team}});
+				res.render(null, {locals: {items: items, isAdmin: isAdmin, campaignId: campaignId, team: team, verified: false}});
 			});
 		} else {
 			itemProvider.findByTeam(team.id, 1000, function(error, items) {
@@ -507,7 +509,7 @@ module.exports = {
 					items[i].updated_on_format = dateformat.dateFormat(items[i].updated_on, "mm/dd/yyyy");
 				}
 	
-				res.render(null, {locals: {items: items, isAdmin: isAdmin, campaignId: campaignId, team: team}});
+				res.render(null, {locals: {items: items, isAdmin: isAdmin, campaignId: campaignId, team: team, verified: true}});
 			});
 		}
     });
