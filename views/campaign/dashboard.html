@@ -49,11 +49,11 @@
 						</tr>
 					</thead>
 					<tbody>
-					<% for(var i=0; i < team[i].items.length; i++) {%>
+					<% for(var i=0; i < teams[i].items.length; i++) {%>
 						<tr>
-							<td><%=team[i].items[i].created_at_format%></td>
-							<td><a href="/items/show/<%= team[i].items[i].id%>/<%= team[i].items[i].slug%>"><%=items[i].quantity%> <%= items[i].name %></a></td>
-							<td><%=(team[i].items[i].points + team[i].items[i].bonus) * team[i].items[i].quantity %> points</td>
+							<td><%=teams[i].items[i].created_at_format%></td>
+							<td><a href="/items/show/<%= teams[i].items[i].id%>/<%= teams[i].items[i].slug%>"><%=items[i].quantity%> <%= items[i].name %></a></td>
+							<td><%=(teams[i].items[i].points + teams[i].items[i].bonus) * teams[i].items[i].quantity %> points</td>
 						</tr>
 					<%}%>
 					</tbody>
