@@ -21,41 +21,119 @@
 		</div>
 		
 		<div class="clearfix">
-			<label for="start">Start</label>
-			<div class="input"><input type="text" name="start" id="start" /></div>
-		</div>
-		
-		<div class="clearfix">
-			<label for="end">End</label><br />
-			<div class="input"><input type="text" name="end" id="end" /></div>
-		</div>
-		
-		<div class="clearfix">
-			<label for="points">Bonus Points per Item</label>
-			<div class="input"><input type="text" name="points" id="points" /></div>
-		</div>
-		
-		<div class="clearfix">
-			<label for="type">Item Type</label>
-			<div class="input">
-				<ul class="inputs-list">
-			<% for(var i=0; i < itemTypes.length; i++) {%>
-				<%if (itemTypes[i].visible) {%>
-				<li><label>
-				<input type="radio" name="type" value="<%=itemTypes[i].id%>">
-				<span><%=itemTypes[i].name%></span>
-				</label></li>
-				<%}%>
-			<%}%>
-				</ul>
-			</div>
-		</div>
-		
-		<div class="clearfix">
 			<label for="description">Description</label>
 			<div class="input"><textarea name="description" id="description" rows=10 cols=50></textarea></div>
 		</div>
 		
+		<!-- display tabs -->
+		<ul id="bonustabs" class="tabs">
+			<li class="active"><a href="#item">Item Bonus</a></li>
+			<li><a href="#spot">Spot Bonus</a></li>
+		</ul>
+		
+		<div id="item" class="tabview">
+		
+			<div class="clearfix">
+				<label for="start">Start</label>
+				<div class="input"><input type="text" name="start" id="start" /></div>
+			</div>
+			
+			<div class="clearfix">
+				<label for="end">End</label><br />
+				<div class="input"><input type="text" name="end" id="end" /></div>
+			</div>
+			
+			<div class="clearfix">
+				<label for="points">Bonus Points per Item</label>
+				<div class="input"><input type="text" name="points" id="points" /></div>
+			</div>
+			
+			<div class="clearfix">
+				<label for="type">Item Type</label>
+				<div class="input">
+					<ul class="inputs-list">
+				<% for(var i=0; i < itemTypes.length; i++) {%>
+					<%if (itemTypes[i].visible) {%>
+					<li><label>
+					<input type="radio" name="type" value="<%=itemTypes[i].id%>">
+					<span><%=itemTypes[i].name%></span>
+					</label></li>
+					<%}%>
+				<%}%>
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+		<div id="spot" class="tabview" style="display:none;">
+			<p>First team(s) to submit X items.</p>
+			
+			<div class="clearfix">
+				<label for="numteams">Number of Teams</label>
+				<div class="input">
+					<select id="numteams">
+					  <option value="1">1</option>
+					  <option value="2">2</option>
+					  <option value="3">3</option>
+					  <option value="4">4</option>
+					  <option value="5">5</option>
+					  <option value="6">6</option>
+					  <option value="7">7</option>
+					  <option value="8">8</option>
+					  <option value="9">9</option>
+					</select>
+				</div>
+			</div>
+			
+			<div class="clearfix">
+				<label for="total">How Many?</label>
+				<div class="input"><input type="text" name="total" id="total" /></div>
+			</div>
+		
+			<div class="clearfix">
+				<label for="pointsoritems">Points or Items?</label>
+				<div class="input">
+					<select id="pointsoritems">
+					  <option value="items">Items</option>
+					  <option value="points">Points</option>
+					</select>
+				</div>
+			</div>
+			
+			<div class="clearfix">
+				<label for="spottype">Of Item</label>
+				<div class="input">
+					<ul class="inputs-list">
+					<li><label>
+					<input type="radio" name="spottype" value="0" checked>
+					<span>All Items</span>
+					</label></li>
+				<% for(var i=0; i < itemTypes.length; i++) {%>
+					<%if (itemTypes[i].visible) {%>
+					<li><label>
+					<input type="radio" name="spottype" value="<%=itemTypes[i].id%>">
+					<span><%=itemTypes[i].name%></span>
+					</label></li>
+					<%}%>
+				<%}%>
+					</ul>
+				</div>
+			</div>
+			
+			<p>Leave blank for no start/end date.</p>
+			
+			<div class="clearfix">
+				<label for="spotstart">Start</label>
+				<div class="input"><input type="text" name="spotstart" id="spotstart" /></div>
+			</div>
+			
+			<div class="clearfix">
+				<label for="spotend">End</label><br />
+				<div class="input"><input type="text" name="spotend" id="spotend" /></div>
+			</div>
+		</div>
+		
+		<input type="hidden" name="bonusType" id="bonusType" value="item" />
 		<input type="hidden" name="campaignId" id="campaignId" value="<%= campaignId%>" />
 		
 		<div class="actions">
@@ -72,6 +150,30 @@
 </div>
 
 <script>
-	$('#start').datetimepicker();
-	$('#end').datetimepicker();
+	$(document).ready(function() {
+		$('#start').datetimepicker();
+		$('#end').datetimepicker();
+		
+		$('#sportstart').datetimepicker();
+		$('#spotend').datetimepicker();
+	
+		// add tab logic
+		$("#bonustabs a").click(function (){
+			// set active tab
+			$("#bonustabs li").removeClass("active");
+			$(this).parent().addClass("active");
+			
+			// hide all current tab views
+			$(".tabview").hide();
+			
+			// show the proper tab view
+			$($(this).attr('href')).show();
+			
+			// set hidden input
+			$("#bonusType").val($(this).attr('href').replace("#", ""));
+			
+			// disable redirect
+			return false;
+		});
+	});
 </script>

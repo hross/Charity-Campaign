@@ -108,7 +108,7 @@ module.exports = {
     	
     	if (!bonus) {
     		req.flash("Could not find that bonus.");
-    		res.render(null, {locals:{bonus: null}});
+    		res.redirect('back');
     		return;
     	}
     	

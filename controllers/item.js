@@ -219,93 +219,95 @@ module.exports = {
     		return;
     	}
     	
-    	var isAdmin = (user && user.roles &&
-			(user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + itemType.campaignId)>=0 ||
-			user.roles.indexOf(ADMIN_ROLE)>=0));
-			
-		// make sure this user can add to this team
-		var isTeam = user.teams && (user.teams.indexOf(teamId) >= 0);
-		if (!(isTeam || isAdmin)) {
-			req.flash('error', 'You cannot add an item to a team you are not a member of.');
-			res.redirect('back');
-			return;
-		}
-		
-		// invisible items are assumed to be admin items
-		var admin = !itemType.visible;
-    	
-    	// find any associated bonus points
-    	bonusProvider.findTypeWithin(itemType.id, (new Date()), function(error, bonuses) {
-    		if (error) return next(error);
-    		
-    		ibonuses = []; // keep track of applied bonuses
-    		ibonusvalues = [];
-    		
-    		var bonusPoints = 0;
-    		if (bonuses) {
-    			for (var i=0; i<bonuses.length; i++) {
-    				bonusPoints += parseInt(bonuses[i].points);
-    				ibonuses.push(bonuses[i].id);
-    				var bi = {};
-    				bi[bonuses[i].id] = parseInt(bonuses[i].points);
-    				ibonusvalues.push(bi);
-    			}
-    		}
-
-			// make points all bonus points if this an admin item
-			var points = parseInt(itemType.points);
-			if (admin) {
-				bonusPoints += points;
-				points = 0;
-			}
-			
-    		
-    		var office = req.param('office');
-    		
-    		var quantity = 0;	
-    		var q = req.param('quantity');
-			var quantity = 0;	
-			
-			try {
-				if (req.param('quantity')) {
-					quantity = parseInt(req.param('quantity'));
-					if (isNaN(quantity)) quantity = 0;
-				}
-			} catch (e) {
-				quantity = 0;
-			}
-			
-			if (0 == quantity) {
-				req.flash('error', 'Quantity must be a number greater than 0.');
+    	teamProvider.findById(teamId, function(error, team) {
+			var isAdmin = (user && user.roles &&
+				(user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + team.campaignId)>=0 ||
+				user.roles.indexOf(ADMIN_ROLE)>=0));
+				
+			// make sure this user can add to this team
+			var isTeam = user.teams && (user.teams.indexOf(teamId) >= 0);
+			if (!(isTeam || isAdmin)) {
+				req.flash('error', 'You cannot add an item to a team you are not a member of.');
 				res.redirect('back');
 				return;
 			}
-
-    		// count it
-    		itemProvider.save({
-				type: type,
-				name: itemType.name,
-				points: points,
-				bonus: bonusPoints,
-				campaignId: itemType.campaignId,
-				description: itemType.description,
-				teamId: teamId,
-				quantity: quantity,
-				created_by: req.session.user.id,
-				updated_by: req.session.user.login,
-				created_by_login: req.session.user.login,
-				admin: admin,
-				office: office,
-				bonuses: ibonuses,
-				bonusvalues: ibonusvalues
-			}, function(error, items) {
+			
+			// invisible items are assumed to be admin items
+			var admin = !itemType.visible;
+			
+			// find any associated bonus points
+			bonusProvider.findTypeWithin(itemType.id, (new Date()), function(error, bonuses) {
 				if (error) return next(error);
 				
-				if (items[0]) {
-					res.redirect("/items/show/" + items[0].id);
-				} else {
-					res.redirect('/items');
+				ibonuses = []; // keep track of applied bonuses
+				ibonusvalues = [];
+				
+				var bonusPoints = 0;
+				if (bonuses) {
+					for (var i=0; i<bonuses.length; i++) {
+						bonusPoints += parseInt(bonuses[i].points);
+						ibonuses.push(bonuses[i].id);
+						var bi = {};
+						bi[bonuses[i].id] = parseInt(bonuses[i].points);
+						ibonusvalues.push(bi);
+					}
 				}
+	
+				// make points all bonus points if this an admin item
+				var points = parseInt(itemType.points);
+				if (admin) {
+					bonusPoints += points;
+					points = 0;
+				}
+				
+				
+				var office = req.param('office');
+				
+				var quantity = 0;	
+				var q = req.param('quantity');
+				var quantity = 0;	
+				
+				try {
+					if (req.param('quantity')) {
+						quantity = parseInt(req.param('quantity'));
+						if (isNaN(quantity)) quantity = 0;
+					}
+				} catch (e) {
+					quantity = 0;
+				}
+				
+				if (0 == quantity) {
+					req.flash('error', 'Quantity must be a number greater than 0.');
+					res.redirect('back');
+					return;
+				}
+	
+				// count it
+				itemProvider.save({
+					type: type,
+					name: itemType.name,
+					points: points,
+					bonus: bonusPoints,
+					campaignId: team.campaignId,
+					description: itemType.description,
+					teamId: teamId,
+					quantity: quantity,
+					created_by: req.session.user.id,
+					updated_by: req.session.user.login,
+					created_by_login: req.session.user.login,
+					admin: admin,
+					office: office,
+					bonuses: ibonuses,
+					bonusvalues: ibonusvalues
+				}, function(error, items) {
+					if (error) return next(error);
+					
+					if (items[0]) {
+						res.redirect("/items/show/" + items[0].id);
+					} else {
+						res.redirect('/items');
+					}
+				});
 			});
     	});
     });
@@ -628,7 +630,7 @@ module.exports = {
 									name: itemType.name,
 									points: points,
 									bonus: bonusPoints,
-									campaignId: itemType.campaignId,
+									campaignId: bonus.campaignId,
 									description: itemType.description,
 									teamId: record.teamid + '',
 									quantity: record.quantity,

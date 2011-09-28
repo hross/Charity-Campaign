@@ -64,6 +64,12 @@ module.exports = {
     itemtypeProvider.findById(req.params.id, function(error, itemtype) {
     	if (error) return next(error);
     	
+    	if (itemtype.system) {
+    	    req.flash("This bonus was created by the system and cannot be edited.");
+    		res.redirect('back');
+    		return;
+    	}
+    	
     	if (!itemtype) {
     		req.flash('error', 'Cannot find item type.');
     		res.redirect('back');
@@ -164,20 +170,36 @@ module.exports = {
     	points = parseInt(req.param('points'));
     	if (isNaN(points)) points = 0;
     }
+    
+    itemtypeProvider.findById(req.params.id, function(error, itemtype) {
+  		if (error) return next(error);
+  		
+    	if (!itemtype) {
+    		req.flash('error', 'Cannot find item type.');
+    		res.redirect('back');
+    		return;
+    	}
+    	
+    	if (itemtype.system) {
+    	    req.flash("This item type was created by the system and cannot be edited.");
+    		res.redirect('back');
+    		return;
+    	}
   
-    itemtypeProvider.update({
-        name: req.param('name'),
-        description: req.param('description'),
-        points: points,
-        id: req.params.id,
-        campaignId: campaignId,
-        visible: visible
-    }, function(error, itemtypes) {
-    	if (error) return next(error);
-
-		req.flash('info', 'Successfully updated _' + itemtypes[0].name + '_.');
-		res.redirect('/itemtypes/show/' + itemtypes[0].id);
-    });
+		itemtypeProvider.update({
+			name: req.param('name'),
+			description: req.param('description'),
+			points: points,
+			id: req.params.id,
+			campaignId: campaignId,
+			visible: visible
+		}, function(error, itemtypes) {
+			if (error) return next(error);
+	
+			req.flash('info', 'Successfully updated _' + itemtypes[0].name + '_.');
+			res.redirect('/itemtypes/show/' + itemtypes[0].id);
+		});
+	});
   },
   
   // destroy the campaign
@@ -188,6 +210,12 @@ module.exports = {
   		
     	if (!itemtype) {
     		req.flash('error', 'Cannot find item type.');
+    		res.redirect('back');
+    		return;
+    	}
+    	
+    	if (itemtype.system) {
+    	    req.flash("This item type was created by the system and cannot be deleted.");
     		res.redirect('back');
     		return;
     	}
