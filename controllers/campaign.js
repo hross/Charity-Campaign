@@ -208,7 +208,15 @@ module.exports = {
 							
 							// find last 20 team items to display
 							itemProvider.findByTeam(team.id, 20, function(error, items) {
+								if (items) {
+									// format the dates for display
+									for (var i = 0; i < items.length; i++) {
+										items[i].created_at_format = dateformat.dateFormat(items[i].created_at, "mm.d.yyyy HH:MM");
+										items[i].updated_on_format = dateformat.dateFormat(items[i].updated_on, "mm.d.yyyy HH:MM");
+									}
+								}
 								team.items = items;
+								
 								callback(null, team);
 							});
 						});
