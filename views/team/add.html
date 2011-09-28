@@ -27,6 +27,12 @@
 			</div>
 			
 			<div class="clearfix">
+			<label for="sponsor">Executive Sponsor</label>
+			<div class="input"><input type="text" name="sponsor" id="sponsor" value="" autocomplete="off" /></div>
+			</div>
+			
+			
+			<div class="clearfix">
 			<label for="motto">Motto</label><br />
 			<div class="input"><textarea name="motto" id="motto" rows=10 cols=50></textarea></div>
 			</div>
@@ -84,27 +90,40 @@
 			});
 		});
 		
-		var callback = function(option) {
+		var captain_callback = function(option) {
 			$('#captain').val(option.title);
 		};
 		
 		// auto suggest for user box
 		$("#captain").fancy_suggest({
 			url: "/users/json",
-			callback: callback,
+			callback: captain_callback,
 			tpl_result_begin: '<li class="result {{class}}" id="{{id}}" result_id="{{result_id}}"><a href="#">',
       		tpl_result_body: '<span class="title">{{title}}</span>',
       		tpl_result_end: '</li></a>'
 		});
 		
-		var callback = function(option) {
+		var sponsor_callback = function(option) {
+			$('#sponsor').val(option.title);
+		};
+		
+		// auto suggest for user box
+		$("#sponsor").fancy_suggest({
+			url: "/users/json",
+			callback: sponsor_callback,
+			tpl_result_begin: '<li class="result {{class}}" id="{{id}}" result_id="{{result_id}}"><a href="#">',
+      		tpl_result_body: '<span class="title">{{title}}</span>',
+      		tpl_result_end: '</li></a>'
+		});
+		
+		var user_callback = function(option) {
 			$('#user').val(option.title);
 		};
 		
 		// auto suggest for user box
 		$("#user").fancy_suggest({
 			url: "/users/json",
-			callback: callback,
+			callback: user_callback,
 			tpl_result_begin: '<li class="result {{class}}" id="{{id}}" result_id="{{result_id}}"><a href="#">',
       		tpl_result_body: '<span class="title">{{title}}</span>',
       		tpl_result_end: '</li></a>'
