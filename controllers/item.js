@@ -239,14 +239,24 @@ module.exports = {
     		if (error) return next(error);
     		
     		ibonuses = []; // keep track of applied bonuses
-    	
+    		ibonusvalues = [];
+    		
     		var bonusPoints = 0;
     		if (bonuses) {
     			for (var i=0; i<bonuses.length; i++) {
     				bonusPoints += parseInt(bonuses[i].points);
     				ibonuses.push(bonuses[i].id);
+    				ibonusvalues.push( {bonuses[i].id: parseInt(bonuses[i].points)});
     			}
     		}
+
+			// make points all bonus points if this an admin item
+			var points = parseInt(itemType.points);
+			if (admin) {
+				bonusPoints += points;
+				points = 0;
+			}
+			
     		
     		var office = req.param('office');
     		
@@ -273,7 +283,7 @@ module.exports = {
     		itemProvider.save({
 				type: type,
 				name: itemType.name,
-				points: parseInt(itemType.points),
+				points: points,
 				bonus: bonusPoints,
 				campaignId: itemType.campaignId,
 				description: itemType.description,
@@ -284,7 +294,8 @@ module.exports = {
 				created_by_login: req.session.user.login,
 				admin: admin,
 				office: office,
-				bonuses: ibonuses
+				bonuses: ibonuses,
+				bonusvalues: ibonusvalues
 			}, function(error, items) {
 				if (error) return next(error);
 				
@@ -393,14 +404,23 @@ module.exports = {
     		bonusProvider.findTypeWithin(oldItem.type, oldItem.created_at, function(error, bonuses) {
 				if (error) return next(error);
 				
-				item.bonuses = []; // keep track of applied bonuses
+				// keep track of applied bonuses
+				item.bonuses = []; 
+				item.bonusvalues = [];
 			
 				var bonusPoints = 0;
 				if (bonuses) {
 					for (var i=0; i<bonuses.length; i++) {
 						bonusPoints += parseInt(bonuses[i].points);
 						item.bonuses.push(bonuses[i].id);
+						item.bonusvalues.push( {bonuses[i].id: parseInt(bonuses[i].points)});
 					}
+				}
+				
+				// make points all bonus points if this an admin item
+				if (admin) {
+					bonusPoints += item.points;
+					item.points = 0;
 				}
 			
 				item.bonus = bonusPoints;
@@ -584,7 +604,15 @@ module.exports = {
 								for (var i=0; i<bonuses.length; i++) {
 									bonusPoints += parseInt(bonuses[i].points);
 									ibonuses.push(bonuses[i].id);
+									ibonusvalues.push( {bonuses[i].id: parseInt(bonuses[i].points)});
 								}
+							}
+							
+							// make points all bonus points if this an admin item
+							var points = parseInt(itemType.points);
+							if (admin) {
+								bonusPoints += points;
+								points = 0;
 							}
 				
 							// get user info
@@ -592,7 +620,7 @@ module.exports = {
 								itemProvider.save({
 									type: itemType.id,
 									name: itemType.name,
-									points: parseInt(itemType.points),
+									points: points,
 									bonus: bonusPoints,
 									campaignId: itemType.campaignId,
 									description: itemType.description,
@@ -603,7 +631,8 @@ module.exports = {
 									created_by_login: user.login,
 									admin: admin,
 									office: record.office,
-									bonuses: ibonuses
+									bonuses: ibonuses,
+									bonusvalues: ibonusvalues
 								}, function(error, items) {
 									if (error) return next(error);
 									

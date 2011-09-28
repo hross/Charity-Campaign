@@ -89,7 +89,6 @@ module.exports = {
     	bonus.end = dateformat.dateFormat(bonus.end, "dddd, mmmm d, yyyy HH:MM");
     	
     	itemProvider.findByBonus(bonus.id, 100, function(error, items) {
-    		
     		if (items) {
     			for (var i = 0; i < items.length; i++) {
     				items[i].created_at_format = dateformat.dateFormat(items[i].created_at, "dddd, mmmm d, yyyy HH:MM");
