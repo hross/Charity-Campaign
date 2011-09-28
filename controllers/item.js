@@ -246,7 +246,9 @@ module.exports = {
     			for (var i=0; i<bonuses.length; i++) {
     				bonusPoints += parseInt(bonuses[i].points);
     				ibonuses.push(bonuses[i].id);
-    				ibonusvalues.push( {bonuses[i].id: parseInt(bonuses[i].points)});
+    				var bi = {};
+    				bi[bonuses[i].id] = parseInt(bonuses[i].points);
+    				ibonusvalues.push(bi);
     			}
     		}
 
@@ -413,7 +415,9 @@ module.exports = {
 					for (var i=0; i<bonuses.length; i++) {
 						bonusPoints += parseInt(bonuses[i].points);
 						item.bonuses.push(bonuses[i].id);
-						item.bonusvalues.push( {bonuses[i].id: parseInt(bonuses[i].points)});
+						var bi = {};
+    					bi[bonuses[i].id] = parseInt(bonuses[i].points);
+    					item.bonusvalues.push(bi);
 					}
 				}
 				
@@ -605,6 +609,9 @@ module.exports = {
 									bonusPoints += parseInt(bonuses[i].points);
 									ibonuses.push(bonuses[i].id);
 									ibonusvalues.push( {bonuses[i].id: parseInt(bonuses[i].points)});
+									var bi = {};
+									bi[bonuses[i].id] = parseInt(bonuses[i].points);
+									ibonusvalues.push(bi);
 								}
 							}
 							
