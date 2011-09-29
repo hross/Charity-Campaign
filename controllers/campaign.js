@@ -50,6 +50,19 @@ function compare_teams(a,b) {
 
 
 module.exports = {
+  // my campaigns
+  
+  mine: function(req, res, next) {
+  	 //try to find a campaign to redirect to
+  	var user = req.session.user;
+	if (user && user.campaigns && (user.campaigns.length > 0)) {
+		redir = "/campaigns/dashboard/" + user.campaigns[0];
+		res.redirect(redir);
+		return;
+	}
+	
+	res.redirect('/campaigns');
+  },
   
   // list
   
@@ -562,6 +575,9 @@ module.exports = {
 	 switch(action) {
       case 'dashboard':
         return ['/dashboard/:id', true];
+      	break;
+      case 'mine':
+        return ['/mine', true];
       	break;
       case 'audit':
         return ['/audit/:id/:unverified', true];
