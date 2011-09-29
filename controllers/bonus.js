@@ -17,6 +17,7 @@ var itemProvider = new ItemProvider(config.mongodb.host, config.mongodb.port);
 
 var dateformat = require('../lib/dateformat'); // custom date tools
 var async = require('async');
+var _ = require('underscore')._;
 
 var CAMPAIGN_ADMIN_ROLE = config.roles.CAMPAIGN_ADMIN_ROLE;
 var ADMIN_ROLE = config.roles.ADMIN_ROLE;
@@ -371,16 +372,95 @@ module.exports = {
 				
 				// find all items corresponding to this bonus
 				itemProvider.findByCreation(bonus.campaignId, bonus.start, bonus.end, 0, function(error, items) {
+					// go through each item and track totals
+					var totals = {};
+					var winners = []; // keep track of winning teams for later
+					var winItems = []; // keep winning items for later updates
+					var numteams = bonus.numteams;
 					
 					for (var i = 0; i < items.length; i++) {
+						// we are only counting this item if it counts toward the bonus
+						if ((bonus.type < 0) || (bonus.type == item.type)) {
+							if (!total[item.teamId]) total[item.teamId] = 0; // init blank team values
+						
+							// increment our total
+							if ('points' == bonus.pointsoritems) {
+								var points = (parseInt(item.points) + parseInt(item.bonus)) * parseInt(item.quantity);
+								total[item.teamId] += points
+							} else {
+								total[item.teamId] += item.quantity;
+							}
+							
+							// if we passed bonus threshold and we aren't already a winner
+							if ((total[item.teamId] > bonus.total) && !_.contains(winners, item.teamId)) {
+								// this team is a winner
+								winners.push(item.teamId);
+								winItems.push(item);
+								numteams--;
+								if (!numteams) break; // break out of the loop if we hit the maximum number of winners
+							}
+						}
+					
 						console.log(items[i].created_at);
 					}
 					
-					//TODO: even if the bonus isn't fulfilled, if we are past the end date it should be marked
+					// this function sets the bonus for each winning item
+					var setBonus = function(item, callback) {
+						// update the item with some information about the bonus
+						item.winner.push(bonus.id);
+						
+						itemProvider.update(item, function(error, uitem) {
+							if (error) { callback(error); return; }
+							
+							var bi = {};
+    						bi[bonus.id] = parseInt(bonus.spotpoints);
+							
+							// add a bonus point item for the winning team
+							itemProvider.save({
+								type: -1, // system bonus point type
+								name: "Bonus Points",
+								points: 0,
+								bonus: bonus.spotpoints,
+								campaignId: bonus.campaignId,
+								description: "Bonus Points for " + bonus.title + " Bonus",
+								teamId: item.teamId,
+								quantity: 1,
+								created_by: req.session.user.id,
+								updated_by: req.session.user.login,
+								created_by_login: req.session.user.login,
+								admin: true,
+								office: "",
+								bonuses: [bonus.id],
+								bonusvalues: [bi]
+							}, function(error, items) {
+								if (error) callback(error);
+								
+								callback(null, items[0]);
+							}); // end item update
+						}); // end original item update
+					};
 					
-					// after everything is done we are happy
-					req.flash('info', 'Successfully recalculated _' + bonus.title + '_.');
-					res.redirect('back');
+					// update the bonus with completion if it is fulfilled or the end date is past
+					var now = new Date();
+					if ((now > bonus.end) || (!numteams)) {
+						bonus.completed = true;
+					} else {
+						bonus.completed = false;
+					}
+					
+					// run the update
+					bonusProvider.update(bonus, function(error, bonus) {
+						if (error) return next(error);
+						
+						// add/update all of the items
+						async.map(winItems, setBonus, function(error, items) {
+							if (error) return next(error);
+							
+							// after everything is done we are happy
+							req.flash('info', 'Successfully recalculated _' + bonus.title + '_.');
+							res.redirect('back');
+						});
+					});
 				});
 			});
 			

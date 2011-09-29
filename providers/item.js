@@ -267,7 +267,8 @@ ItemProvider.prototype.update = function(items, callback) {
 				{$set: {campaignId: item.campaignId, type: item.type, name:item.name, 
 				bonus: item.bonus, description: item.description, quantity: item.quantity, 
 				verified: item.verified, flagged: item.flagged, admin: item.admin, points: item.points, slug: item.slug,
-				user: item.userId, update_on: item.update_on, office: item.office, bonuses: item.bonuses, bonusvalues: item.bonusvalues}},{}, function() {
+				user: item.userId, update_on: item.update_on, office: item.office, bonuses: item.bonuses, bonusvalues: item.bonusvalues
+				winner: item.winner}},{}, function() {
 				console.log("updated.");
 				callback(null, item);
 			});
