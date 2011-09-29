@@ -306,8 +306,6 @@ module.exports = {
 												bonusids = _.union(recentItems[i].bonuses, bonusids);
 											}
 											
-											console.log(bonusids);
-											
 											bonusProvider.findByIds(bonusids, function(error, recentBonuses) {
 												// after everything is done we are happy
 												res.render(null, {locals: {campaign: campaign, bonuses: bonuses,
@@ -357,7 +355,6 @@ module.exports = {
 		
 		// find recent campaign items to display
 		if (unverified) {
-			console.log("unverified only");
 			itemProvider.findByCampaignUnverified(campaignId, 1000, function(error, items) {
 				if (error) return next(error);
 				
