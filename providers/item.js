@@ -133,6 +133,26 @@ ItemProvider.prototype.findByTeamUnverified = function(teamId, limit, callback) 
     });
 };
 
+ItemProvider.prototype.findSince = function(campaignId, dt, limit, callback) {
+    this.getCollection(function(error, item_collection) {
+		if (error) { callback(error); return; }
+
+		var params = {sort: [['created_at','desc']]};
+		if (limit) params['limit'] = limit;
+		
+		console.log(dt);
+
+		item_collection.find(
+			{campaignId: campaignId, created_at: {$gte: dt}}
+			, params).toArray(function(error, results) {
+			
+			if (error) { callback(error); return; }
+
+			callback(null, results);
+		});
+    });
+};
+
 ItemProvider.prototype.findByBonus = function(bonusId, limit, callback) {
     this.getCollection(function(error, item_collection) {
 		if (error) { callback(error); return; }
@@ -405,5 +425,6 @@ ItemProvider.prototype.userPointTotals = function(campaignId, callback) {
 		});
     });
 };
+
 
 exports.ItemProvider = ItemProvider;

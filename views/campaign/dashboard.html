@@ -58,7 +58,9 @@
     <li><a href="#team<%=i%>"><%=teams[i].name%> Items</a></li>
 			<%}%>
 	<%}%>
+	
 	 <li><a href="#itemtypes">Item Summary</a></li>
+	 <li><a href="#recentbonus">Recent Bonuses</a></li>
 </ul>
 
 <div id="standings" class="tabview">
@@ -164,6 +166,51 @@
 		</tbody>
 	</table>
 </div>
+
+<div id="recentbonus" class="tabview" style="display:none;">
+	<table class="common-table zebra-striped" id="bonus">
+		<thead>
+			<tr>
+			<th>Bonus</th>
+			<th>Details</th>
+			</tr>
+		</thead>
+		<tbody>
+		<% for(var i=0; i < recentBonuses.length; i++) {%>
+			<tr>
+			<td>
+			<a href="/bonuses/show/<%= recentBonuses[i].id%>/<%=recentBonuses[i].slug%>">
+				<%= recentBonuses[i].title %>
+			</td>
+			
+		<%if ('spot' == recentBonuses[i].bonustype) {%>
+				
+			<td>
+			<a href="/bonuses/show/<%=recentBonuses[i].id%>/<%=recentBonuses[i].slug%>">
+				
+				The first <%=recentBonuses[i].numteams%> teams to reach <%=recentBonuses[i].total%> <%=(recentBonuses[i].pointsoritems == 'items')?'items':'points'%>
+				
+			<%if (recentBonuses[i].name) {%>
+				(<%=recentBonuses[i].name%>)
+			<%}%>
+			</a>
+			</td>
+				
+		<%} else {%>
+				
+			<td>
+			<a href="/bonuses/show/<%=recentBonuses[i].id%>/<%=recentBonuses[i].slug%>">
+			<%=recentBonuses[i].points%> points for <%=recentBonuses[i].name%>
+			</a>
+			</td>
+		<%}%>
+		
+			</tr>
+		<% } %>
+		</tbody>
+	</table>
+</div>
+
 </div>
 
 </div>

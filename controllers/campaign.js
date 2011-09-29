@@ -26,6 +26,7 @@ var userProvider = new UserProvider(config.mongodb.host, config.mongodb.port, co
 
 var dateformat = require('../lib/dateformat'); // custom date tools
 
+var _ = require('underscore')._;
 var async = require('async');
 
 var CAMPAIGN_ADMIN_ROLE = config.roles.CAMPAIGN_ADMIN_ROLE;
@@ -278,10 +279,30 @@ module.exports = {
 									async.map(itemTypes, typeStats, function(error, itemTypes) {
 										if (error) return next(error);
 									
-										// after everything is done we are happy
-										res.render(null, {locals: {campaign: campaign, bonuses: bonuses,
-											teams: teams, campaignId: campaign.id, 
-											isAdmin: isAdmin, items: items, itemTypes: itemTypes}});
+										// now find recent items for bonus calculations
+										var now = new Date();
+										var recentDt = new Date();
+										recentDt.setDate(now.getDate() - 2); // 2 days
+										
+										itemProvider.findSince(campaignId, recentDt, 0, function(error, recentItems) {
+											if (error) { return next(error); }
+										
+											// get the unique list of bonuses
+											var bonusids = [];
+											for (var i = 0; i < recentItems.length; i++) {
+												bonusids = _.union(recentItems[i].bonuses, bonusids);
+											}
+											
+											console.log(bonusids);
+											
+											bonusProvider.findByIds(bonusids, function(error, recentBonuses) {
+												// after everything is done we are happy
+												res.render(null, {locals: {campaign: campaign, bonuses: bonuses,
+													teams: teams, campaignId: campaign.id, 
+													isAdmin: isAdmin, items: items, itemTypes: itemTypes,
+													recentBonuses: recentBonuses}});
+											});
+										});
 									});
 								}); // end find all item types
 							}); // end find by user

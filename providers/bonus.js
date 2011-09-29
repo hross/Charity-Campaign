@@ -75,6 +75,24 @@ BonusProvider.prototype.findById = function(id, callback) {
     });
 };
 
+BonusProvider.prototype.findByIds = function(ids, callback) {
+	if (typeof(ids.length)=="undefined") ids = [ids];
+	
+    this.getCollection(function(error, bonus_collection) {
+		if (error) {
+      		callback(error)
+      	} else {
+        	bonus_collection.find({id: {$in: ids}}).toArray(function(error, results) {
+				if (error) {
+					console.log(error);
+					callback(error);
+				}
+				callback(null, results);
+			});
+		}
+    });
+};
+
 BonusProvider.prototype.findTypeWithin = function(type, dt, callback) {
     this.getCollection(function(error, bonus_collection) {
 		if (error) {
