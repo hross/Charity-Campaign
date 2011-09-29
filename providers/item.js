@@ -178,6 +178,34 @@ ItemProvider.prototype.findByUserCampaign = function(userId, campaignId, limit, 
     });
 };
 
+ItemProvider.prototype.findByCreation = function(campaignId, startDate, endDate, limit, callback) {
+    this.getCollection(function(error, item_collection) {
+		if (error) { callback(error); return; }
+
+		var params = {sort: [['created_at','desc']]};
+		if (limit) params['limit'] = limit;
+		
+		var nd = [];
+		
+		//if (startDate) query.created_at = {$gte: startDate};
+		//if (endDate) query.created_at = {$lte: endDate};
+		
+		if (startDate) nd.push({created_at: {$gte: startDate}});
+		//if (endDate) nd.push({created_at: {$lte: endDate}});
+		nd.push({campaignId: campaignId});
+		
+		//query.$and = nd;
+		
+		console.log({$and: nd});
+
+		item_collection.find({$and: nd}, params).toArray(function(error, results) {
+			if (error) { callback(error); return; }
+
+			callback(null, results);
+		});
+    });
+};
+
 ItemProvider.prototype.findById = function(id, callback) {
     this.getCollection(function(error, item_collection) {
 		if (error) {
@@ -292,7 +320,7 @@ ItemProvider.prototype.remove = function(removeId, callback) {
       		if (result) {
 				item_collection.remove({id:removeId}, {}, function(err) {
 					console.log("removed.");
-					callback(null, result.teamId);
+					callback(null, result);
 				});
 			} else {
 				callback(null, null);

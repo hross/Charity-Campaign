@@ -122,7 +122,7 @@
 				<div class="input">
 					<ul class="inputs-list">
 					<li><label>
-					<input type="radio" name="spottype" value="0"  <%=(!bonus.type)?"checked":""%>>
+					<input type="radio" name="spottype" value="-1"  <%=(bonus.type < 0)?"checked":""%>>
 					<span>All Items</span>
 					</label></li>
 				<% for(var i=0; i < itemTypes.length; i++) {%>

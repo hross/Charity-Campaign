@@ -82,7 +82,6 @@ BonusProvider.prototype.findTypeWithin = function(type, dt, callback) {
       	} else {
       		// search for bonuses for this type where dt is between start and end date
         	bonus_collection.find({type: type, start: {$lte: dt}, end: {$gte: dt}}).toArray(function(error, result) {
-
 				if (error) {
 					console.log(error);
 					callback(error);
@@ -96,10 +95,31 @@ BonusProvider.prototype.findTypeWithin = function(type, dt, callback) {
 BonusProvider.prototype.findActive = function(campaignId, dt, callback) {
     this.getCollection(function(error, bonus_collection) {
 		if (error) {
-      		callback(error)
+      		callback(error);
       	} else {
       		// search for bonuses for this type where dt is between start and end date
-        	bonus_collection.find({campaignId: campaignId, start: {$lte: dt}, end: {$gte: dt}}).toArray(function(error, result) {
+        	bonus_collection.find({campaignId: campaignId, start: {$lte: dt}, end: {$gte: dt}
+        		}).toArray(function(error, result) {
+
+				if (error) {
+					console.log(error);
+					callback(error);
+				}
+				callback(null, result);
+			});
+		}
+    });
+};
+
+BonusProvider.prototype.findActiveSpot = function(campaignId, dt, callback) {
+    this.getCollection(function(error, bonus_collection) {
+		if (error) {
+      		callback(error);
+      	} else {
+      		// search for spot bonuses for this campaign which are not completed
+        	bonus_collection.find({campaignId: campaignId, bonustype: 'spot', 
+        		$or: [ {completed: null}, {completed: false} ]
+        	}).toArray(function(error, result) {
 
 				if (error) {
 					console.log(error);
@@ -149,14 +169,12 @@ BonusProvider.prototype.update = function(bonuses, callback) {
 		var updateBonus = function(bonus, callback) {
 			bonus.slug = slugify.slugify(bonus.title);
 			
-			
-			
 			bonus_collection.update({id:bonus.id}, 
 				{$set: {title: bonus.title, description: bonus.description, name: bonus.name, 
 				points: bonus.points, update_on: bonus.update_on, type: bonus.type, 
-				start: bonus.start, end: bonus.end, slug: bonus.slug, spotstart: bonus.spotstart,
-				spotend: bonus.spotend, total: bonus.total, numteams: bonus.numteams, pointsoritems: bonus.pointsoritems,
-				spottype: bonus.spottype, bonustype: bonus.bonustype, spotpoints: bonus.spotpoints}},{}, function() {
+				start: bonus.start, end: bonus.end, slug: bonus.slug, 
+				total: bonus.total, numteams: bonus.numteams, pointsoritems: bonus.pointsoritems,
+				bonustype: bonus.bonustype, spotpoints: bonus.spotpoints}},{}, function() {
 				console.log("updated.");
 				callback(null, bonus);
 			});

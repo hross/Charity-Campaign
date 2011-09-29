@@ -16,6 +16,7 @@ var ItemProvider = require('../providers/item').ItemProvider;
 var itemProvider = new ItemProvider(config.mongodb.host, config.mongodb.port);
 
 var dateformat = require('../lib/dateformat'); // custom date tools
+var async = require('async');
 
 var CAMPAIGN_ADMIN_ROLE = config.roles.CAMPAIGN_ADMIN_ROLE;
 var ADMIN_ROLE = config.roles.ADMIN_ROLE;
@@ -85,8 +86,13 @@ module.exports = {
 			  req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
     	
     	// convert date/times for display
-    	bonus.start = dateformat.dateFormat(bonus.start, "dddd, mmmm d, yyyy HH:MM");
-    	bonus.end = dateformat.dateFormat(bonus.end, "dddd, mmmm d, yyyy HH:MM");
+    	if (bonus.start) {
+			bonus.start = dateformat.dateFormat(bonus.start, "dddd, mmmm d, yyyy HH:MM");
+			bonus.end = dateformat.dateFormat(bonus.end, "dddd, mmmm d, yyyy HH:MM");
+    	} else {
+    		bonus.start = "";
+    		bonus.end = "";
+    	}
     	
     	itemProvider.findByBonus(bonus.id, 100, function(error, items) {
     		if (items) {
@@ -111,6 +117,9 @@ module.exports = {
     		res.redirect('back');
     		return;
     	}
+    	
+    	if (!bonus.end) bonus.end = "";
+    	if (!bonus.start) bonus.start = "";
     	
     	var campaignId = bonus.campaignId;
     	
@@ -181,8 +190,8 @@ module.exports = {
 	var	points = req.param('points');
 	var	type = req.param("type");
 	
-	var	spotstart = "";
-	var	spotend = "";
+	var	spotstart = null;
+	var	spotend = null;
 	if (req.param('spotstart')) {
 		spotstart = new Date(req.param('spotstart'));
 		spotend = new Date(req.param('spotend'));
@@ -262,8 +271,8 @@ module.exports = {
 	var	points = req.param('points');
 	var	type = req.param("type");
 	
-	var	spotstart = "";
-	var	spotend = "";
+	var	spotstart = null;
+	var	spotend = null;
 	if (req.param('spotstart')) {
 		spotstart = new Date(req.param('spotstart'));
 		spotend = new Date(req.param('spotend'));
@@ -287,7 +296,7 @@ module.exports = {
 		res.redirect('back');
 		return;
 	}
-	
+
 	var type = req.param('type');
 	if ('spot' == bonustype) {
 		type = spottype;
@@ -329,7 +338,57 @@ module.exports = {
 	});
   },
   
-  // destroy the campaign
+  
+  // recalculate a bonus
+  recalculate: function(req, res, next){
+	bonusProvider.findById(req.params.id, function(error, bonus) {
+		if (error) return next(error);
+		
+		if (!bonus) {
+			req.flash('error', 'Could not find bonus.');
+			res.redirect('back');
+		}
+		
+		if ('spot' != bonus.bonustype) {
+			req.flash('error', 'Only spot bonuses require calculation.');
+			res.redirect('back');
+		}
+		
+		itemProvider.findByBonus(bonus.id, 0, function(error, items) {
+			if (error) return next(error);
+			
+			// build a function to delete items
+			var deleteItem = function(item, callback) {
+				console.log("deleting item...");
+				itemProvider.remove(item.id, function(error, removed) {
+					callback(error, removed);
+				});
+			};
+			
+			// do the actual deletes
+			async.map(items, deleteItem, function(error, results) {
+				if (error) return next(error);
+				
+				// find all items corresponding to this bonus
+				itemProvider.findByCreation(bonus.campaignId, bonus.start, bonus.end, 0, function(error, items) {
+					
+					for (var i = 0; i < items.length; i++) {
+						console.log(items[i].created_at);
+					}
+					
+					//TODO: even if the bonus isn't fulfilled, if we are past the end date it should be marked
+					
+					// after everything is done we are happy
+					req.flash('info', 'Successfully recalculated _' + bonus.title + '_.');
+					res.redirect('back');
+				});
+			});
+			
+		});
+	});
+  },
+  
+  // destroy the bonus
   
   destroy: function(req, res, next){
   	bonusProvider.findById(req.params.id, function(error, bonus) {
@@ -368,6 +427,9 @@ module.exports = {
 	 switch(action) {
       case 'active':
         return ['/active/:parentId', false];
+      	break;
+      case 'recalculate':
+        return ['/recalculate/:id', true];
       	break;
       default:
       	return null;

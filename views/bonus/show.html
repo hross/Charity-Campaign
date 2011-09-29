@@ -15,6 +15,13 @@
 			Edit this Bonus
 		</a>
 		</li>
+		<%if ('spot' == bonus.bonustype) {%>
+		<li>
+		<a href="/bonuses/recalculate/<%=bonus.id%>" class="btn">
+			Recalculate this Bonus
+		</a>
+		</li>
+		<%}%>
 		<li>
 		<a href="/bonuses/destroy/<%=bonus.id%>" class="btn delete">
 			Delete this Bonus

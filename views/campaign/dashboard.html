@@ -13,7 +13,23 @@
 			<tbody>
 		<% for(var i=0; i < bonuses.length; i++) {%>
 			<tr>
-				<td><a href="/bonuses/show/<%= bonuses[i].id%>/<%= bonuses[i].slug%>"><%= bonuses[i].title %></td><td><a href="/bonuses/show/<%= bonuses[i].id%>/<%= bonuses[i].slug%>"><%=bonuses[i].points%> points for <%=bonuses[i].itemType.name%></a></td>
+				<td><a href="/bonuses/show/<%= bonuses[i].id%>/<%= bonuses[i].slug%>"><%= bonuses[i].title %></td>
+				<%if ('spot' == bonuses[i].bonustype) {%>
+				
+				<td><a href="/bonuses/show/<%= bonuses[i].id%>/<%= bonuses[i].slug%>">
+				
+				The first <%=bonuses[i].numteams%> teams to reach <%=bonuses[i].total%> <%=(bonuses[i].pointsoritems == 'items')?'items':'points'%>
+		<%if (bonuses[i].name) {%>
+			(<%=bonuses[i].name%>)
+		<%}%>
+				
+				</a></td>
+				
+				<%} else {%>
+				
+				<td><a href="/bonuses/show/<%= bonuses[i].id%>/<%= bonuses[i].slug%>"><%=bonuses[i].points%> points for <%=bonuses[i].itemType.name%></a></td>
+				
+				<%}%>
 				<td><span id="bonuscd<%=i%>" class="countdown"></span></td>
 			</tr>
 		<% } %>
@@ -131,9 +147,11 @@
 
 	$(document).ready(function() {
 		// countdown timers for active bonuses
-		<% for(var i=0; i < bonuses.length; i++) {%>
+		<% for(var i=0; i < bonuses.length; i++) {
+			if (bonuses[i].end) {%>
 		var cdate = new Date('<%=bonuses[i].end.toUTCString()%>');
 		$('#bonuscd<%=i%>').countdown({until: cdate});
+			<%}%>
 		<%}%>
 		
 		// add tab logic
