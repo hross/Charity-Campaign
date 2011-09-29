@@ -75,6 +75,23 @@ ItemTypeProvider.prototype.findById = function(id, callback) {
     });
 };
 
+ItemTypeProvider.prototype.findSystemBonus = function(callback) {
+    this.getCollection(function(error, itemtype_collection) {
+		if (error) {
+      		callback(error)
+      	} else {
+        	//itemtype_collection.db.bson_serializer.ObjectID.createFromHexString(id)
+        	itemtype_collection.findOne({system: true}, function(error, result) {
+				if (error) {
+					console.log(error);
+					callback(error);
+				}
+				callback(null, result);
+			});
+		}
+    });
+};
+
 ItemTypeProvider.prototype.save = function(itemtypes, callback) {
 	var provider = this;
     this.getCollection(function(error, itemtype_collection) {

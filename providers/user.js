@@ -100,18 +100,13 @@ UserProvider.prototype.findById = function(id, callback) {
 
 UserProvider.prototype.findByLogin = function(login, callback) {
     this.getCollection(function(error, user_collection) {
-		if (error) {
-      		callback(error)
-      	} else {
-        	//user_collection.db.bson_serializer.ObjectID.createFromHexString(id)
-        	user_collection.findOne({login: login}, function(error, result) {
-				if (error) {
-					console.log(error);
-					callback(error);
-				}
-				callback(null, result);
-			});
-		}
+		if (error) { callback(error); return; }
+
+		user_collection.findOne({login: login}, function(error, result) {
+			if (error) { callback(error); return; }
+			
+			callback(null, result);
+		});
     });
 };
 
@@ -374,6 +369,8 @@ UserProvider.prototype.importCsv = function(fileName, callback) {
 UserProvider.prototype.joinTeamByLogin = function(login, team, callback) {
 	var provider = this;
 	provider.findByLogin(login, function(error, user) {
+		if (error) { callback(error); return; }
+		
 		provider.joinTeam(user, team, function(error, user) {
 			if (error) { callback(error); return; }
 			
