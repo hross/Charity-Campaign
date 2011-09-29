@@ -15,6 +15,10 @@ var itemTypeProvider = new ItemTypeProvider(config.mongodb.host, config.mongodb.
 var ItemProvider = require('../providers/item').ItemProvider;
 var itemProvider = new ItemProvider(config.mongodb.host, config.mongodb.port);
 
+// instantiate team provider
+var TeamProvider = require('../providers/team').TeamProvider;
+var teamProvider = new TeamProvider(config.mongodb.host, config.mongodb.port);
+
 var dateformat = require('../lib/dateformat'); // custom date tools
 var async = require('async');
 var _ = require('underscore')._;
@@ -101,8 +105,13 @@ module.exports = {
     				items[i].created_at_format = dateformat.dateFormat(items[i].created_at, "dddd, mmmm d, yyyy HH:MM");
     			}
     		}
-    	
-    		res.render(null, {locals:{bonus: bonus, campaignId: campaignId, isAdmin: isAdmin, items: items}});
+    		
+    		var winners = bonus.winners;
+    		if (!winners) winners = [];
+    		
+    		teamProvider.findAllById(winners, function(error, teams) {
+    			res.render(null, {locals:{bonus: bonus, campaignId: campaignId, isAdmin: isAdmin, items: items, teams: teams}});
+    		});
     	});
     });
   },
@@ -355,7 +364,7 @@ module.exports = {
 			res.redirect('back');
 		}
 		
-		itemTypeProider.findSystemBonus(function(error, itemType) {
+		itemTypeProvider.findSystemBonus(function(error, itemType) {
 		
 			itemProvider.findByBonus(bonus.id, 0, function(error, items) {
 				if (error) return next(error);
@@ -382,44 +391,39 @@ module.exports = {
 						
 						for (var i = 0; i < items.length; i++) {
 							// we are only counting this item if it counts toward the bonus
-							if ((bonus.type < 0) || (bonus.type == item.type)) {
-								if (!total[item.teamId]) total[item.teamId] = 0; // init blank team values
+							if ((bonus.type < 0) || (bonus.type == items[i].type)) {
+								if (!totals[items[i].teamId]) totals[items[i].teamId] = 0; // init blank team values
 							
 								// increment our total
 								if ('points' == bonus.pointsoritems) {
-									var points = (parseInt(item.points) + parseInt(item.bonus)) * parseInt(item.quantity);
-									total[item.teamId] += points
+									var points = (parseInt(items[i].points) + parseInt(items[i].bonus)) * parseInt(items[i].quantity);
+									totals[items[i].teamId] += points
 								} else {
-									total[item.teamId] += item.quantity;
+									totals[items[i].teamId] += items[i].quantity;
 								}
 								
 								// if we passed bonus threshold and we aren't already a winner
-								if ((total[item.teamId] > bonus.total) && !_.contains(winners, item.teamId)) {
+								if ((totals[items[i].teamId] >= bonus.total) && !_.contains(winners, items[i].teamId)) {
 									// this team is a winner
-									winners.push(item.teamId);
-									winItems.push(item);
+									winners.push(items[i].teamId);
+									winItems.push(items[i]);
 									numteams--;
 									if (!numteams) break; // break out of the loop if we hit the maximum number of winners
 								}
 							}
-						
-							console.log(items[i].created_at);
 						}
 						
+						//TODO: remove these eventually
 						console.log("bonus calculations:");
 						console.log(winners);
 						console.log(winItems);
 						console.log(totals);
 						console.log(numteams);
 						
-						// remove this to actually do stuff after calcs
-						req.flash('info', 'Successfully recalculated _' + bonus.title + '_.');
-						res.redirect('back');
-						return;
-						
 						// this function sets the bonus for each winning item
 						var setBonus = function(item, callback) {
 							// update the item with some information about the bonus
+							if (!item.winner) item.winner = [];
 							item.winner.push(bonus.id);
 							
 							itemProvider.update(item, function(error, uitem) {
@@ -456,13 +460,16 @@ module.exports = {
 						// update the bonus with completion if it is fulfilled or the end date is past
 						var now = new Date();
 						if ((now > bonus.end) || (!numteams)) {
+							bonus.winners = winners;
 							bonus.completed = true;
+							bonus.completed_on = new Date();
 						} else {
+							bonus.winners = winners;
 							bonus.completed = false;
 						}
 						
 						// run the update
-						bonusProvider.update(bonus, function(error, bonus) {
+						bonusProvider.update(bonus, function(error, ubonus) {
 							if (error) return next(error);
 							
 							// add/update all of the items
@@ -470,7 +477,7 @@ module.exports = {
 								if (error) return next(error);
 								
 								// after everything is done we are happy
-								req.flash('info', 'Successfully recalculated _' + bonus.title + '_.');
+								req.flash('info', 'Successfully recalculated _' 	+ bonus.title + '_.');
 								res.redirect('back');
 							});
 						});

@@ -84,9 +84,10 @@ module.exports = {
 				// calculate team points for each team
 				var calcpoints = function(team, callback) {
 					// calculate team points and return
-					itemProvider.teamPoints(team.id, function(error, points, bonusPoints) {
+					itemProvider.itemTotals(team.id, -1, function(error, points, bonusPoints, quantity) {
 						team.points = points;
 						team.bonusPoints = bonusPoints;
+						team.quantity = quantity;
 						callback(null, team);
 					});
 				};
@@ -209,7 +210,7 @@ module.exports = {
 								(req.session.user.teams && (req.session.user.teams.indexOf(team.id) >= 0)));
 							
 							// calculate team points
-							itemProvider.teamPoints(team.id, function(error, points, bonusPoints) {
+							itemProvider.itemTotals(team.id, -1, function(error, points, bonusPoints, quantity) {
 								team.points = points;
 								team.bonusPoints = bonusPoints;
 								
@@ -229,12 +230,12 @@ module.exports = {
 							});
 						};
 						
-						async.map(teams, teamInfo, function(error, results) {
+						async.map(teams, teamInfo, function(error, teams) {
 							if (error) return next(error);
 							
 							//TODO: use underscore for this sort
 							// sort the results by points
-							results.sort(compare_teams);
+							teams.sort(compare_teams);
 							
 							// added in case there are no admins
 							if (!campaign.administrators) campaign.administrators = [];
@@ -258,11 +259,31 @@ module.exports = {
 									items[i].created_at_format = dateformat.dateFormat(items[i].created_at, "mm.d.yyyy HH:MM");
 									items[i].updated_on_format = dateformat.dateFormat(items[i].updated_on, "mm.d.yyyy HH:MM");
 								}
-		
-								// after everything is done we are happy
-								res.render(null, {locals: {campaign: campaign, bonuses: bonuses,
-											teams: results, campaignId: campaign.id, 
-											isAdmin: isAdmin, items: items}});
+								
+								itemTypeProvider.findAll(campaignId, function(error, itemTypes) {
+									// for each item type, display counts
+									var typeStats = function(itemtype, callback) {
+										// get item stats
+										itemProvider.itemTotals(-1, itemtype.id, function(error, totalPoints, totalBonus, totalQuantity) {
+											if (error) { callback(error); return; }
+											
+											itemtype.totalPoints = totalPoints;
+											itemtype.totalBonus = totalBonus;
+											itemtype.totalQuantity = totalQuantity;
+											
+											callback(null, itemtype);
+										});
+									};
+									
+									async.map(itemTypes, typeStats, function(error, itemTypes) {
+										if (error) return next(error);
+									
+										// after everything is done we are happy
+										res.render(null, {locals: {campaign: campaign, bonuses: bonuses,
+											teams: teams, campaignId: campaign.id, 
+											isAdmin: isAdmin, items: items, itemTypes: itemTypes}});
+									});
+								}); // end find all item types
 							}); // end find by user
 						}); // end async map team calcs
 					}); // end find teams

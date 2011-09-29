@@ -77,12 +77,8 @@ module.exports = {
 			req.session.user.roles.indexOf(TEAM_CAPTAIN_ROLE + teamId)>=0 ||
 			req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
     	
-    	itemProvider.teamPoints(req.params.id, function(error, points, bonusPoints) {
+    	itemProvider.itemTotals(req.params.id, -1, function(error, points, bonusPoints, quantity) {
     		if (error) return next(error);
-    		
-    		if (!points) points = 0;
-    		if (points.substring) points = parseInt(points);
-    		if (typeof points != "number") points = 0;
     		
     		itemProvider.findAll(req.params.id, null, function(error, items) {
     			if (error) return next(error);
@@ -118,7 +114,7 @@ module.exports = {
     				
 								res.render(null, {locals: {
 									teamCaptain: teamCaptain, teamSponsor: teamSponsor, team: team, canJoin: canJoin, canLeave: canLeave, 
-									points: points, items: items, campaignId: team.campaignId, isAdmin: isAdmin
+									points: points, bonusPoints: bonusPoints, quantity: quantity, items: items, campaignId: team.campaignId, isAdmin: isAdmin
 								}});
 							});
 						});

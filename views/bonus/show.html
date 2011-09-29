@@ -38,6 +38,27 @@
 	
 	<p><%= bonus.description%></p>
 	
+	<%if (bonus.completed) {%>
+	<p>This bonus has been completed.</p>
+	
+	<%if (teams) {%>
+		<p>The following teams won:</p>
+		
+		<table class="common-table zebra-striped sortable" id="teams">
+			<thead>
+				<tr><th>Team</th>
+			</thead>
+			<tbody>
+			<% for(var i=0; i < teams.length; i++) {%>
+			<tr>
+				<td><a href="/teams/show/<%= teams[i].id%>/<%= teams[i].slug%>"><%= teams[i].name %></a></td>
+			</tr>
+			<% } %>
+			</tbody>
+		</table>
+	<%}%>
+	<%}%>
+	
 	<%if ('spot' == bonus.bonustype) {%>
 		<p>
 		The first <%=bonus.numteams%> teams to reach <%=bonus.total%> <%=(bonus.pointsoritems == 'items')?'items':'points'%>

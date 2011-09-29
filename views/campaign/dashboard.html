@@ -58,6 +58,7 @@
     <li><a href="#team<%=i%>"><%=teams[i].name%> Items</a></li>
 			<%}%>
 	<%}%>
+	 <li><a href="#itemtypes">Item Summary</a></li>
 </ul>
 
 <div id="standings" class="tabview">
@@ -137,6 +138,31 @@
 		</div>
 	<%}%>
 <%}%>
+
+<div id="itemtypes" class="tabview" style="display:none;">
+	<table class="common-table zebra-striped" id="items">
+		<thead>
+			<tr>
+			<th>Item</th>
+			<th>Quantity</th>
+			<th>Points</th>
+			<th>Bonus Points</th>
+			</tr>
+		</thead>
+		<tbody>
+		<% for(var i=0; i < itemTypes.length; i++) {%>
+			<%if (itemTypes[i].visible) {%>
+		<tr>
+			<td><a href="/itemtypes/show/<%= itemTypes[i].id%>/<%= itemTypes[i].slug%>"><%= itemTypes[i].name %></a></td>
+			<td><%=itemTypes[i].totalQuantity%></td>
+			<td><%=itemTypes[i].totalPoints%></td>
+			<td><%=itemTypes[i].totalBonus%></td>
+		</tr>
+			<%}%>
+		<% } %>
+		</tbody>
+	</table>
+</div>
 </div>
 
 </div>
@@ -171,5 +197,6 @@
 		});
 		
 		 $(".sortable").tablesorter();
+		 $("table#items").tablesorter({ sortList: [[1,1]] });
 	});
 </script>

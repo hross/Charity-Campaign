@@ -174,7 +174,8 @@ BonusProvider.prototype.update = function(bonuses, callback) {
 				points: bonus.points, update_on: bonus.update_on, type: bonus.type, 
 				start: bonus.start, end: bonus.end, slug: bonus.slug, 
 				total: bonus.total, numteams: bonus.numteams, pointsoritems: bonus.pointsoritems,
-				bonustype: bonus.bonustype, spotpoints: bonus.spotpoints}},{}, function() {
+				bonustype: bonus.bonustype, spotpoints: bonus.spotpoints, completed: bonus.completed,
+				winners: bonus.winners, completed_on: bonus.completed_on}},{}, function() {
 				console.log("updated.");
 				callback(null, bonus);
 			});
