@@ -110,6 +110,7 @@ module.exports = {
 
     							// make user this campaign allows auto leave/join
     							canJoin = canJoin && campaign && campaign.allowjoins;
+    							canAdd = canLeave; // users that can leave the team can add items to it
     							canLeave = canLeave && campaign && campaign.allowjoins;
     				
 								res.render(null, {locals: {

@@ -111,6 +111,7 @@
 			<div class="additem">
 				 <a href="/items/add/<%=teams[i].id%>" class="btn primary">Add an Item</a>
 				 <a href="/teams/show/<%=teams[i].id%>" class="btn">Team Details</a>
+				 <br />
 			</div>
 		
 		<%if (teams[i].items) {%>
@@ -127,7 +128,7 @@
 			<% for(var j=0; j < teams[i].items.length; j++) {%>
 				<tr>
 					<td><%=teams[i].items[j].created_at_format%></td>
-					<td><a href="/items/show/<%= teams[i].items[j].id%>/<%= teams[i].items[j].slug%>"><%=items[i].quantity%> <%= items[i].name %></a></td>
+					<td><a href="/items/show/<%= teams[i].items[j].id%>/<%= teams[i].items[j].slug%>"><%=teams[i].items[j].quantity%> <%= teams[i].items[j].name %></a></td>
 					<td><%=(teams[i].items[j].points + teams[i].items[j].bonus) * teams[i].items[j].quantity %></td>
 					<td><%=teams[i].items[j].bonus * teams[i].items[j].quantity %></td>
 				</tr>

@@ -112,7 +112,7 @@
 				<div class="input">
 					<select id="pointsoritems" name="pointsoritems">
 					  <option value="items"  <%= ('items' == bonus.pointsoritems)?"seleted='selected'":""%>>Items</option>
-					  <option value="points" <%= ('points' == bonus.pointsoritems)?"seleted='selected'":""%>>Points</option>
+					  <option value="points" <%= ('items' != bonus.pointsoritems)?"seleted='selected'":""%>>Points</option>
 					</select>
 				</div>
 			</div>

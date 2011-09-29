@@ -32,6 +32,7 @@ var dateformat = require('../lib/dateformat'); // custom date tools
 var parse = require('../lib/parsecsv'); // csv parsing
 
 var async = require('async');
+var _ = require('underscore')._;
 
 var CAMPAIGN_ADMIN_ROLE = config.roles.CAMPAIGN_ADMIN_ROLE;
 var ADMIN_ROLE = config.roles.ADMIN_ROLE;
@@ -302,8 +303,15 @@ module.exports = {
 				}, function(error, items) {
 					if (error) return next(error);
 					
+					
 					if (items[0]) {
-						res.redirect("/items/show/" + items[0].id);
+						// do bonus calculations based on this item
+						_calculateBonuses(items[0], req.session.user.login, req.session.user.id, function(error, errorMessage) {
+							if (error) { return next(error); }
+							if (errorMessage) { req.flash('error', errorMessage); }
+							
+							res.redirect("/items/show/" + items[0].id);
+						});
 					} else {
 						res.redirect('/items');
 					}
@@ -702,3 +710,99 @@ module.exports = {
      }
   },  
 };
+
+function _calculateBonuses(item, login, userId, callback) {
+	// find the team
+	teamProvider.findById(item.teamId, function(error, team) {
+		if (error) { callback(error); return; }
+
+		if (!team) { callback(null, "Could not find team for this item."); return; }
+		
+		// find any active bonuses
+		bonusProvider.findActiveSpot(item.campaignId, item.created_at, function(error, bonuses) {
+			if (error) { callback(error); return; }
+			if (!bonuses || bonuses.length <= 0) { callback(null, null); return; } // no bonuses to calculate
+		
+			itemTypeProvider.findSystemBonus(function(error, sysItemType) {
+				var checkBonus = function(bonus, callback) {
+					if (!bonus.winners) bonus.winners = []; // make sure this is an array
+				
+					// get stats related to this bonus
+					itemProvider.itemTotals(team.id, bonus.type, function(error, points, bonusPoints, quantity) {
+						if (error) { callback(error); }
+						
+						// which total do we need?
+						var total = quantity;
+						if ('points' == bonus.pointsoritems) {
+							total = points;
+						}
+						
+						// we passed the bonus threshold and this team didn't already win
+						if ((total >= bonus.total) && !_.contains(bonus.winners, team.id)) {
+						
+							// this team is now a winner
+							bonus.winners.push(team.id);
+							
+							// check to see if we need to close this bonus out
+							if ((bonus.end && (item.created_at > bonus.end)) || (bonus.winners.length == bonus.numteams)) {
+								bonus.completed = true;
+								bonus.completed_on = new Date();
+							} else {
+								bonus.completed = false;
+							}
+							
+							// update the bonus stats, since we found a match
+							bonusProvider.update(bonus, function(error, ubonus) {
+								if (error) { callback(error); return; }
+	
+								// update the item with some information about the bonus
+								if (!item.winner) item.winner = [];
+								item.winner.push(bonus.id);
+								
+								itemProvider.update(item, function(error, uitem) {
+									if (error) { callback(error); return; }
+									
+									var bi = {};
+									bi[bonus.id] = parseInt(bonus.spotpoints);
+									
+									// add a bonus point item for the winning team
+									itemProvider.save({
+										type: sysItemType.id, // system bonus point type
+										name: sysItemType.name,
+										points: 0,
+										bonus: bonus.spotpoints,
+										campaignId: bonus.campaignId,
+										description: "Bonus Points for " + bonus.title + " Bonus",
+										teamId: item.teamId,
+										quantity: 1,
+										created_by: userId,
+										updated_by:	login,
+										created_by_login: login,
+										admin: true,
+										office: "",
+										bonuses: [bonus.id],
+										bonusvalues: [bi]
+									}, function(error, items) {
+										if (error) callback(error);
+										
+										callback(null, bonus);
+									}); // end item update
+								}); // end original item update
+							});
+						} else {
+							callback(null, bonus); // we are done
+						}
+					});
+				};
+				
+				// for any of the active bonuses we need to determine if this item crosses the threshold
+				async.map(bonuses, checkBonus, function(error, bonuses) {
+					if (error) { callback(error); }
+					
+					// we made it!
+					callback(null, null);
+				});
+			}); // end find system item type
+		});
+	});
+}

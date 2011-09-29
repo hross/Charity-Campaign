@@ -93,9 +93,13 @@ module.exports = {
     	// convert date/times for display
     	if (bonus.start) {
 			bonus.start = dateformat.dateFormat(bonus.start, "dddd, mmmm d, yyyy HH:MM");
-			bonus.end = dateformat.dateFormat(bonus.end, "dddd, mmmm d, yyyy HH:MM");
     	} else {
     		bonus.start = "";
+    	}
+    	
+    	if (bonus.end) {
+    		bonus.end = dateformat.dateFormat(bonus.end, "dddd, mmmm d, yyyy HH:MM");
+    	} else {
     		bonus.end = "";
     	}
     	
@@ -202,10 +206,9 @@ module.exports = {
 	
 	var	spotstart = null;
 	var	spotend = null;
-	if (req.param('spotstart')) {
-		spotstart = new Date(req.param('spotstart'));
-		spotend = new Date(req.param('spotend'));
-	}
+	
+	if (req.param('spotstart')) spotstart = new Date(req.param('spotstart'));
+	if (req.param('spotend')) spotend = new Date(req.param('spotend'));
 	
 	var	total = req.param('total');
 	var	numteams = req.param("numteams");
@@ -226,7 +229,7 @@ module.exports = {
 	}
 	
 	var type = req.param('type');
-	if ('spot' == bonus.bonustype) {
+	if ('spot' == bonustype) {
 		type = spottype;
 		start = spotstart;
 		end = spotend;
@@ -283,10 +286,8 @@ module.exports = {
 	
 	var	spotstart = null;
 	var	spotend = null;
-	if (req.param('spotstart')) {
-		spotstart = new Date(req.param('spotstart'));
-		spotend = new Date(req.param('spotend'));
-	}
+	if (req.param('spotstart')) spotstart = new Date(req.param('spotstart'));
+	if (req.param('spotend')) spotend = new Date(req.param('spotend'));
 	
 	var	total = req.param('total');
 	var	numteams = req.param("numteams");
@@ -343,7 +344,22 @@ module.exports = {
 			if (error) return next(error);
 	
 			req.flash('info', 'Successfully updated _' + bonuses[0].title + '_.');
-			res.redirect('/bonuses/show/' + bonuses[0].id);
+			
+			if ('spot' == bonuses[0].bonustype) {
+				_recalculate(bonuses[0].id, req.session.user.login, req.session.user.id, function(error, errorMessage) {
+					if (error) { return next(error); }
+					
+					if (errorMessage) {
+						req.flash('error', errorMessage);
+						res.redirect('/bonuses/show/' + bonuses[0].id);
+					} else {
+						req.flash('info', 'Successfully recalculated this bonus.');
+						res.redirect('/bonuses/show/' + bonuses[0].id);
+					}
+				});
+			} else {
+				res.redirect('/bonuses/show/' + bonuses[0].id);
+			}
 		});
 	});
   },
@@ -351,141 +367,18 @@ module.exports = {
   
   // recalculate a bonus
   recalculate: function(req, res, next){
-	bonusProvider.findById(req.params.id, function(error, bonus) {
-		if (error) return next(error);
-		
-		if (!bonus) {
-			req.flash('error', 'Could not find bonus.');
+  
+  	_recalculate(req.params.id, req.session.user.login, req.session.user.id, function(error, errorMessage) {
+  		if (error) { return next(error); }
+  		
+  		if (errorMessage) {
+  			req.flash('error', errorMessage);
 			res.redirect('back');
-		}
-		
-		if ('spot' != bonus.bonustype) {
-			req.flash('error', 'Only spot bonuses require calculation.');
+  		} else {
+			req.flash('info', 'Successfully recalculated this bonus.');
 			res.redirect('back');
-		}
-		
-		itemTypeProvider.findSystemBonus(function(error, itemType) {
-		
-			itemProvider.findByBonus(bonus.id, 0, function(error, items) {
-				if (error) return next(error);
-				
-				// build a function to delete items
-				var deleteItem = function(item, callback) {
-					console.log("deleting item...");
-					itemProvider.remove(item.id, function(error, removed) {
-						callback(error, removed);
-					});
-				};
-				
-				// do the actual deletes
-				async.map(items, deleteItem, function(error, results) {
-					if (error) return next(error);
-					
-					// find all items corresponding to this bonus
-					itemProvider.findByCreation(bonus.campaignId, bonus.start, bonus.end, 0, function(error, items) {
-						// go through each item and track totals
-						var totals = {};
-						var winners = []; // keep track of winning teams for later
-						var winItems = []; // keep winning items for later updates
-						var numteams = bonus.numteams;
-						
-						for (var i = 0; i < items.length; i++) {
-							// we are only counting this item if it counts toward the bonus
-							if ((bonus.type < 0) || (bonus.type == items[i].type)) {
-								if (!totals[items[i].teamId]) totals[items[i].teamId] = 0; // init blank team values
-							
-								// increment our total
-								if ('points' == bonus.pointsoritems) {
-									var points = (parseInt(items[i].points) + parseInt(items[i].bonus)) * parseInt(items[i].quantity);
-									totals[items[i].teamId] += points
-								} else {
-									totals[items[i].teamId] += items[i].quantity;
-								}
-								
-								// if we passed bonus threshold and we aren't already a winner
-								if ((totals[items[i].teamId] >= bonus.total) && !_.contains(winners, items[i].teamId)) {
-									// this team is a winner
-									winners.push(items[i].teamId);
-									winItems.push(items[i]);
-									numteams--;
-									if (!numteams) break; // break out of the loop if we hit the maximum number of winners
-								}
-							}
-						}
-						
-						//TODO: remove these eventually
-						console.log("bonus calculations:");
-						console.log(winners);
-						console.log(winItems);
-						console.log(totals);
-						console.log(numteams);
-						
-						// this function sets the bonus for each winning item
-						var setBonus = function(item, callback) {
-							// update the item with some information about the bonus
-							if (!item.winner) item.winner = [];
-							item.winner.push(bonus.id);
-							
-							itemProvider.update(item, function(error, uitem) {
-								if (error) { callback(error); return; }
-								
-								var bi = {};
-								bi[bonus.id] = parseInt(bonus.spotpoints);
-								
-								// add a bonus point item for the winning team
-								itemProvider.save({
-									type: itemType.id, // system bonus point type
-									name: itemType.name,
-									points: 0,
-									bonus: bonus.spotpoints,
-									campaignId: bonus.campaignId,
-									description: "Bonus Points for " + bonus.title + " Bonus",
-									teamId: item.teamId,
-									quantity: 1,
-									created_by: req.session.user.id,
-									updated_by: req.session.user.login,
-									created_by_login: req.session.user.login,
-									admin: true,
-									office: "",
-									bonuses: [bonus.id],
-									bonusvalues: [bi]
-								}, function(error, items) {
-									if (error) callback(error);
-									
-									callback(null, items[0]);
-								}); // end item update
-							}); // end original item update
-						};
-						
-						// update the bonus with completion if it is fulfilled or the end date is past
-						var now = new Date();
-						if ((now > bonus.end) || (!numteams)) {
-							bonus.winners = winners;
-							bonus.completed = true;
-							bonus.completed_on = new Date();
-						} else {
-							bonus.winners = winners;
-							bonus.completed = false;
-						}
-						
-						// run the update
-						bonusProvider.update(bonus, function(error, ubonus) {
-							if (error) return next(error);
-							
-							// add/update all of the items
-							async.map(winItems, setBonus, function(error, items) {
-								if (error) return next(error);
-								
-								// after everything is done we are happy
-								req.flash('info', 'Successfully recalculated _' 	+ bonus.title + '_.');
-								res.redirect('back');
-							});
-						});
-					}); // find by creation date
-				}); // map deletes
-			}); // find item
-		}); // find item types
-	}); // find bonus
+  		}
+  	});
   },
   
   // destroy the bonus
@@ -536,3 +429,135 @@ module.exports = {
      }
   },
 };
+
+function _recalculate(bonusId, login, userId, callback) {
+  
+  	// find the bonus first
+	bonusProvider.findById(bonusId, function(error, bonus) {
+		if (error) { callback(error); return; }
+		
+		if (!bonus) {
+			callback(null, 'Could not find bonus.');
+			return;
+		}
+		
+		if ('spot' != bonus.bonustype) {
+			callback(null, 'Only spot bonuses require calculation.');
+			return;
+		}
+		
+		itemTypeProvider.findSystemBonus(function(error, itemType) {
+		
+			itemProvider.findByBonus(bonus.id, 0, function(error, items) {
+				if (error) return callback(error);
+				
+				// build a function to delete items
+				var deleteItem = function(item, callback) {
+					console.log("deleting item...");
+					itemProvider.remove(item.id, function(error, removed) {
+						callback(error, removed);
+					});
+				};
+				
+				// do the actual deletes
+				async.map(items, deleteItem, function(error, results) {
+					if (error) return callback(error);
+					
+					// find all items corresponding to this bonus
+					itemProvider.findByCreation(bonus.campaignId, bonus.start, bonus.end, 0, function(error, items) {
+						// go through each item and track totals
+						var totals = {};
+						var winners = []; // keep track of winning teams for later
+						var winItems = []; // keep winning items for later updates
+						var numteams = bonus.numteams;
+						
+						for (var i = 0; i < items.length; i++) {
+							// we are only counting this item if it counts toward the bonus
+							if ((bonus.type < 0) || (bonus.type == items[i].type)) {
+								if (!totals[items[i].teamId]) totals[items[i].teamId] = 0; // init blank team values
+							
+								// increment our total
+								if ('points' == bonus.pointsoritems) {
+									var points = (parseInt(items[i].points) + parseInt(items[i].bonus)) * parseInt(items[i].quantity);
+									totals[items[i].teamId] += points
+								} else {
+									totals[items[i].teamId] += items[i].quantity;
+								}
+								
+								// if we passed bonus threshold and we aren't already a winner
+								if ((totals[items[i].teamId] >= bonus.total) && !_.contains(winners, items[i].teamId)) {
+									// this team is a winner
+									winners.push(items[i].teamId);
+									winItems.push(items[i]);
+									numteams--;
+									if (!numteams) break; // break out of the loop if we hit the maximum number of winners
+								}
+							}
+						}
+						
+						// this function sets the bonus for each winning item
+						var setBonus = function(item, callback) {
+							// update the item with some information about the bonus
+							if (!item.winner) item.winner = [];
+							item.winner.push(bonus.id);
+							
+							itemProvider.update(item, function(error, uitem) {
+								if (error) { callback(error); return; }
+								
+								var bi = {};
+								bi[bonus.id] = parseInt(bonus.spotpoints);
+								
+								// add a bonus point item for the winning team
+								itemProvider.save({
+									type: itemType.id, // system bonus point type
+									name: itemType.name,
+									points: 0,
+									bonus: bonus.spotpoints,
+									campaignId: bonus.campaignId,
+									description: "Bonus Points for " + bonus.title + " Bonus",
+									teamId: item.teamId,
+									quantity: 1,
+									created_by: userId,
+									updated_by:	login,
+									created_by_login: login,
+									admin: true,
+									office: "",
+									bonuses: [bonus.id],
+									bonusvalues: [bi]
+								}, function(error, items) {
+									if (error) callback(error);
+									
+									callback(null, items[0]);
+								}); // end item update
+							}); // end original item update
+						};
+						
+						// update the bonus with completion if it is fulfilled or the end date is past
+						var now = new Date();
+						if ((bonus.end && (now > bonus.end)) || (!numteams)) {
+							bonus.winners = winners;
+							bonus.completed = true;
+							bonus.completed_on = new Date();
+						} else {
+							bonus.winners = winners;
+							bonus.completed = false;
+						}
+						
+						// run the update
+						bonusProvider.update(bonus, function(error, ubonus) {
+							if (error) return callback(error);
+							
+							// add/update all of the items
+							async.map(winItems, setBonus, function(error, items) {
+								if (error) return callback(error);
+								
+								// after everything is done we are happy
+								callback(null, null);
+							});
+						});
+					}); // find by creation date
+				}); // map deletes
+			}); // find item
+		}); // find item types
+	}); // find bonus
+  }

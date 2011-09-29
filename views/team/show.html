@@ -13,8 +13,8 @@
 	
 	<h3>Quick Links</h3>
 	<ul class="unstyled">
-		<% if (canLeave) {%>
-		<li><a href="/items/add/<%=team.id%>">Add an Item</a></li>
+		<% if (canAdd) {%>
+		<li><a href="/items/add/<%=team.id%>" class="btn primary">Add an Item</a></li>
 		<%}%>
 		
 		<li><a href="/items/filter/<%=team.id%>">List Items</a></li>
@@ -68,9 +68,9 @@
 				<%}%>
 			</div>
 			<div class="info">
-				<% if (canLeave) {%>
+				<% if (canAdd) {%>
 				<div class="additem">
-				<a href="/items/add/<%=team.id%>">Add an Item</a>
+				<a href="/items/add/<%=team.id%>" class="btn primary">Add an Item</a>
 				</div>
 				<%}%>
 			</div>
