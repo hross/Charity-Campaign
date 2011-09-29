@@ -87,6 +87,8 @@ module.exports = {
     		if (!created_user) created_user = {};
     		
     		teamProvider.findById(item.teamId, function(error, team) {
+    			if (error) return next(error);
+    			
     			var user = req.session.user;
 				var isAdmin = (user && user.roles &&
 					(user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + team.campaignId)>=0 ||
@@ -98,9 +100,20 @@ module.exports = {
 				item.created_at = dateformat.dateFormat(item.created_at, "dddd, mmmm d, yyyy HH:MM");
 				
 				campaignProvider.findById(item.campaignId, function (error, campaign) {
-					res.render(null, {locals: {item: item, user: created_user, 
-						teamId: item.teamId, campaignId: item.campaignId, isAdmin: isAdmin, 
-						canFlag: (campaign && campaign.allowflag)}});
+					if (error) return next(error);
+					
+					// create a list of all bonuses this is associated with
+					if (!item.bonuses) item.bonuses = [];
+					if (!item.winner) item.winner = [];
+					item.bonuses = _.union(item.bonuses, item.winner);
+					
+					bonusProvider.findByIds(item.bonuses, function (error, bonuses) {
+						if (error) return next(error);
+					
+						res.render(null, {locals: {item: item, user: created_user, bonuses: bonuses,
+							teamId: item.teamId, campaignId: item.campaignId, isAdmin: isAdmin, 
+							canFlag: (campaign && campaign.allowflag)}});
+					});
 				});
     		});
     	});

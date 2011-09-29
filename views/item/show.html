@@ -45,6 +45,50 @@
 	
 	<p>Worth <%=(item.points + item.bonus) * item.quantity %> total points</p>
 	
+	<%if (bonuses && bonuses.length > 0) {%>
+	<table class="common-table zebra-striped" id="bonus">
+		<thead>
+			<tr>
+			<th>Bonus</th>
+			<th>Details</th>
+			</tr>
+		</thead>
+		<tbody>
+		<% for(var i=0; i < bonuses.length; i++) {%>
+			<tr>
+			<td>
+			<a href="/bonuses/show/<%= bonuses[i].id%>/<%=bonuses[i].slug%>">
+				<%= bonuses[i].title %>
+			</td>
+			
+		<%if ('spot' == bonuses[i].bonustype) {%>
+				
+			<td>
+			<a href="/bonuses/show/<%=bonuses[i].id%>/<%=bonuses[i].slug%>">
+				
+				The first <%=bonuses[i].numteams%> teams to reach <%=bonuses[i].total%> <%=(bonuses[i].pointsoritems == 'items')?'items':'points'%>
+				
+			<%if (bonuses[i].name) {%>
+				(<%=bonuses[i].name%>)
+			<%}%>
+			</a>
+			</td>
+				
+		<%} else {%>
+				
+			<td>
+			<a href="/bonuses/show/<%=bonuses[i].id%>/<%=bonuses[i].slug%>">
+			<%=bonuses[i].points%> points for <%=bonuses[i].name%>
+			</a>
+			</td>
+		<%}%>
+		
+			</tr>
+		<% } %>
+		</tbody>
+	</table>
+	<%}%>
+	
 	<p>Added by: <a href="/users/show/<%=user.id%>"><%=user.login%></a> on <%=item.created_at%></p>
 </div>
 	
