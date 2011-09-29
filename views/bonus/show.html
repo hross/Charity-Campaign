@@ -29,13 +29,26 @@
 	
 	<h1 class="title"><a href="/bonuses/show/<%= bonus.id%>/<%= bonus.slug%>"><%=bonus.title%></a></h1>
 	
-	<p>From <%=bonus.start%> to <%=bonus.end%></p>
-
-	<p>For <%=bonus.name%></p>
-	
-	<p>Worth <%=bonus.points%> points per item</p>
-	
 	<p><%= bonus.description%></p>
+	
+	<%if ('spot' == bonus.bonustype) {%>
+		<p>
+		The first <%=bonus.numteams%> teams to reach <%=bonus.total%> <%=(bonus.pointsoritems == 'items')?'items':'points'%>
+		<%if (bonus.name) {%>
+			(<%=bonus.name%>)
+		<%}%>
+		</p>
+	
+		<%if (bonus.spotstart) {%>
+			<p>From <%=bonus.spotstart%> to <%=bonus.spotend%></p>
+		<%}%>
+	<%} else { %>
+		<p>From <%=bonus.start%> to <%=bonus.end%></p>
+	
+		<p>For <%=bonus.name%></p>
+		
+		<p>Worth <%=bonus.points%> points per item</p>
+	<%}%>
 	
 	<div class="entry">		
 		<h2>Recent Items</h2>

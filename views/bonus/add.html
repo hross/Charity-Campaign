@@ -71,7 +71,7 @@
 			<div class="clearfix">
 				<label for="numteams">Number of Teams</label>
 				<div class="input">
-					<select id="numteams">
+					<select id="numteams" name="numteams">
 					  <option value="1">1</option>
 					  <option value="2">2</option>
 					  <option value="3">3</option>
@@ -93,7 +93,7 @@
 			<div class="clearfix">
 				<label for="pointsoritems">Points or Items?</label>
 				<div class="input">
-					<select id="pointsoritems">
+					<select id="pointsoritems" name="pointsoritems">
 					  <option value="items">Items</option>
 					  <option value="points">Points</option>
 					</select>
@@ -120,6 +120,11 @@
 				</div>
 			</div>
 			
+			<div class="clearfix">
+				<label for="spotpoints">Get How Many Points?</label>
+				<div class="input"><input type="text" name="spotpoints" id="spotpoints" /></div>
+			</div>
+			
 			<p>Leave blank for no start/end date.</p>
 			
 			<div class="clearfix">
@@ -133,7 +138,7 @@
 			</div>
 		</div>
 		
-		<input type="hidden" name="bonusType" id="bonusType" value="item" />
+		<input type="hidden" name="bonustype" id="bonustype" value="item" />
 		<input type="hidden" name="campaignId" id="campaignId" value="<%= campaignId%>" />
 		
 		<div class="actions">
@@ -170,7 +175,7 @@
 			$($(this).attr('href')).show();
 			
 			// set hidden input
-			$("#bonusType").val($(this).attr('href').replace("#", ""));
+			$("#bonustype").val($(this).attr('href').replace("#", ""));
 			
 			// disable redirect
 			return false;

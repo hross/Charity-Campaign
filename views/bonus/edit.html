@@ -26,7 +26,7 @@
 		<h2><a href="/bonuses/show/<%= bonus.id%>"><%=bonus.title%></a></h2>
 	</div>
 
-		<form method="post" action="/bonuses/update/<%= bonus.id %>">
+		<form id="bonusform" method="post" action="/bonuses/update/<%= bonus.id %>">
 		
 		<fieldset>
 			
@@ -44,11 +44,11 @@
 
 		<!-- display tabs -->
 		<ul id="bonustabs" class="tabs">
-			<li class="active"><a href="#item">Item Bonus</a></li>
-			<li><a href="#spot">Spot Bonus</a></li>
+			<li <%if ('spot' != bonus.bonustype) {%> class="active" <%}%>><a href="#item">Item Bonus</a></li>
+			<li <%if ('spot' == bonus.bonustype) {%> class="active" <%}%>><a href="#spot">Spot Bonus</a></li>
 		</ul>
 		
-		<div id="item" class="tabview">
+		<div id="item" class="tabview" <%if ('spot' == bonus.bonustype) {%> style="display:none;" <%}%>>
 			<div class="clearfix">
 			<label for="start">Start</label>
 			<div class="input">
@@ -82,13 +82,13 @@
 			</div>
 		</div>	
 			
-		<div id="spot" class="tabview" style="display:none;">
+		<div id="spot" class="tabview" <%if ('spot' != bonus.bonustype) {%> style="display:none;" <%}%>>
 			<p>First team(s) to submit X items.</p>
 			
 			<div class="clearfix">
 				<label for="numteams">Number of Teams</label>
 				<div class="input">
-					<select id="numteams">
+					<select id="numteams" name="numteams">
 					  <option value="1" <%= ('1' == bonus.numteams)?"seleted='selected'":""%>>1</option>
 					  <option value="2" <%= ('2' == bonus.numteams)?"seleted='selected'":""%>>2</option>
 					  <option value="3" <%= ('3' == bonus.numteams)?"seleted='selected'":""%>>3</option>
@@ -110,7 +110,7 @@
 			<div class="clearfix">
 				<label for="pointsoritems">Points or Items?</label>
 				<div class="input">
-					<select id="pointsoritems">
+					<select id="pointsoritems" name="pointsoritems">
 					  <option value="items"  <%= ('items' == bonus.pointsoritems)?"seleted='selected'":""%>>Items</option>
 					  <option value="points" <%= ('points' == bonus.pointsoritems)?"seleted='selected'":""%>>Points</option>
 					</select>
@@ -137,6 +137,11 @@
 				</div>
 			</div>
 			
+			<div class="clearfix">
+				<label for="spotpoints">Get How Many Points?</label>
+				<div class="input"><input type="text" name="spotpoints" id="spotpoints" value="<%=bonus.spotpoints%>" /></div>
+			</div>
+			
 			<p>Leave blank for no start/end date.</p>
 			
 			<div class="clearfix">
@@ -150,7 +155,7 @@
 			</div>
 		</div>
 		
-			<input type="hidden" name="bonusType" id="bonusType" value="<%=bonus.bonustype%>" />
+			<input type="hidden" name="bonustype" id="bonustype" value="<%=bonus.bonustype%>" />
 			
 			<input type="hidden" name="guid" id="guid" value="<%=bonus._id%>" />
 			<input type="hidden" name="campaignId" id="campaignId" value="<%=bonus.campaignId%>" />
@@ -183,8 +188,8 @@
 		$('#spotend').datetimepicker();
 		
 		<%if (bonus.spotstart) {%>
-		$('#spotstart').datetimepicker('setDate', (new Date("<%=bonus.spotstart%>")) );
-		$('#spotend').datetimepicker('setDate', (new Date("<%=bonus.spotend%>")) );
+			$('#spotstart').datetimepicker('setDate', (new Date("<%=bonus.spotstart%>")) );
+			$('#spotend').datetimepicker('setDate', (new Date("<%=bonus.spotend%>")) );
 		<%}%>
 	
 		// add tab logic
@@ -200,10 +205,36 @@
 			$($(this).attr('href')).show();
 			
 			// set hidden input
-			$("#bonusType").val($(this).attr('href').replace("#", ""));
+			$("#bonustype").val($(this).attr('href').replace("#", ""));
 			
 			// disable redirect
 			return false;
+		});
+
+
+		$("#bonusform").validate({
+			rules: {
+				quantity: {
+					min: 1
+				},
+				total: {
+					min: 1
+				},
+				spotpoints: {
+					min: 1
+				},
+			},
+			messages: {
+				quantity: {
+					minlength: "You must enter a quantity greater than 0."
+				},
+				total: {
+					minlength: "You must enter a total greater than 0."
+				},
+				spotpoints: {
+					minlength: "You must enter a total greater than 0."
+				},
+			}
 		});
 	});
 </script>

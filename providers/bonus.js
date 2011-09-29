@@ -149,10 +149,14 @@ BonusProvider.prototype.update = function(bonuses, callback) {
 		var updateBonus = function(bonus, callback) {
 			bonus.slug = slugify.slugify(bonus.title);
 			
+			
+			
 			bonus_collection.update({id:bonus.id}, 
 				{$set: {title: bonus.title, description: bonus.description, name: bonus.name, 
 				points: bonus.points, update_on: bonus.update_on, type: bonus.type, 
-				start: bonus.start, end: bonus.end, slug: bonus.slug}},{}, function() {
+				start: bonus.start, end: bonus.end, slug: bonus.slug, spotstart: bonus.spotstart,
+				spotend: bonus.spotend, total: bonus.total, numteams: bonus.numteams, pointsoritems: bonus.pointsoritems,
+				spottype: bonus.spottype, bonustype: bonus.bonustype, spotpoints: bonus.spotpoints}},{}, function() {
 				console.log("updated.");
 				callback(null, bonus);
 			});
