@@ -209,6 +209,8 @@ module.exports = {
 	var type = req.param('type');
 	if ('spot' == bonus.bonustype) {
 		type = spottype;
+		start = spotstart;
+		end = spotend;
 	}
 	
   	itemTypeProvider.findById(type, function(error, itemType) {
@@ -230,12 +232,9 @@ module.exports = {
 			end: end,
 			points: points,
 			type: type,
-			spotstart: spotstart,
-			spotend: spotend,
 			total: total,
 			numteams: numteams,
 			pointsoritems: pointsoritems,
-			spottype: spottype,
 			bonustype: bonustype,
 			spotpoints: spotpoints
 		}, function( error, bonuses) {
@@ -292,6 +291,8 @@ module.exports = {
 	var type = req.param('type');
 	if ('spot' == bonustype) {
 		type = spottype;
+		start = spotstart;
+		end = spotend;
 	}
   
   	itemTypeProvider.findById(type, function(error, itemType) {
@@ -314,12 +315,9 @@ module.exports = {
 			end: end,
 			points: points,
 			type: type,
-			spotstart: spotstart,
-			spotend: spotend,
 			total: total,
 			numteams: numteams,
 			pointsoritems: pointsoritems,
-			spottype: spottype,
 			bonustype: bonustype,
 			spotpoints: spotpoints
 		}, function(error, bonuses) {
