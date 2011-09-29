@@ -187,16 +187,9 @@ ItemProvider.prototype.findByCreation = function(campaignId, startDate, endDate,
 		
 		var nd = [];
 		
-		//if (startDate) query.created_at = {$gte: startDate};
-		//if (endDate) query.created_at = {$lte: endDate};
-		
 		if (startDate) nd.push({created_at: {$gte: startDate}});
-		//if (endDate) nd.push({created_at: {$lte: endDate}});
+		if (endDate) nd.push({created_at: {$lte: endDate}});
 		nd.push({campaignId: campaignId});
-		
-		//query.$and = nd;
-		
-		console.log({$and: nd});
 
 		item_collection.find({$and: nd}, params).toArray(function(error, results) {
 			if (error) { callback(error); return; }
