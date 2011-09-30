@@ -90,6 +90,9 @@
 	<%}%>
 	
 	<p>Added by: <a href="/users/show/<%=user.id%>"><%=user.login%></a> on <%=item.created_at%></p>
+	<%if ((user.login == luser.login) && (!item.admin)) {%>
+		<p><a href="/items/add/<%=item.teamId%>" class="btn primary">Add Another Item</a></p>
+	<%}%>
 </div>
 	
 </div>

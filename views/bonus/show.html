@@ -42,7 +42,7 @@
 	<p>This bonus has been completed.</p>
 	<%}%>
 	
-	<%if (teams) {%>
+	<%if (teams && teams.length > 0) {%>
 		<p>The following teams won this bonus:</p>
 		
 		<table class="common-table zebra-striped sortable" id="teams">
@@ -70,6 +70,31 @@
 		<%if (bonus.start) {%>
 			<p>From <%=bonus.start%> <%if (bonus.end) {%>to <%=bonus.end%><%}%></p>
 		<%}%>
+		
+		<%if (winners && winners.length > 0) {%>
+		<h3>Items that Won this Bonus</h3>
+		<table class="common-table zebra-striped sortable">
+			<thead>
+				<tr>
+				<th>Created</th>
+				<th>Item</th>
+				<th>Total Points</th>
+				<th>Bonus Points</th>
+				</tr>
+			</thead>
+			<tbody>
+			<% for(var i=0; i < winners.length; i++) {%>
+				<tr>
+					<td><%=winners[i].created_at_format%></td>
+					<td><a href="/items/show/<%= winners[i].id%>/<%= winners[i].slug%>"><%=winners[i].quantity%> <%= winners[i].name %></a></td>
+					<td><%=(winners[i].points + winners[i].bonus) * winners[i].quantity %></td>
+					<td><%=winners[i].bonus * winners[i].quantity %></td>
+				</tr>
+			<%}%>
+			</tbody>
+		</table>
+		<%}%>
+		
 	<%} else { %>
 		<%if (bonus.start) {%>
 			<p>From <%=bonus.start%> <%if (bonus.end) {%>to <%=bonus.end%><%}%></p>
@@ -80,23 +105,30 @@
 		<p>Worth <%=bonus.points%> points per item</p>
 	<%}%>
 	
-	<div class="entry">		
-		<h2>Recent Items</h2>
-		<ul>
-		<% for(var i=0; i < items.length; i++) {%>
-			<li><%=items[i].created_at_format%> - <a href="/items/show/<%= items[i].id%>/<%= items[i].slug%>"><%=items[i].quantity%> <%= items[i].name %></a>
-			(<%=(items[i].points + items[i].bonus) * items[i].quantity %> points)
 			
-			<%if (!items[i].admin) {%>
-			 by <a href="/users/name/<%=items[i].created_by_login%>"><%=items[i].created_by_login%></a>
-			 <%}%>
-			</li>
-		<%}%>
-		</ul>
-	</div>
-	
+		<h3>Recent Items</h3>
+		<table class="common-table zebra-striped sortable">
+			<thead>
+				<tr>
+				<th>Created</th>
+				<th>Item</th>
+				<th>Total Points</th>
+				<th>Bonus Points</th>
+				</tr>
+			</thead>
+			<tbody>
+			<% for(var i=0; i < items.length; i++) {%>
+				<tr>
+					<td><%=items[i].created_at_format%></td>
+					<td><a href="/items/show/<%= items[i].id%>/<%= items[i].slug%>"><%=items[i].quantity%> <%= items[i].name %></a></td>
+					<td><%=(items[i].points + items[i].bonus) * items[i].quantity %></td>
+					<td><%=items[i].bonus * items[i].quantity %></td>
+				</tr>
+			<%}%>
+			</tbody>
+		</table>
+
 	<input type="hidden" name="campaignId" id="campaignId" value="<%= bonus.campaignId%>" />
-	
 	<p><a href="/campaigns/show/<%= bonus.campaignId%>">Back to Campaign</a></p>
 </div>
 </div>

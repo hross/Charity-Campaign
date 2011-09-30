@@ -104,6 +104,7 @@ module.exports = {
     	}
     	
     	itemProvider.findByBonus(bonus.id, 100, function(error, items) {
+    		if (error) return next(error);
     		if (items) {
     			for (var i = 0; i < items.length; i++) {
     				items[i].created_at_format = dateformat.dateFormat(items[i].created_at, "dddd, mmmm d, yyyy HH:MM");
@@ -114,7 +115,19 @@ module.exports = {
     		if (!winners) winners = [];
     		
     		teamProvider.findAllById(winners, function(error, teams) {
-    			res.render(null, {locals:{bonus: bonus, campaignId: campaignId, isAdmin: isAdmin, items: items, teams: teams}});
+    			if (error) { return next(error); }
+
+    			itemProvider.findByWinner(bonus.id, 0, function(error, winners) {
+    				if (error) { return next(error); }
+    				
+    				for (var i = 0; i < winners.length; i++) {
+    					winners[i].created_at_format = dateformat.dateFormat(winners[i].created_at, "dddd, mmmm d, yyyy HH:MM");
+    				}
+    			
+    				res.render(null, {locals:{bonus: bonus, campaignId: campaignId, 
+    					isAdmin: isAdmin, items: items, teams: teams,
+    					winners: winners}});
+    			});
     		});
     	});
     });
