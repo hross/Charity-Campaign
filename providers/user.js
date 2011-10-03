@@ -185,7 +185,12 @@ UserProvider.prototype.authenticateLdap = function(login, password, callback) {
 					if (error && (error.code == 49)) { callback(null, null); return; }
 				
 					// some other kind of error
-					if (error) { callback(error); return; }
+					if (error) { 
+						console.log("Problem with LDAP config.");
+						console.log(error);
+						callback(null, null); 
+						return; 
+					}
 					
 					// success
 					callback(null, result);
@@ -367,6 +372,8 @@ UserProvider.prototype.importCsv = function(fileName, callback) {
 };
 
 UserProvider.prototype.joinTeamByLogin = function(login, team, callback) {
+	if (!login) { callback(null); return; }
+
 	var provider = this;
 	provider.findByLogin(login, function(error, user) {
 		if (error) { callback(error); return; }
@@ -380,6 +387,7 @@ UserProvider.prototype.joinTeamByLogin = function(login, team, callback) {
 };
 
 UserProvider.prototype.leaveTeamByLogin = function(login, team, callback) {
+	if (!login) { callback(null); return; }
 	var provider = this;
 	provider.findByLogin(login, function(error, user) {
 		provider.leaveTeam(user, team, function(error, user) {
@@ -598,6 +606,8 @@ UserProvider.prototype.leaveCampaign = function(user, campaignId, callback) {
 
 
 UserProvider.prototype.addRoleByLogin = function(login, role, callback) {
+	if (!login) { callback(null, null); return; }
+
 	var provider = this; // need this for the proper scope reference below
 
 	provider.findByLogin(login, function(error, user) {
