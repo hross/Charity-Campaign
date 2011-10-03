@@ -251,8 +251,8 @@ module.exports = {
 		team = teams[0];
 		
 		// add new users to teams
-		userProvider.joinTeamByLogin(captain, function(error, captainUser) {
-			userProvider.joinTeamByLogin(sponsor, function(error, sponsorUser) {
+		userProvider.joinTeamByLogin(captain, team, function(error, captainUser) {
+			userProvider.joinTeamByLogin(sponsor, team, function(error, sponsorUser) {
 				// add a role to this user so we know they are the captain
 				userProvider.addRoleByLogin(captain, TEAM_CAPTAIN_ROLE + team.id, function(error, user) {
 					if (error) return next(error);

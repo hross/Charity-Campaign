@@ -412,11 +412,6 @@ UserProvider.prototype.leaveTeam = function(user, team, callback) {
 UserProvider.prototype.joinTeam = function(user, team, callback) {
 	var provider = this;
 	
-	//HRB - remove
-	console.log("joining:");
-	console.log(team);
-	console.log(user);
-	
 	provider.joinTeamById(user, team.id, function(error, user) {
 		if (error) { callback(error); return; }
 		
