@@ -1,4 +1,3 @@
-
 /**
  * Module dependencies.
  */
@@ -19,7 +18,8 @@ function bootApplication(app) {
 		app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 	});
 	
-	app.configure('development', function(){
+	app.configure('production', function(){
+		console.log("Running in production mode...")
 		app.use(function(err, req, res, next){
    			res.render('500');
  		});
