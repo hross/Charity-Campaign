@@ -1,5 +1,5 @@
 var login = "admin";
-var email = "admin@changemes.com";
+var email = "admin@changeme.com";
 var first = "John";
 var last = "Doe";
 var password = "password";
