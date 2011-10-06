@@ -402,10 +402,11 @@ UserProvider.prototype.leaveTeam = function(user, team, callback) {
 	var provider = this;
 	provider.leaveTeamById(user, team.id, function(error, user) {
 		if (error) { callback(error); return; }
-		
-		provider.leaveCampaign(user, team.campaignId, function(error, user) {
+		//TODO: can't remove from campaign if they are on multiple teams
+		/*provider.leaveCampaign(user, team.campaignId, function(error, user) {
 			callback(error, user);
-		});
+		});*/
+		callback(error, user);
 	});
 };
 
