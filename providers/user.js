@@ -585,7 +585,7 @@ UserProvider.prototype.leaveCampaign = function(user, campaignId, callback) {
 			var campaigns = result.campaigns;
 			if (campaigns && (campaigns.indexOf(campaignId) >= 0)) {
 				// remove the team id
-				campaigns.remove(campaigns.indexOf(teamId))
+				campaigns.remove(campaigns.indexOf(campaignId))
 				user_collection.update({id: user.id}, {$set: {campaigns: campaigns}}, {}, function(error) {
 					if (error) { callback(error); return; }
 
