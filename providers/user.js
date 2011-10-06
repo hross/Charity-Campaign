@@ -448,12 +448,6 @@ UserProvider.prototype.joinTeamById = function(user, teamId, callback) {
 			// build a list of parents with the new id
 			var teams = result.teams;
 			
-			//HRB - remove
-			console.log("teams: ");
-			console.log(teams);
-			console.log("team id: ");
-			console.log(teamId);
-			
 			if (!teams || (teams.indexOf(teamId) < 0)) {
 				// if this isn't already a parent, add it
 				if (!teams) teams = [];
