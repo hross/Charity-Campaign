@@ -78,7 +78,10 @@
 					<li><a href="/users/validate">Login</a></li>
 				<%} else {%>
 					<li><a href="/users/show/<%= luser.id%>/<%= luser.slug%>">Welcome, <%=luser.login%></a></li>
-					<li><a class="iconlink" href="/users/invalidate"><img src="/images/door_out.png" alt="Logout" /></a></li>
+					<li>
+						<!--a class="iconlink" href="/users/invalidate"><img src="/images/door_out.png" alt="Logout" /></a-->
+						<a class="iconlink" href="/users/invalidate">Logout</a>
+					</li>
 				<%}%>
           </ul>
         </div>
