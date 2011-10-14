@@ -497,7 +497,7 @@ function _recalculate(bonusId, login, userId, callback) {
 										var points = (parseInt(items[i].points) + parseInt(items[i].bonus)) * parseInt(items[i].quantity);
 										totals[items[i].teamId] += points
 									} else {
-										totals[items[i].teamId] += items[i].quantity;
+										totals[items[i].teamId] += parseInt(items[i].quantity);
 									}
 									
 									// if we passed bonus threshold and we aren't already a winner
