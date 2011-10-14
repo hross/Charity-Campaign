@@ -306,12 +306,25 @@ module.exports = {
 												bonusids = _.union(recentItems[i].bonuses, bonusids);
 											}
 											
+											// create a hash map of teams by id
+											var teamlist = {};
+											for (var i = 0; i < teams.length; i++) {
+												teamlist[teams[i].id] = teams[i];
+											}
+											
+											// append team data to each item
+											_.map(recentItems, function(item) {
+												item.team = teamlist[item.teamId];
+												item.created_at_format = dateformat.dateFormat(item.created_at, "mm.d.yyyy HH:MM");
+												item.updated_on_format = dateformat.dateFormat(item.updated_on, "mm.d.yyyy HH:MM");
+											});
+											
 											bonusProvider.findByIds(bonusids, function(error, recentBonuses) {
 												// after everything is done we are happy
 												res.render(null, {locals: {campaign: campaign, bonuses: bonuses,
 													teams: teams, campaignId: campaign.id, 
 													isAdmin: isAdmin, items: items, itemTypes: itemTypes,
-													recentBonuses: recentBonuses}});
+													recentBonuses: recentBonuses, recentItems: recentItems}});
 											});
 										});
 									});
