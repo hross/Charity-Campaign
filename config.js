@@ -7,7 +7,6 @@ config.ldap = {};
 config.roles = {};
 
 if (process.env.MONGOHQ_URL) {
-	console.log("Found mongo connection string: " + process.env.MONGOHQ_URL);
 	var info = url.parse(process.env.MONGOHQ_URL);
 	config.mongodb.dbname = info.pathname;
 	config.mongodb.host = info.host;
