@@ -329,6 +329,18 @@ ItemProvider.prototype.flag = function(login, itemId, callback) {
     });
 };
 
+ItemProvider.prototype.clearWinners = function(bonusId, callback) {
+    this.getCollection(function(error, item_collection) {
+    	if (error) { callback(error); return; }
+
+      	item_collection.update({winner:bonusId}, {$pull: {winner: bonusId}},{}, function() {
+			console.log("Cleared winners for: " + bonusId);
+			callback(null, null);
+		});
+    });
+};
+
+
 ItemProvider.prototype.verify = function(login, itemId, callback) {
     this.getCollection(function(error, item_collection) {
     	if (error) { callback(error); return; }

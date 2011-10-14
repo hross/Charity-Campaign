@@ -464,112 +464,116 @@ function _recalculate(bonusId, login, userId, callback) {
 			itemProvider.findByBonus(bonus.id, 0, function(error, items) {
 				if (error) return callback(error);
 				
-				// build a function to delete items
-				var deleteItem = function(item, callback) {
-					console.log("deleting item...");
-					itemProvider.remove(item.id, function(error, removed) {
-						callback(error, removed);
-					});
-				};
-				
-				// do the actual deletes
-				async.map(items, deleteItem, function(error, results) {
+				itemProvider.clearWinners(bonus.id, function(error) {
 					if (error) return callback(error);
+				
+					// build a function to delete items
+					var deleteItem = function(item, callback) {
+						console.log("deleting item...");
+						itemProvider.remove(item.id, function(error, removed) {
+							callback(error, removed);
+						});
+					};
 					
-					// find all items corresponding to this bonus
-					itemProvider.findByCreation(bonus.campaignId, bonus.start, bonus.end, 0, function(error, items) {
-						// go through each item and track totals
-						var totals = {};
-						var winners = []; // keep track of winning teams for later
-						var winItems = []; // keep winning items for later updates
-						var numteams = bonus.numteams;
+					// do the actual deletes
+					async.map(items, deleteItem, function(error, results) {
+						if (error) return callback(error);
 						
-						for (var i = 0; i < items.length; i++) {
-							// we are only counting this item if it counts toward the bonus
-							if ((bonus.type < 0) || (bonus.type == items[i].type)) {
-								if (!totals[items[i].teamId]) totals[items[i].teamId] = 0; // init blank team values
+						// find all items corresponding to this bonus
+						itemProvider.findByCreation(bonus.campaignId, bonus.start, bonus.end, 0, function(error, items) {
+							// go through each item and track totals
+							var totals = {};
+							var winners = []; // keep track of winning teams for later
+							var winItems = []; // keep winning items for later updates
+							var numteams = bonus.numteams;
 							
-								// increment our total
-								if ('points' == bonus.pointsoritems) {
-									var points = (parseInt(items[i].points) + parseInt(items[i].bonus)) * parseInt(items[i].quantity);
-									totals[items[i].teamId] += points
-								} else {
-									totals[items[i].teamId] += items[i].quantity;
-								}
+							for (var i = 0; i < items.length; i++) {
+								// we are only counting this item if it counts toward the bonus
+								if ((bonus.type < 0) || (bonus.type == items[i].type)) {
+									if (!totals[items[i].teamId]) totals[items[i].teamId] = 0; // init blank team values
 								
-								// if we passed bonus threshold and we aren't already a winner
-								if ((totals[items[i].teamId] >= bonus.total) && !_.contains(winners, items[i].teamId)) {
-									// this team is a winner
-									winners.push(items[i].teamId);
-									winItems.push(items[i]);
-									numteams--;
-									if (!numteams) break; // break out of the loop if we hit the maximum number of winners
+									// increment our total
+									if ('points' == bonus.pointsoritems) {
+										var points = (parseInt(items[i].points) + parseInt(items[i].bonus)) * parseInt(items[i].quantity);
+										totals[items[i].teamId] += points
+									} else {
+										totals[items[i].teamId] += items[i].quantity;
+									}
+									
+									// if we passed bonus threshold and we aren't already a winner
+									if ((totals[items[i].teamId] >= bonus.total) && !_.contains(winners, items[i].teamId)) {
+										// this team is a winner
+										winners.push(items[i].teamId);
+										winItems.push(items[i]);
+										numteams--;
+										if (!numteams) break; // break out of the loop if we hit the maximum number of winners
+									}
 								}
 							}
-						}
-						
-						// this function sets the bonus for each winning item
-						var setBonus = function(item, callback) {
-							// update the item with some information about the bonus
-							if (!item.winner) item.winner = [];
-							item.winner.push(bonus.id);
 							
-							itemProvider.update(item, function(error, uitem) {
-								if (error) { callback(error); return; }
+							// this function sets the bonus for each winning item
+							var setBonus = function(item, callback) {
+								// update the item with some information about the bonus
+								if (!item.winner) item.winner = [];
+								item.winner.push(bonus.id);
 								
-								var bi = {};
-								bi[bonus.id] = parseInt(bonus.spotpoints);
-								
-								// add a bonus point item for the winning team
-								itemProvider.save({
-									type: itemType.id, // system bonus point type
-									name: itemType.name,
-									points: 0,
-									bonus: bonus.spotpoints,
-									campaignId: bonus.campaignId,
-									description: "Bonus Points for " + bonus.title + " Bonus",
-									teamId: item.teamId,
-									quantity: 1,
-									created_by: userId,
-									updated_by:	login,
-									created_by_login: login,
-									admin: true,
-									office: "",
-									bonuses: [bonus.id],
-									bonusvalues: [bi]
-								}, function(error, items) {
-									if (error) callback(error);
+								itemProvider.update(item, function(error, uitem) {
+									if (error) { callback(error); return; }
 									
-									callback(null, items[0]);
-								}); // end item update
-							}); // end original item update
-						};
-						
-						// update the bonus with completion if it is fulfilled or the end date is past
-						var now = new Date();
-						if ((bonus.end && (now > bonus.end)) || (!numteams)) {
-							bonus.winners = winners;
-							bonus.completed = true;
-							bonus.completed_on = new Date();
-						} else {
-							bonus.winners = winners;
-							bonus.completed = false;
-						}
-						
-						// run the update
-						bonusProvider.update(bonus, function(error, ubonus) {
-							if (error) return callback(error);
+									var bi = {};
+									bi[bonus.id] = parseInt(bonus.spotpoints);
+									
+									// add a bonus point item for the winning team
+									itemProvider.save({
+										type: itemType.id, // system bonus point type
+										name: itemType.name,
+										points: 0,
+										bonus: bonus.spotpoints,
+										campaignId: bonus.campaignId,
+										description: "Bonus Points for " + bonus.title + " Bonus",
+										teamId: item.teamId,
+										quantity: 1,
+										created_by: userId,
+										updated_by:	login,
+										created_by_login: login,
+										admin: true,
+										office: "",
+										bonuses: [bonus.id],
+										bonusvalues: [bi]
+									}, function(error, items) {
+										if (error) callback(error);
+										
+										callback(null, items[0]);
+									}); // end item update
+								}); // end original item update
+							};
 							
-							// add/update all of the items
-							async.map(winItems, setBonus, function(error, items) {
+							// update the bonus with completion if it is fulfilled or the end date is past
+							var now = new Date();
+							if ((bonus.end && (now > bonus.end)) || (!numteams)) {
+								bonus.winners = winners;
+								bonus.completed = true;
+								bonus.completed_on = new Date();
+							} else {
+								bonus.winners = winners;
+								bonus.completed = false;
+							}
+							
+							// run the update
+							bonusProvider.update(bonus, function(error, ubonus) {
 								if (error) return callback(error);
 								
-								// after everything is done we are happy
-								callback(null, null);
+								// add/update all of the items
+								async.map(winItems, setBonus, function(error, items) {
+									if (error) return callback(error);
+									
+									// after everything is done we are happy
+									callback(null, null);
+								});
 							});
-						});
-					}); // find by creation date
-				}); // map deletes
+						}); // find by creation date
+					}); // map deletes
+				}); // clear winners
 			}); // find item
 		}); // find item types
 	}); // find bonus
