@@ -12,5 +12,6 @@ var app = express.createServer(
 
 require('./mvc').boot(app);
 
-app.listen(3000);
-console.log('Express app started on port 3000');
+var port = process.env.PORT || 3000;
+app.listen(port);
+console.log('Express app started on port ' + port);
