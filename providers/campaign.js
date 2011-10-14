@@ -15,7 +15,8 @@ CampaignProvider = function() {
   this.db = new Db(config.mongodb.dbname, new Server(config.mongodb.host, config.mongodb.port, {auto_reconnect: true}, {}));
   this.db.open(function(error, client){
   	if (typeof config.mongodb.user !== 'string' || typeof config.mongodb.pass !== 'string') return;
-  	db.authenticate(config.mongodb.user, config.mongodb.pass, function(error) {
+  	
+  	this.db.authenticate(config.mongodb.user, config.mongodb.pass, function(error) {
   		if (error) console.log(error);
   	});
   });
