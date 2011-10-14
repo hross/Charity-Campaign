@@ -26,12 +26,12 @@ UserProvider = function(ldapUrl, userSearch) {
   this.ldapUrl = ldapUrl;
   this.userSearch = userSearch;
   
-  console.log("connecting to DB with credentials: ");
+  /*console.log("connecting to DB with credentials: ");
   console.log("db: " + config.mongodb.dbname);
   console.log("host: " + config.mongodb.host);
   console.log("port: " + config.mongodb.port);
   console.log("user: " + config.mongodb.user);
-  console.log("pass: " + config.mongodb.pass);
+  console.log("pass: " + config.mongodb.pass);*/
   
   this.db = new Db(config.mongodb.dbname, new Server(config.mongodb.host, config.mongodb.port, {auto_reconnect: true}, {}));
   
