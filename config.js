@@ -39,7 +39,7 @@ if (process.env.MONGOHQ_URL) {
 }
 
 // ldap connection info for user accounts
-config.ldap.enable = true;
+config.ldap.enable = false;
 config.ldap.url = 'ldap://localhost:10389';
 config.ldap.userSearch = "uid=[login],ou=system";
 
