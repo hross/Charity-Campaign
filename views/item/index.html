@@ -27,8 +27,6 @@
 			<td><%=(items[i].points + items[i].bonus) * items[i].quantity %></td>
 			</tr>
 		<% } %>
-		</tbody>
-		
 		<%if (isAdmin) {%>
 		<tr><td colspan="2">
 		<a class="btn primary" href="/items/add/<%=teamId%>">Add an Item</a>

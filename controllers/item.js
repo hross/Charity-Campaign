@@ -68,6 +68,59 @@ module.exports = {
     	});
 	}
   },
+  
+  // list
+  
+  all: function(req, res){
+  	// get request params
+  	var campaignId = req.params.campaignId;
+  	var skip = req.params.skip;
+  	var limit = req.params.limit;
+  	
+  	if (!skip) skip = 0;
+  	try {
+  		skip = parseInt(skip);
+  	} catch (err) {
+  		skip = 0;
+  	}
+  	if (skip < 0) skip = 0;
+  	
+  	  	
+  	if (!limit) limit = 10;
+  	try {
+  		limit = parseInt(limit);
+  	} catch (err) {
+  		limit = 10;
+  	}
+  	if (limit < 0) limit = 10;
+  	
+  	var user = req.session.user;
+  	var isAdmin = (user && user.roles &&
+				(user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + campaignId)>=0 ||
+				user.roles.indexOf(ADMIN_ROLE)>=0));
+  	
+  	itemProvider.findAllByCampaign(campaignId, limit, skip, function(error, items) {
+		if (error) return next(error);
+		
+		teamProvider.findAll(campaignId, function(error, teams) {
+			// create a hash map of teams by id
+			var teamlist = {};
+			for (var i = 0; i < teams.length; i++) {
+				teamlist[teams[i].id] = teams[i];
+			}
+			
+			// append team data to each item
+			_.map(items, function(item) {
+				item.team = teamlist[item.teamId];
+				item.created_at_format = dateformat.dateFormat(item.created_at, "mm.d.yyyy HH:MM");
+				item.updated_on_format = dateformat.dateFormat(item.updated_on, "mm.d.yyyy HH:MM");
+			});
+			
+			if (!items) items = [];
+        	res.render(null, {locals: {items: items, campaignId: campaignId, skip: skip, limit: limit}});
+		});
+    });
+  },
 
   // single display
   
@@ -695,6 +748,8 @@ module.exports = {
 	 switch(action) {
       case 'csv':
       	return ['/csv', true];
+      case 'all':
+      	return ['/all/:campaignId/:limit/:skip', false];
       default:
       	return null;
      }

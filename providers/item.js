@@ -68,14 +68,11 @@ ItemProvider.prototype.findByCampaign = function(campaignId, admin, limit, callb
     });
 };
 
-ItemProvider.prototype.findAllByCampaign = function(campaignId, limit, callback) {
+ItemProvider.prototype.findAllByCampaign = function(campaignId, limit, skip, callback) {
     this.getCollection(function(error, item_collection) {
 		if (error) { callback(error); return; }
 
-		var params = {sort: [['created_at','desc']]};
-		if (limit) params['limit'] = limit;
-		
-        item_collection.find({campaignId: campaignId}, params).toArray(function(error, results) {
+        item_collection.find({campaignId: campaignId}).sort([['created_at','desc']]).limit(limit).skip(skip).toArray(function(error, results) {
         	if (error) { callback(error); return; }
 
           	callback(null, results);
