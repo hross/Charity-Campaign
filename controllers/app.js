@@ -2,11 +2,11 @@ var config = require('../config');
 var ADMIN_ROLE = config.roles.ADMIN_ROLE;
 
 // instantiate user provider
-var UserProvider = require('./providers/user').UserProvider;
+var UserProvider = require('../providers/user').UserProvider;
 var userProvider = new UserProvider(config.ldap.url, config.ldap.userSearch);
 
 // instantiate itemtype provider
-var ItemTypeProvider = require('./providers/itemtype').ItemTypeProvider;
+var ItemTypeProvider = require('../providers/itemtype').ItemTypeProvider;
 var itemtypeProvider = new ItemTypeProvider();
 
 module.exports = {
@@ -39,6 +39,14 @@ module.exports = {
   },
   
   install: function(req, res) {
+  
+  	//TODO: make a form for creating these
+	var login = "admin";
+	var email = "admin@admin.com";
+	var first = "John";
+	var last = "Doe";
+	var password = "password";
+
   
 	var createBonusType = function(callback) {
 		console.log("Creating system bonus item type.");
@@ -117,7 +125,7 @@ module.exports = {
 				return;
 			}
 			
-			req.flash("Congratulations! All config steps completed. Run 'node app.js' to start the application.");
+			console.log("install completed.");
 			res.render(null, null);
 		});
 	});
@@ -135,7 +143,7 @@ module.exports = {
       	return ['admin', true];
       	break;
       case 'install':
-      	return ['install', true];
+      	return ['install', false];
       	break;
       default:
       	return null;
