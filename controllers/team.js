@@ -2,19 +2,19 @@ var config = require('../config');
 
 // instantiate team provider
 var TeamProvider = require('../providers/team').TeamProvider;
-var teamProvider = new TeamProvider(config.mongodb.host, config.mongodb.port);
+var teamProvider = new TeamProvider(config.mongodb.dbname, config.mongodb.host, config.mongodb.port);
 
 // instantiate user provider
 var UserProvider = require('../providers/user').UserProvider;
-var userProvider = new UserProvider(config.mongodb.host, config.mongodb.port, config.ldap.url, config.ldap.userSearch);
+var userProvider = new UserProvider(config.mongodb.dbname, config.mongodb.host, config.mongodb.port, config.ldap.url, config.ldap.userSearch);
 
 // instantiate item provider
 var ItemProvider = require('../providers/item').ItemProvider;
-var itemProvider = new ItemProvider(config.mongodb.host, config.mongodb.port);
+var itemProvider = new ItemProvider(config.mongodb.dbname, config.mongodb.host, config.mongodb.port);
 
 // instantiate campaign provider
 var CampaignProvider = require('../providers/campaign').CampaignProvider;
-var campaignProvider = new CampaignProvider(config.mongodb.host, config.mongodb.port);
+var campaignProvider = new CampaignProvider(config.mongodb.dbname, config.mongodb.host, config.mongodb.port);
 
 var dateformat = require('../lib/dateformat'); // custom date tools
 require('../lib/util.js'); // utility functions

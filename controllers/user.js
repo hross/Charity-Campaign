@@ -2,15 +2,15 @@ var config = require('../config');
 
 // instantiate user provider
 var UserProvider = require('../providers/user').UserProvider;
-var userProvider = new UserProvider(config.mongodb.host, config.mongodb.port, config.ldap.url, config.ldap.userSearch);
+var userProvider = new UserProvider(config.mongodb.dbname, config.mongodb.host, config.mongodb.port, config.ldap.url, config.ldap.userSearch);
 
 // instantiate user provider
 var ItemProvider = require('../providers/item').ItemProvider;
-var itemProvider = new ItemProvider(config.mongodb.host, config.mongodb.port);
+var itemProvider = new ItemProvider(config.mongodb.dbname, config.mongodb.host, config.mongodb.port);
 
 // instantiate team provider
 var TeamProvider = require('../providers/team').TeamProvider;
-var teamProvider = new TeamProvider(config.mongodb.host, config.mongodb.port);
+var teamProvider = new TeamProvider(config.mongodb.dbname, config.mongodb.host, config.mongodb.port);
 
 var ADMIN_ROLE = config.roles.ADMIN_ROLE;
 

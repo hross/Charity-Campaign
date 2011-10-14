@@ -7,8 +7,8 @@ var ObjectID = require('mongodb').ObjectID;
 var slugify = require('../lib/slugify'); // custom slug tools
 var async = require('async');
 
-BonusProvider = function(host, port) {
-  this.db= new Db('charity-campaign', new Server(host, port, {auto_reconnect: true}, {}));
+BonusProvider = function(dbname, host, port) {
+  this.db= new Db(dbname, new Server(host, port, {auto_reconnect: true}, {}));
   this.db.open(function(){});
 };
 

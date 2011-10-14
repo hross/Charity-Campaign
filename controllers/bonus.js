@@ -5,19 +5,19 @@ var config = require('../config');
 
 // instantiate bonus provider
 var BonusProvider = require('../providers/bonus').BonusProvider;
-var bonusProvider = new BonusProvider(config.mongodb.host, config.mongodb.port);
+var bonusProvider = new BonusProvider(config.mongodb.dbname, config.mongodb.host, config.mongodb.port);
 
 // instantiate itemtype provider
 var ItemTypeProvider = require('../providers/itemtype').ItemTypeProvider;
-var itemTypeProvider = new ItemTypeProvider(config.mongodb.host, config.mongodb.port);
+var itemTypeProvider = new ItemTypeProvider(config.mongodb.dbname, config.mongodb.host, config.mongodb.port);
 
 // instantiate item provider
 var ItemProvider = require('../providers/item').ItemProvider;
-var itemProvider = new ItemProvider(config.mongodb.host, config.mongodb.port);
+var itemProvider = new ItemProvider(config.mongodb.dbname, config.mongodb.host, config.mongodb.port);
 
 // instantiate team provider
 var TeamProvider = require('../providers/team').TeamProvider;
-var teamProvider = new TeamProvider(config.mongodb.host, config.mongodb.port);
+var teamProvider = new TeamProvider(config.mongodb.dbname, config.mongodb.host, config.mongodb.port);
 
 var dateformat = require('../lib/dateformat'); // custom date tools
 var async = require('async');

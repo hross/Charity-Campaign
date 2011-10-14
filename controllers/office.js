@@ -2,7 +2,7 @@ var config = require('../config');
 
 // instantiate office provider
 var OfficeProvider = require('../providers/office').OfficeProvider;
-var officeProvider = new OfficeProvider(config.mongodb.host, config.mongodb.port);
+var officeProvider = new OfficeProvider(config.mongodb.dbname, config.mongodb.host, config.mongodb.port);
 
 var CAMPAIGN_ADMIN_ROLE = config.roles.CAMPAIGN_ADMIN_ROLE;
 var ADMIN_ROLE = config.roles.ADMIN_ROLE;

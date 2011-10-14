@@ -2,6 +2,8 @@
 
 require('../lib/util.js'); // misc utility functions
 
+var config = require('../config'); // config info
+
 var crypto = require('crypto');
 
 var Db = require('mongodb').Db;
@@ -9,15 +11,19 @@ var Connection = require('mongodb').Connection;
 var Server = require('mongodb').Server;
 var BSON = require('mongodb').BSON;
 var ObjectID = require('mongodb').ObjectID;
-var ldap = require('ldapjs');
+
+var ldap = null;
+if (config.ldap.enable) {
+	 ldap = require('ldapjs');
+}
 
 var slugify = require('../lib/slugify'); // custom slug tools
 var parse = require('../lib/parsecsv'); // csv parsing
 
 var async = require('async');
 
-UserProvider = function(host, port, ldapUrl, userSearch) {
-  this.db= new Db('charity-campaign', new Server(host, port, {auto_reconnect: true}, {}));
+UserProvider = function(dbname, host, port, ldapUrl, userSearch) {
+  this.db= new Db(dbname, new Server(host, port, {auto_reconnect: true}, {}));
   this.db.open(function(){});
   this.ldapUrl = ldapUrl;
   this.userSearch = userSearch;
@@ -174,43 +180,33 @@ UserProvider.prototype.authenticateLdap = function(login, password, callback) {
 					}
 				}
 
-				// connect to LDAP
-				var client = ldap.createClient({
-					url: provider.ldapUrl
-				});
-				
-				var searchString = provider.userSearch.replace("[login]", result.account);
-				client.bind(searchString, password, function(error) {
-					// invalid login
-					if (error && (error.code == 49)) { callback(null, null); return; }
-				
-					// some other kind of error
-					if (error) { 
-						console.log("Problem with LDAP config.");
-						console.log(error);
-						callback(null, null); 
-						return; 
-					}
+				if (config.ldap.enable) {
+					// connect to LDAP
+					var client = ldap.createClient({
+						url: provider.ldapUrl
+					});
 					
-					// success
-					callback(null, result);
-				});
-				
-				/*
-				var LDAP = new LDAPConnection();
-				if (LDAP.open(provider.ldapUrl, 3) < 0) {
-					// bad ldap connection
-				  	callback(null, null);
-				  	return;
-				} 
-				
-				// find the user and try to auth via bind
-				var searchString = provider.userSearch.replace("[login]", result.account);
-				LDAP.simpleBind(searchString, password, function(messageId, error) {
-					if (error) { callback(error); return; }
-					callback(null, result);
-				});	
-				*/
+					var searchString = provider.userSearch.replace("[login]", result.account);
+					client.bind(searchString, password, function(error) {
+						// invalid login
+						if (error && (error.code == 49)) { callback(null, null); return; }
+					
+						// some other kind of error
+						if (error) { 
+							console.log("Problem with LDAP config.");
+							console.log(error);
+							callback(null, null); 
+							return; 
+						}
+						
+						// success
+						callback(null, result);
+					});
+				} else {
+					console.log("LDAP was not enabled.");
+					callback(null, null); 
+					return; 
+				}
 			});
 		}
     });
