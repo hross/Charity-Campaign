@@ -28,7 +28,7 @@ UserProvider = function(ldapUrl, userSearch) {
   
   console.log("connecting to DB with credentials: ");
   console.log(config.mongodb.dbname);
-  console.log(config.mongodb.dbhost);
+  console.log(config.mongodb.host);
   console.log(config.mongodb.port);
   console.log(config.mongodb.user);
   console.log(config.mongodb.pass);
