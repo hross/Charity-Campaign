@@ -8,7 +8,7 @@ config.roles = {};
 
 if (process.env.MONGOHQ_URL) {
 	var info = url.parse(process.env.MONGOHQ_URL);
-	config.mongodb.dbname = info.pathname;
+	config.mongodb.dbname = info.pathname.replace("/", "");
 	config.mongodb.host = info.host;
 	config.mongodb.port = info.port;
 	if (info.auth) {
@@ -21,7 +21,7 @@ if (process.env.MONGOHQ_URL) {
 	}
 } else if (process.env.MONGO_URL) {
 	var info = url.parse(process.env.MONGO_URL);
-	config.mongodb.dbname = info.pathname;
+	config.mongodb.dbname = info.pathname.replace("/", "");
 	config.mongodb.host = info.host;
 	config.mongodb.port = info.port;
 	if (info.auth) {
