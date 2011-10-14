@@ -1,12 +1,35 @@
+var url = require('url');
+
 var config = {};
 
 config.mongodb = {};
 config.ldap = {};
 config.roles = {};
 
-config.mongodb.dbname = 'charity-campaign';
-config.mongodb.host = 'localhost';
-config.mongodb.port = 27017;
+if (process.env.MONGOHQ_URL) {
+	console.log("Found mongo connection string: " + process.env.MONGOHQ_URL);
+	var info = url.parse(process.env.MONGOHQ_URL);
+	config.mongodb.dbname = 'charity-campaign';
+	config.mongodb.host = info.host;
+	config.mongodb.port = info.port;
+	if (info.auth) {
+		config.mongodb.user = info.split(":")[0];
+		config.mongodb.pass = info.split(":")[1];
+	}
+} else if (process.env.MONGO_URL) {
+	var info = url.parse(process.env.MONGO_URL);
+	config.mongodb.dbname = 'charity-campaign';
+	config.mongodb.host = info.host;
+	config.mongodb.port = info.port;
+	if (info.auth) {
+		config.mongodb.user = info.split(":")[0];
+		config.mongodb.pass = info.split(":")[1];
+	}
+} else {
+	config.mongodb.dbname = 'charity-campaign';
+	config.mongodb.host = 'localhost';
+	config.mongodb.port = 27017;
+}
 
 // ldap connection info for user accounts
 config.ldap.enable = true;
