@@ -1,0 +1,33 @@
+<div class="container">
+<div class="row">
+
+<div class="span4 columns">
+	<%if (isAdmin) {%>
+	<h3>Administration</h3>
+	<ul class="unstyled menu">
+		<li>
+		<a href="/users/csv">Upload a CSV of User Names</a>
+		</li>
+		<li>
+		<a href="/items/csv">Upload a CSV of Items</a>
+		</li>
+		<li>
+		<a href="/admin">Admin Options</a>
+		</li>
+	</ul>
+	<%}%>
+</div>
+
+<div class="span12 columns">
+	<div class="page-header">
+		<h2>Installation</h2>
+	</div>
+
+	<p>See below for install messages.</p>
+	
+	<%- partial('../messages') %>
+	
+</div>	
+</div>
+</div>
+	
