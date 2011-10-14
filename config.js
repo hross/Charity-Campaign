@@ -9,21 +9,29 @@ config.roles = {};
 if (process.env.MONGOHQ_URL) {
 	console.log("Found mongo connection string: " + process.env.MONGOHQ_URL);
 	var info = url.parse(process.env.MONGOHQ_URL);
-	config.mongodb.dbname = 'charity-campaign';
+	config.mongodb.dbname = info.pathname;
 	config.mongodb.host = info.host;
 	config.mongodb.port = info.port;
 	if (info.auth) {
-		config.mongodb.user = info.split(":")[0];
-		config.mongodb.pass = info.split(":")[1];
+		try {
+			config.mongodb.user = info.auth.split(":")[0];
+			config.mongodb.pass = info.auth.split(":")[1];
+		} catch (err) {
+			console.log("Error parsing auth info.");
+		}
 	}
 } else if (process.env.MONGO_URL) {
 	var info = url.parse(process.env.MONGO_URL);
-	config.mongodb.dbname = 'charity-campaign';
+	config.mongodb.dbname = info.pathname;
 	config.mongodb.host = info.host;
 	config.mongodb.port = info.port;
 	if (info.auth) {
-		config.mongodb.user = info.split(":")[0];
-		config.mongodb.pass = info.split(":")[1];
+		try {
+			config.mongodb.user = info.auth.split(":")[0];
+			config.mongodb.pass = info.auth.split(":")[1];
+		} catch (err) {
+			console.log("Error parsing auth info.");
+		}
 	}
 } else {
 	config.mongodb.dbname = 'charity-campaign';

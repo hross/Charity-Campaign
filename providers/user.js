@@ -22,11 +22,17 @@ var parse = require('../lib/parsecsv'); // csv parsing
 
 var async = require('async');
 
-UserProvider = function(dbname, host, port, ldapUrl, userSearch) {
-  this.db= new Db(dbname, new Server(host, port, {auto_reconnect: true}, {}));
-  this.db.open(function(){});
+UserProvider = function(ldapUrl, userSearch) {
   this.ldapUrl = ldapUrl;
   this.userSearch = userSearch;
+  
+  this.db = new Db(config.mongodb.dbname, new Server(config.mongodb.host, config.mongodb.port, {auto_reconnect: true}, {}));
+  this.db.open(function(error, client){
+  	if (typeof config.mongodb.user !== 'string' || typeof config.mongodb.pass !== 'string') return;
+  	db.authenticate(config.mongodb.user, config.mongodb.pass, function(error) {
+  		if (error) console.log(error);
+  	});
+  });
 };
 
 UserProvider.prototype.getNextUserId = function(callback) {

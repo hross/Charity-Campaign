@@ -7,9 +7,16 @@ var ObjectID = require('mongodb').ObjectID;
 var slugify = require('../lib/slugify'); // custom slug tools
 var async = require('async');
 
-ItemTypeProvider = function(dbname, host, port) {
-  this.db= new Db(dbname, new Server(host, port, {auto_reconnect: true}, {}));
-  this.db.open(function(){});
+var config = require('../config'); // config info
+
+ItemTypeProvider = function() {
+  this.db = new Db(config.mongodb.dbname, new Server(config.mongodb.host, config.mongodb.port, {auto_reconnect: true}, {}));
+  this.db.open(function(error, client){
+  	if (typeof config.mongodb.user !== 'string' || typeof config.mongodb.pass !== 'string') return;
+  	db.authenticate(config.mongodb.user, config.mongodb.pass, function(error) {
+  		if (error) console.log(error);
+  	});
+  });
 };
 
 ItemTypeProvider.prototype.getNextItemTypeId= function(callback) {

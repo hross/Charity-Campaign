@@ -2,7 +2,7 @@ var config = require('../config');
 
 // instantiate itemtype provider
 var ItemTypeProvider = require('../providers/itemtype').ItemTypeProvider;
-var itemtypeProvider = new ItemTypeProvider(config.mongodb.dbname, config.mongodb.host, config.mongodb.port);
+var itemtypeProvider = new ItemTypeProvider();
 
 var CAMPAIGN_ADMIN_ROLE = config.roles.CAMPAIGN_ADMIN_ROLE;
 var ADMIN_ROLE = config.roles.ADMIN_ROLE;
