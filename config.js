@@ -4,10 +4,12 @@ config.mongodb = {};
 config.ldap = {};
 config.roles = {};
 
+config.mongodb.dbname = 'charity-campaign';
 config.mongodb.host = 'localhost';
 config.mongodb.port = 27017;
 
 // ldap connection info for user accounts
+config.ldap.enable = true;
 config.ldap.url = 'ldap://localhost:10389';
 config.ldap.userSearch = "uid=[login],ou=system";
 
