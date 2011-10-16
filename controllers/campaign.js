@@ -382,7 +382,7 @@ module.exports = {
 				res.render(null, {locals: {items: items, isAdmin: isAdmin, campaignId: campaignId, campaign: campaign, verified: false}});
 			});
 		} else {
-			itemProvider.findAllByCampaign(campaignId, 1000, function(error, items) {
+			itemProvider.findAllByCampaign(campaignId, 1000, 0, function(error, items) {
 				if (error) return next(error);
 				
 				if (!items) items = [];
