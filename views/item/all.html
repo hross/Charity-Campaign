@@ -43,11 +43,12 @@
 		</table>
 
 	<div>
+	
 	<%if (skip > 0) {%>
-		<a href="/items/all/<%=campaignId%>/<%=limit%>/<%=skip - limit%>" style="float:left;">< Back</a>
+		<a href="/items/all/<%=campaignId%>/<%=limit%>/<%=skip - limit%>" style="float:left;">&larr; Back</a>
 	<%} 
 	if (items.length > 0) {%>
-		<a href="/items/all/<%=campaignId%>/<%=limit%>/<%=skip + limit%>" style="float:right;">More ></a>
+		<a href="/items/all/<%=campaignId%>/<%=limit%>/<%=skip + limit%>" style="float:right;">More &rarr;</a>
 	<%}%>
 	</div>
 
