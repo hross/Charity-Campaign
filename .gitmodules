@@ -1,0 +1,3 @@
+[submodule "public/stylesheets/bootstrap"]
+	path = public/stylesheets/bootstrap
+	url = https://github.com/twitter/bootstrap.git
