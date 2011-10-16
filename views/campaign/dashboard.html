@@ -5,7 +5,7 @@
 
 	<section>
 		<%if (bonuses.length > 0) {%>
-		<table class="common-table zebra-striped">
+		<table id="activebonuses" class="common-table zebra-striped">
 			<thead>
 			<tr><th colspan="3"><a href="/bonuses/active/<%=campaign.id%>">Active Bonuses</a></th></tr>
 			</thead>
@@ -86,6 +86,10 @@
 	
 	<!-- build recent items tab -->
 	<div id="recentitem">
+		<div class="buttons">
+			<a href="/items/all/<%=campaignId%>/10/0" class="btn">View All Items</a>
+		</div>
+		
 			<table class="common-table zebra-striped sortable">
 			<thead>
 				<tr><th>Created</th>
@@ -142,7 +146,7 @@
 	<% for(var i=0; i < teams.length; i++) {%>
 		<%if (teams[i].isMember) {%>
 			<div id="team<%=i%>">
-				<div class="additem">
+				<div class="buttons">
 					 <a href="/items/add/<%=teams[i].id%>" class="btn primary">Add an Item</a>
 					 <a href="/teams/show/<%=teams[i].id%>" class="btn">Team Details</a>
 					 <br />
@@ -200,6 +204,10 @@
 	</div>
 	
 	<div id="recentbonus">
+		<div class="buttons">
+			<a href="/bonuses/filter/<%=campaignId%>" class="btn">View All Bonuses</a>
+		</div>
+		
 		<table class="common-table zebra-striped" id="bonus">
 			<thead>
 				<tr>

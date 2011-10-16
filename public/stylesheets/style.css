@@ -99,3 +99,12 @@ label.error {
 	margin-right: 100px;
 	color: #FF0000;
 }
+
+.buttons {
+	padding-bottom: 10px;
+}
+
+#activebonuses td {
+	text-align: center;
+	vertical-align: middle;
+}
