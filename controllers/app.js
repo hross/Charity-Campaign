@@ -14,7 +14,15 @@ module.exports = {
   	// /
   
   index: function(req, res){
-    res.render();
+  	itemtypeProvider.findSystemBonus(function(error, itemtype) {
+		// first thing is to check if this has already been run
+		if (itemtype) {
+			res.render();
+		} else {
+			// we need to do the install
+			res.redirect('/install');
+		}
+	}); 
   },
   
   	// /about
@@ -39,97 +47,126 @@ module.exports = {
   },
   
   install: function(req, res) {
-  
-  	//TODO: make a form for creating these
-	var login = "admin";
-	var email = "admin@admin.com";
-	var first = "John";
-	var last = "Doe";
-	var password = "password";
+	
+	itemtypeProvider.findSystemBonus(function(error, itemtype) {
+		// first thing is to check if this has already been run
+		if (itemtype) {
+			req.flash('error', 'Installation already completed.');
+			res.redirect('back');
+			return;
+		}
 
-  
-	var createBonusType = function(callback) {
-		console.log("Creating system bonus item type.");
-		itemtypeProvider.findSystemBonus(function(error, itemtype) {
-			if (!itemtype) {
-				// add system bonus point type
-				itemtypeProvider.save({
-					name: "Bonus Points",
-					description: "Default Bonus Point Value (added by the system)",
-					points: 1,
-					campaignId: "-1", // no campaign
-					visible: false,
-					system: true
-				}, function (error, results) {
-					console.log("Bonus type successfully created.");
-					callback(error);
-				});
-			} else {
-				console.log("Bonus type already created.");
-				callback(null);
-			}
-		});
-	};
-	
-	var createAdminUser = function(callback) {
-		// create admin user
-		userProvider.findByLogin(login, function(error, user) {
-			 if (user) {
-				console.log("Administrative user already created.");
-				callback(null);
-				return;
-			} else {
-				console.log("Creating admin user...");
-				
-				userProvider.save({
-					login: login,
-					password: password,
-					password2: password,
-					email: email,
-					first: first,
-					last: last
-				}, function( error, users) {
-					if (error) {
-						console.log("Could not successfully create the admin account!");
-						callback(error);
-						return;
-					}
-		
-					console.log("Successfully created account.");
-					userProvider.addRoleByLogin(login, config.roles.ADMIN_ROLE, function(error, user) {
-						if (error) { callback(error); return; }
-						
-						console.log("Successfully added admin role to account.");	
-						callback(null);
-					});
-				});
-			}
-		});
-	};
-	
-	console.log("Starting install script...");
-	
-	createAdminUser(function(error) {
-		if (error) {
-			console.log(error);
-			req.flash('error', "Problem creating admin user in install script.");
-			res.render(null, {locals: {isAdmin: isAdmin}});
+		if (!req.param('login')) {
+			// show the form without doing anything
+			res.render(null);
 			return;
 		}
 		
-		createBonusType(function(error) {
+		// try installer logic
+		console.log("Beginning application install...");
+	
+		var login = req.param('login');
+		var email = req.param('email');
+		var first = req.param('first');
+		var last = req.param('last');
+		var password = req.param('password');
+		var password2 = req.param('password2');
+		
+		if (password && (password.length > 0)) {
+			if (password != password2) {
+				req.flash('error', 'Passwords did not match!');
+				res.redirect('back');
+				return;
+			}
+		} else {
+			req.flash('error', 'Password was empty!');
+			res.redirect('back');
+			return;
+		}
+  
+		var createBonusType = function(callback) {
+			console.log("Creating system bonus item type.");
+			itemtypeProvider.findSystemBonus(function(error, itemtype) {
+				if (!itemtype) {
+					// add system bonus point type
+					itemtypeProvider.save({
+						name: "Bonus Points",
+						description: "Default Bonus Point Value (added by the system)",
+						points: 1,
+						campaignId: "-1", // no campaign
+						visible: false,
+						system: true
+					}, function (error, results) {
+						console.log("Bonus type successfully created.");
+						callback(error);
+					});
+				} else {
+					console.log("Bonus type already created.");
+					callback(null);
+				}
+			});
+		};
+		
+		var createAdminUser = function(callback) {
+			// create admin user
+			userProvider.findByLogin(login, function(error, user) {
+				 if (user) {
+					console.log("Administrative user already created.");
+					callback(null);
+					return;
+				} else {
+					console.log("Creating admin user...");
+					
+					userProvider.save({
+						login: login,
+						password: password,
+						password2: password,
+						email: email,
+						first: first,
+						last: last
+					}, function( error, users) {
+						if (error) {
+							console.log("Could not successfully create the admin account!");
+							callback(error);
+							return;
+						}
+			
+						console.log("Successfully created account.");
+						userProvider.addRoleByLogin(login, config.roles.ADMIN_ROLE, function(error, user) {
+							if (error) { callback(error); return; }
+							
+							console.log("Successfully added admin role to account.");	
+							callback(null);
+						});
+					});
+				}
+			});
+		};
+		
+		console.log("Starting install script...");
+		
+		createAdminUser(function(error) {
 			if (error) {
 				console.log(error);
-				req.flash('error', "Problem creating system bonus type.");
+				req.flash('error', "Problem creating admin user in install script.");
 				res.render(null, {locals: {isAdmin: isAdmin}});
 				return;
 			}
 			
-			console.log("install completed.");
-			res.render(null, null);
+			createBonusType(function(error) {
+				if (error) {
+					console.log(error);
+					req.flash('error', "Problem creating system bonus type.");
+					res.render(null, {locals: {isAdmin: isAdmin}});
+					return;
+				}
+				
+				console.log("Install completed.");
+				req.flash('info', 'Installation completed.');
+				res.redirect("/");
+			});
 		});
-	});
-
+	}); // end itemtype check
   },
   
 	// generic find route function, called by the controller when it doesn't know what to do
@@ -142,6 +179,16 @@ module.exports = {
       case 'admin':
       	return ['admin', true];
       	break;
+      case 'install':
+      	return ['install', false];
+      	break;
+      default:
+      	return null;
+     }
+  },
+  
+  findPostRoute: function(action){
+	 switch(action) {
       case 'install':
       	return ['install', false];
       	break;

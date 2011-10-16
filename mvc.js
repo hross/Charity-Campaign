@@ -169,7 +169,9 @@ function bootController(app, file) {
       			// call without login
       			app.get(prefix + actions.findGetRoute(action)[0], fn);
       		}
-      	} else if (actions.findPostRoute && actions.findPostRoute(action)) {
+      	}
+      	
+      	if (actions.findPostRoute && actions.findPostRoute(action)) {
       		if (actions.findPostRoute(action)[1]) {
       			// call with login
       			app.post(prefix + actions.findPostRoute(action)[0], requiresLogin, fn);
@@ -177,7 +179,9 @@ function bootController(app, file) {
       			// call without login
       			app.post(prefix + actions.findPostRoute(action)[0], fn);
       		}
-      	} else if (isJson) {
+      	}
+      	
+      	if (isJson) {
       		if (actions.findJsonRoute(action)[1]) {
       			// call with login
       			app.get(prefix + actions.findJsonRoute(action)[0], requiresLogin, fn);
