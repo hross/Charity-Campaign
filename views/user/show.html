@@ -43,14 +43,14 @@
 		</div>
 	</div>
 	
-	<div class="clearfix"></div>
+	<div style="clear:both;"></div>
 
-	<%if (user.roles) {%>		
+	<%if (user.role_names) {%>		
 		<div class="roles">
 			<h2>Roles</h2>
 			<ul>
-			<%for(var i=0;i<user.roles.length;i++){%>
-				<li><%=user.roles[i]%></li>
+			<%for(var i=0;i< user.role_names.length;i++){%>
+				<li><%=user.role_names[i]%></li>
 			<%}%>
 			</ul>
 		</div>

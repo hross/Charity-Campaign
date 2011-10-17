@@ -12,7 +12,11 @@ var itemProvider = new ItemProvider();
 var TeamProvider = require('../providers/team').TeamProvider;
 var teamProvider = new TeamProvider();
 
+var _ = require('underscore')._;
+
 var ADMIN_ROLE = config.roles.ADMIN_ROLE;
+var TEAM_CAPTAIN_ROLE = config.roles.TEAM_CAPTAIN_ROLE;
+var CAMPAIGN_ADMIN_ROLE = config.roles.CAMPAIGN_ADMIN_ROLE;
 
 module.exports = {
   
@@ -59,8 +63,33 @@ module.exports = {
 			if (!user.teams) user.teams = [];
 			
 			teamProvider.findAllById(user.teams, function(error, teams) {
-    		
-    			res.render(null, {locals: {user: user, items: items, teams: teams, isAdmin: isAdmin}});
+				var campaignId = 0;
+				user.role_names = [];
+				
+				if (user.roles) {
+					for (var i = 0; i < teams.length; i++) {
+						if (_.contains(user.roles, TEAM_CAPTAIN_ROLE + teams[i].id)) {
+							user.role_names.push(teams[i].name + " Captain");
+						}
+
+						// set up campaign
+						if (teams[i].campaignId) {
+							campaignId = teams[i].campaignId;
+						}
+					}
+					
+					if (_.contains(user.roles, ADMIN_ROLE)) {
+						user.role_names.push("Administrator");
+					}
+					
+					for (var i = 0; i < user.roles.length; i++) {
+						if (user.roles[i].substr(CAMPAIGN_ADMIN_ROLE) >= 0) {
+							user.role_names.push("Campaign Administrator"); //TODO: should make this campaign specific
+						}
+					}
+				}
+    			
+    			res.render(null, {locals: {user: user, items: items, teams: teams, isAdmin: isAdmin, campaignId: campaignId}});
     		});
     	});
     });
