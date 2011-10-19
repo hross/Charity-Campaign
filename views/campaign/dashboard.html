@@ -104,8 +104,8 @@
 				<tr>
 					<td><%=recentItems[i].created_at_format%></td>
 					<td><a href="/items/show/<%= recentItems[i].id%>/<%= recentItems[i].slug%>"><%=recentItems[i].quantity%> <%= recentItems[i].name %></a></td>
-					<td><%=(items[i].points + items[i].bonus) * items[i].quantity %></td>
-					<td><%=items[i].bonus * items[i].quantity %></td>
+					<td><%=(recentItems[i].points + recentItems[i].bonus) * recentItems[i].quantity %></td>
+					<td><%=recentItems[i].bonus * recentItems[i].quantity %></td>
 					<td><a href="/users/name/<%=recentItems[i].created_by_login%>"><%=recentItems[i].created_by_login%></a></td>
 					<td>
 					<%if (recentItems[i].team) {%>
