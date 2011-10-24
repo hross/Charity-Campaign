@@ -475,10 +475,7 @@ function _recalculate(bonusId, login, userId, callback) {
 						});
 					};
 					
-					// do the actual deletes
-					console.log("deleting these items: ");
-					console.log(items);
-					
+					// do the actual deletes					
 					async.map(items, deleteItem, function(error, results) {
 						if (error) return callback(error);
 						
@@ -502,9 +499,11 @@ function _recalculate(bonusId, login, userId, callback) {
 									} else {
 										totals[items[i].teamId] += parseInt(items[i].quantity);
 									}
+									console.log("Team " + items[i].teamId + ": " + totals[items[i].teamId]);
 									
 									// if we passed bonus threshold and we aren't already a winner
 									if ((totals[items[i].teamId] >= bonus.total) && !_.contains(winners, items[i].teamId)) {
+										console.log("found winner");
 										// this team is a winner
 										winners.push(items[i].teamId);
 										winItems.push(items[i]);

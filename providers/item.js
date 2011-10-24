@@ -224,7 +224,7 @@ ItemProvider.prototype.findByCreation = function(campaignId, startDate, endDate,
     this.getCollection(function(error, item_collection) {
 		if (error) { callback(error); return; }
 
-		var params = {sort: [['created_at','desc']]};
+		var params = {sort: [['created_at','asc']]};
 		if (limit) params['limit'] = limit;
 		
 		var nd = [];
