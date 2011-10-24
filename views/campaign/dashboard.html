@@ -18,9 +18,9 @@
 				
 				<td><a href="/bonuses/show/<%= bonuses[i].id%>/<%= bonuses[i].slug%>">
 				
-				The first <%=bonuses[i].numteams%> teams to reach <%=bonuses[i].total%> <%=(bonuses[i].pointsoritems == 'items')?'items':'points'%>
+				The first <%=bonuses[i].numteams%> teams to reach <%=bonuses[i].total%> <%=(bonuses[i].pointsoritems == 'items')?'items':'points'%> get <%=bonuses[i].spotpoints%> points
 		<%if (bonuses[i].name) {%>
-			(<%=bonuses[i].name%>)
+			(for <%=bonuses[i].name%>)
 		<%}%>
 				
 				</a></td>

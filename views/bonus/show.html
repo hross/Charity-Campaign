@@ -61,9 +61,9 @@
 
 	<%if ('spot' == bonus.bonustype) {%>
 		<p>
-		The first <%=bonus.numteams%> teams to reach <%=bonus.total%> <%=(bonus.pointsoritems == 'items')?'items':'points'%>
+		The first <%=bonus.numteams%> teams to reach <%=bonus.total%> <%=(bonus.pointsoritems == 'items')?'items':'points'%> get <%=bonus.spotpoints%> points
 		<%if (bonus.name) {%>
-			(<%=bonus.name%>)
+			(for <%=bonus.name%>)
 		<%}%>
 		</p>
 	

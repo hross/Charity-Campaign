@@ -86,24 +86,24 @@
 			<p>First team(s) to submit X items.</p>
 			
 			<div class="clearfix">
-				<label for="numteams">Number of Teams</label>
+				<label for="numteams">The first ? teams:</label>
 				<div class="input">
 					<select id="numteams" name="numteams">
-					  <option value="1" <%= ('1' == bonus.numteams)?"seleted='selected'":""%>>1</option>
-					  <option value="2" <%= ('2' == bonus.numteams)?"seleted='selected'":""%>>2</option>
-					  <option value="3" <%= ('3' == bonus.numteams)?"seleted='selected'":""%>>3</option>
-					  <option value="4" <%= ('4' == bonus.numteams)?"seleted='selected'":""%>>4</option>
-					  <option value="5" <%= ('5' == bonus.numteams)?"seleted='selected'":""%>>5</option>
-					  <option value="6" <%= ('6' == bonus.numteams)?"seleted='selected'":""%>>6</option>
-					  <option value="7" <%= ('7' == bonus.numteams)?"seleted='selected'":""%>>7</option>
-					  <option value="8" <%= ('8' == bonus.numteams)?"seleted='selected'":""%>>8</option>
-					  <option value="9" <%= ('9' == bonus.numteams)?"seleted='selected'":""%>>9</option>
+					  <option value="1" <%= ('1' == bonus.numteams)?"selected='selected'":""%>>1</option>
+					  <option value="2" <%= ('2' == bonus.numteams)?"selected='selected'":""%>>2</option>
+					  <option value="3" <%= ('3' == bonus.numteams)?"selected='selected'":""%>>3</option>
+					  <option value="4" <%= ('4' == bonus.numteams)?"selected='selected'":""%>>4</option>
+					  <option value="5" <%= ('5' == bonus.numteams)?"selected='selected'":""%>>5</option>
+					  <option value="6" <%= ('6' == bonus.numteams)?"selected='selected'":""%>>6</option>
+					  <option value="7" <%= ('7' == bonus.numteams)?"selected='selected'":""%>>7</option>
+					  <option value="8" <%= ('8' == bonus.numteams)?"selected='selected'":""%>>8</option>
+					  <option value="9" <%= ('9' == bonus.numteams)?"selected='selected'":""%>>9</option>
 					</select>
 				</div>
 			</div>
 			
 			<div class="clearfix">
-				<label for="total">How Many?</label>
+				<label for="total">To submit ? points/items:</label>
 				<div class="input"><input type="text" name="total" id="total" value="<%=bonus.total%>" /></div>
 			</div>
 		
@@ -111,8 +111,8 @@
 				<label for="pointsoritems">Points or Items?</label>
 				<div class="input">
 					<select id="pointsoritems" name="pointsoritems">
-					  <option value="items"  <%= ('items' == bonus.pointsoritems)?"seleted='selected'":""%>>Items</option>
-					  <option value="points" <%= ('items' != bonus.pointsoritems)?"seleted='selected'":""%>>Points</option>
+					  <option value="items"  <%= ('items' == bonus.pointsoritems)?"selected='selected'":""%>>Items</option>
+					  <option value="points" <%= ('items' != bonus.pointsoritems)?"selected='selected'":""%>>Points</option>
 					</select>
 				</div>
 			</div>

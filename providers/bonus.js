@@ -126,7 +126,7 @@ BonusProvider.prototype.findActive = function(campaignId, dt, callback) {
       		callback(error);
       	} else {
       		// search for bonuses for this type where dt is between start and end date
-        	bonus_collection.find({campaignId: campaignId, start: {$lte: dt}, end: {$gte: dt}
+        	bonus_collection.find({campaignId: campaignId, bonustype: {$ne: 'spot'}, start: {$lte: dt}, end: {$gte: dt}
         		}).toArray(function(error, result) {
 
 				if (error) {
