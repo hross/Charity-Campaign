@@ -300,7 +300,7 @@ module.exports = {
   			members = [captain];
   		}
   	}
-  	
+
   	// add captain if they don't exist
   	if (captain && (members.indexOf(captain) < 0)) {
   		members.push(captain);
@@ -309,7 +309,7 @@ module.exports = {
   	if (sponsor && (members.indexOf(sponsor) < 0)) {
   		members.push(sponsor);
   	}
-  	
+
   	// get old team info
   	teamProvider.findById(id, function(error, oldTeam) {
   		if (error) {
@@ -339,7 +339,7 @@ module.exports = {
   			};
   			
   			var rmvs = _.select(users, function(user) { return !_.include(members, user.login); });
-  			var adds = _.select(members, function(member){ return !_.any(users, function(user){user.login == member})}); //TODO: will this really properly detect users?
+  			var adds = _.select(members, function(member){ return !_.any(users, function(user){user.login == member})});
   			
   			async.forEach(adds, addTeam, function(error) {
   				async.forEach(rmvs, removeTeam, function(error) {

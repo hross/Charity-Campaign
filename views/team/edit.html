@@ -71,12 +71,12 @@
 			<div class="input">
 			<select name="members[]" class="select-users" id="members" multiple="multiple" size=5>
 				<%for (var i = 0; i < team.members.length; i++) {%>
-				<option value="<%=team.members[i]%>"><%=team.members[i].login%></option>
+				<option value="<%=team.members[i].login%>"><%=team.members[i].login%></option>
 				<%}%>
 			</select>
 			<select name="members_hidden[]" class="select-hidden" id="members_hidden" multiple="multiple" size=5>
 				<%for (var i = 0; i < team.members.length; i++) {%>
-				<option value="<%=team.members[i]%>" selected><%=team.members[i].login%></option>
+				<option value="<%=team.members[i].login%>" selected><%=team.members[i].login%></option>
 				<%}%>
 			</select>
 			<br />
