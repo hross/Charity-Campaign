@@ -312,11 +312,13 @@ module.exports = {
 				var bonusPoints = 0;
 				if (bonuses) {
 					for (var i=0; i<bonuses.length; i++) {
-						bonusPoints += parseInt(bonuses[i].points);
-						ibonuses.push(bonuses[i].id);
-						var bi = {};
-						bi[bonuses[i].id] = parseInt(bonuses[i].points);
-						ibonusvalues.push(bi);
+						if (bonuses[i].bonustype != 'spot') {
+							bonusPoints += parseInt(bonuses[i].points);
+							ibonuses.push(bonuses[i].id);
+							var bi = {};
+							bi[bonuses[i].id] = parseInt(bonuses[i].points);
+							ibonusvalues.push(bi);
+						}
 					}
 				}
 	
@@ -489,11 +491,13 @@ module.exports = {
 				var bonusPoints = 0;
 				if (bonuses) {
 					for (var i=0; i<bonuses.length; i++) {
-						bonusPoints += parseInt(bonuses[i].points);
-						item.bonuses.push(bonuses[i].id);
-						var bi = {};
-    					bi[bonuses[i].id] = parseInt(bonuses[i].points);
-    					item.bonusvalues.push(bi);
+						if (bonuses[i].bonustype != 'spot') {
+							bonusPoints += parseInt(bonuses[i].points);
+							item.bonuses.push(bonuses[i].id);
+							var bi = {};
+							bi[bonuses[i].id] = parseInt(bonuses[i].points);
+							item.bonusvalues.push(bi);
+    					}
 					}
 				}
 				
@@ -507,9 +511,19 @@ module.exports = {
 				
 				itemProvider.update(item, function(error, items) {
 					if (error) return next(error);
-			
-					req.flash('info', 'Successfully updated _' + items[0].name + '_.');
-					res.redirect('/items/show/' + items[0].id);
+					
+					if (items[0]) {
+						// do bonus calculations based on this item
+						_calculateBonuses(items[0], req.session.user.login, req.session.user.id, function(error, errorMessage) {
+							if (error) { return next(error); }
+							if (errorMessage) { req.flash('error', errorMessage); }
+							
+							req.flash('info', 'Successfully updated _' + items[0].name + '_.');
+							res.redirect('/items/show/' + items[0].id);
+						});
+					} else {
+						res.redirect('/items');
+					}
 				});
 			});
     	});
@@ -796,7 +810,7 @@ function _calculateBonuses(item, login, userId, callback) {
 					if (!bonus.winners) bonus.winners = []; // make sure this is an array
 				
 					// get stats related to this bonus
-					itemProvider.itemTotals(team.id, bonus.type, function(error, points, bonusPoints, quantity) {
+					itemProvider.itemTotalsSince(team.id, bonus.type, bonus.start, function(error, points, bonusPoints, quantity) {
 						if (error) { callback(error); }
 						
 						// which total do we need?
@@ -806,7 +820,7 @@ function _calculateBonuses(item, login, userId, callback) {
 						}
 						
 						// we passed the bonus threshold and this team didn't already win
-						if ((total >= bonus.total) && !_.contains(bonus.winners, team.id)) {
+						if ((total >= parseInt(bonus.total)) && !_.contains(bonus.winners, team.id)) {
 						
 							// this team is now a winner
 							bonus.winners.push(team.id);

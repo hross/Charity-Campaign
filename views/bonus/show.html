@@ -105,8 +105,11 @@
 		<p>Worth <%=bonus.points%> points per item</p>
 	<%}%>
 	
-			
-		<h3>Recent Items</h3>
+		<%if ("spot" == bonus.bonustype) {%>
+			<h3>Assigned Bonus Points</h3>
+		<%} else {%>
+			<h3>Recent Items</h3>
+		<%}%>
 		<table class="common-table zebra-striped sortable">
 			<thead>
 				<tr>

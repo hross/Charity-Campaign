@@ -476,6 +476,9 @@ function _recalculate(bonusId, login, userId, callback) {
 					};
 					
 					// do the actual deletes
+					console.log("deleting these items: ");
+					console.log(items);
+					
 					async.map(items, deleteItem, function(error, results) {
 						if (error) return callback(error);
 						
@@ -560,6 +563,9 @@ function _recalculate(bonusId, login, userId, callback) {
 							}
 							
 							// run the update
+							console.log("winning items were: ");
+							console.log(winItems);
+							
 							bonusProvider.update(bonus, function(error, ubonus) {
 								if (error) return callback(error);
 								

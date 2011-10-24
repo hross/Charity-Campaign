@@ -443,6 +443,48 @@ ItemProvider.prototype.itemTotals = function(teamId, itemTypeId, callback) {
     });
 };
 
+ItemProvider.prototype.itemTotalsSince = function(teamId, itemTypeId, dt, callback) {
+    this.getCollection(function(error, item_collection) {
+      if (error) callback(error);
+      	var cond = {};
+      	if (teamId >= 0) cond.teamId = teamId;
+      	if (itemTypeId > 0) cond.type = itemTypeId;
+      	if (dt) cond.created_at = {$gte: dt}
+      	
+		item_collection.group(
+			{teamId: true},						// keys (this is our "group by")
+			cond, 								// condition (this is our filter)
+			{sum: 0, bonus: 0, quantity: 0},	// initial
+			function (doc, prev) {
+				if (doc.admin) {
+					prev.bonus += (parseInt(doc.points) + parseInt(doc.bonus)) * parseInt(doc.quantity);
+				} else {
+					prev.bonus += parseInt(doc.bonus) * parseInt(doc.quantity); 
+				}
+				prev.sum += (parseInt(doc.points) + parseInt(doc.bonus)) * parseInt(doc.quantity);
+				prev.quantity += parseInt(doc.quantity);
+			}, // reduce
+			false,				// command
+		function(error, results) {
+			if (error) { callback(error); return; }
+	
+			if (results && results.length > 0) {
+				var sum = results[0].sum;
+				var bonus = results[0].bonus;
+				var quantity = results[0].quantity;
+				
+				if (!sum || isNaN(sum)) sum = 0;
+				if (!bonus || isNaN(bonus)) bonus = 0;
+				if (!quantity || isNaN(quantity)) quantity = 0;
+				
+				callback(null, sum, bonus, quantity);
+			} else {
+				callback(null, 0, 0, 0);
+			}
+		});
+    });
+};
+
 ItemProvider.prototype.userPointTotals = function(campaignId, callback) {
     this.getCollection(function(error, item_collection) {
       if (error) callback(error);
