@@ -178,18 +178,15 @@
 	$(document).ready(function() {
 		$('#start').datetimepicker();
 		$('#end').datetimepicker();
-		
-		<%if (bonus.start) {%>
-		$('#start').datetimepicker('setDate', (new Date("<%=bonus.start%>")) );
-		$('#end').datetimepicker('setDate', (new Date("<%=bonus.end%>")) );
-		<%}%>
-		
 		$('#spotstart').datetimepicker();
 		$('#spotend').datetimepicker();
 		
-		<%if (bonus.spotstart) {%>
-			$('#spotstart').datetimepicker('setDate', (new Date("<%=bonus.spotstart%>")) );
-			$('#spotend').datetimepicker('setDate', (new Date("<%=bonus.spotend%>")) );
+		<%if ('spot' == bonus.bonustype) {%>
+			$('#spotstart').datetimepicker('setDate', (new Date("<%=bonus.start%>")) );
+			$('#spotend').datetimepicker('setDate', (new Date("<%=bonus.end%>")) );
+		<%} else {%>
+			$('#start').datetimepicker('setDate', (new Date("<%=bonus.start%>")) );
+			$('#end').datetimepicker('setDate', (new Date("<%=bonus.end%>")) );
 		<%}%>
 	
 		// add tab logic
