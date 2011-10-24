@@ -53,13 +53,17 @@
 		<table class="common-table zebra-striped" id="teams">
 			<thead>
 				<tr><th>Team</th>
-				<th>Points</th></tr>
+				<th>Points</th>
+				<th>Color</th></tr>
 			</thead>
 			<tbody>
 			<% for(var i=0; i < teams.length; i++) {%>
 			<tr>
-				<td><a href="/teams/show/<%= teams[i].id%>/<%= teams[i].slug%>"><%= teams[i].name %></a></td>
+				<td>
+					<a href="/teams/show/<%= teams[i].id%>/<%= teams[i].slug%>"><%= teams[i].name %></a>
+				</td>
 				<td><%=teams[i].points%></td>
+				<td style="background-color: <%=teams[i].color%>; width: 20px;"></td>
 			</tr>
 			<% } %>
 			</tbody>
@@ -125,7 +129,8 @@ $(function () {
 	var options = {
         //series: { shadowSize: 0 }, // drawing is faster without shadows
         //yaxis: { min: 0, max: 100 },
-        xaxis: { show: false }
+        xaxis: { show: false },
+        //legend: { show: true }
     };
     
 	var placeholder = $("#placeholder");
@@ -133,7 +138,7 @@ $(function () {
     
 	<% for(var i=0; i < teams.length; i++) {%>
 		{
-			//label: "<%=teams[i].name%>",
+			color: '<%=teams[i].color%>',
             data: [[<%=i%>, <%=teams[i].points%>]],
             bars: { show: true, fill: true }
         },

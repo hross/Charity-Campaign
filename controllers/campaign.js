@@ -102,6 +102,7 @@ module.exports = {
 						team.points = points;
 						team.bonusPoints = bonusPoints;
 						team.quantity = quantity;
+						team.color = '#'+Math.floor(Math.random()*16777215).toString(16);
 						callback(null, team);
 					});
 				};
