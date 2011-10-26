@@ -28,6 +28,9 @@
 		<h2>Users</h2>
 	</div>
 
+  <div>
+    <p>User Search <div class="input"><input type="text" name="search" id="search" value="" autocomplete="off" /></div></p>
+  </div>
 	<table class="common-table zebra-striped">
 	<% for(var i=0; i < users.length; i++) {%>
 		<tr><td><a href="/users/show/<%= users[i].id%>/<%= users[i].slug%>"><%= users[i].login %></a></td></tr>
@@ -38,3 +41,13 @@
 	
 </div>
 </div>
+
+<script>
+    // auto suggest for user box
+		$("#search").fancy_suggest({
+			url: "/users/json",
+      tpl_result_begin: '<li class="result {{class}}" id="{{id}}" result_id="{{result_id}}"><a href="/users/{{id}}">',
+      		tpl_result_body: '<span class="title">{{title}}</span>',
+      		tpl_result_end: '</li></a>'
+		});
+</script>

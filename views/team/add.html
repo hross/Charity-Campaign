@@ -80,7 +80,8 @@
 			if (!found || found.length == 0) {
 				$('#members').append("<option value='"+username+"'>"+$('#user').val()+"</option>");
 				$('#members_hidden').append("<option value='"+username+"' selected>"+$('#user').val()+"</option>");
-			}
+			  $('#user').val('');
+      }
 		});
 		
 		$('#btn-remove').click(function(){
