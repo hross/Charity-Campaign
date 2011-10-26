@@ -11,7 +11,7 @@
 <div class="span12 columns">
 	<%- partial('../messages') %>
 
-	<form method="post" action="/bonuses/create">
+	<form id="bonusform" method="post" action="/bonuses/create">
 		<fieldset>
 		<legend>Create a new Bonus</legend>
 		
@@ -161,6 +161,35 @@
 		
 		$('#spotstart').datetimepicker();
 		$('#spotend').datetimepicker();
+		
+		$("#bonusform").validate({
+			rules: {
+				title: {required: true},
+				quantity: {
+					min: 1
+				},
+				total: {
+					min: 1
+				},
+				spotpoints: {
+					min: 1
+				},
+			},
+			messages: {
+				title: {
+					required: "You must enter a title."
+				},
+				quantity: {
+					minlength: "You must enter a quantity greater than 0."
+				},
+				total: {
+					minlength: "You must enter a total greater than 0."
+				},
+				spotpoints: {
+					minlength: "You must enter a total greater than 0."
+				},
+			}
+		});
 	
 		// add tab logic
 		$("#bonustabs a").click(function (){

@@ -276,8 +276,23 @@ module.exports = {
 			if (error) return next(error);
 			
 			if (bonuses[0]) {
-				req.flash('info', 'Created bonus _' + bonuses[0].name + '_');
-				res.redirect("/bonuses/show/" + bonuses[0].id);
+        req.flash('info', 'Created bonus _' + bonuses[0].name + '_');
+
+				if ('spot' == bonuses[0].bonustype) {
+				  _recalculate(bonuses[0].id, req.session.user.login, req.session.user.id, function(error, errorMessage) {
+             if (error) { return next(error); }
+					
+             if (errorMessage) {
+              req.flash('error', errorMessage);
+              res.redirect('/bonuses/show/' + bonuses[0].id);
+             } else {
+              req.flash('info', 'Successfully recalculated this bonus.');
+              res.redirect('/bonuses/show/' + bonuses[0].id);
+             }
+				  });
+        } else {
+          res.redirect('/bonuses/show/' + bonuses[0].id);
+        }
 			} else {
 				res.redirect('/bonuses');
 			}
@@ -377,7 +392,7 @@ module.exports = {
 	});
   },
   
-  
+  			
   // recalculate a bonus
   recalculate: function(req, res, next){
   
