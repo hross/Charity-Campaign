@@ -42,6 +42,10 @@ if (process.env.MONGOHQ_URL) {
 config.ldap.enable = false;
 config.ldap.url = 'ldap://localhost:10389';
 config.ldap.userSearch = "uid=[login],ou=system";
+config.ldap.directory.user = "uid=admin,ou=system";
+config.ldap.directory.password = "secret";
+config.ldap.directory.base = "ou=system";
+config.ldap.directory.search = "(objectClass=person)";
 
 // configure various roles for charity campaign (used by controllers for security)
 config.roles.CAMPAIGN_ADMIN_ROLE = 'Campaign Administrator ';
