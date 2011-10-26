@@ -4,6 +4,7 @@ var config = {};
 
 config.mongodb = {};
 config.ldap = {};
+config.ldap.directory = {};
 config.roles = {};
 
 if (process.env.MONGOHQ_URL) {
