@@ -19,7 +19,9 @@ function confirm(message, callback) {
 			$('.message', dialog.data[0]).append(message);
 
 			// if the user clicks "yes"
-			$('.yes', dialog.data[0]).click(function () {
+			$('.yes', dialog.data[0]).click(function (e) {
+        e.preventDefault();
+
 				// call the callback
 				if ($.isFunction(callback)) {
 					callback.apply();
@@ -49,5 +51,7 @@ $(function() {
 		confirm("Are you sure?", function () {
 			window.location.href = continueLink;
 		});
+
+    return false;
 	});
 });
