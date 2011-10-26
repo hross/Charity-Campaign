@@ -43,16 +43,18 @@
 </div>
 
 <script>
+    var search_callback = function(option) {
+        window.location.href='/users/show' + option.id; 
+    };
+      
     // auto suggest for user box
 		$("#search").fancy_suggest({
       url: "/users/json",
       callback: search_callback,
       tpl_result_begin: '<li class="result {{class}}" id="{{id}}" result_id="{{result_id}}"><a href="/users/show{{id}}">',
-      		tpl_result_body: '<span class="title">{{title}}</span>',
+      		tpl_result_body: '<span class="id">{{id}}</span>',
       		tpl_result_end: '</li></a>'
-      });
+     });
       
-      var search_callback = function(option) {
-        window.location.href='/users/' + option; 
-      };
+      
 </script>
