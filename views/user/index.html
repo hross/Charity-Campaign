@@ -44,7 +44,7 @@
 
 <script>
     var search_callback = function(option) {
-        window.location.href='/users/show' + option.id; 
+        window.location.href='/users/name/' + option.title; 
     };
       
     // auto suggest for user box
@@ -52,7 +52,7 @@
       url: "/users/json",
       callback: search_callback,
       tpl_result_begin: '<li class="result {{class}}" id="{{id}}" result_id="{{result_id}}"><a href="/users/show{{id}}">',
-      		tpl_result_body: '<span class="id">{{id}}</span>',
+      		tpl_result_body: '<span class="title">{{title}}</span>',
       		tpl_result_end: '</li></a>'
      });
       
