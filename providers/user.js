@@ -84,7 +84,7 @@ UserProvider.prototype.findAll = function(callback) {
     this.getCollection(function(error, user_collection) {
       if( error ) callback(error)
       else {
-        user_collection.find().toArray(function(error, results) {
+        user_collection.find().sort('login').toArray(function(error, results) {
 			if (error) { callback(error); return; }
           
         	callback(null, results);
