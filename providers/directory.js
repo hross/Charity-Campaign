@@ -8,7 +8,7 @@ if (config.ldap.enable) {
 DirectoryProvider = function() {
 }
 
-DirectoryProvider.prototype.importUsers = function(userHandler, callback) {
+DirectoryProvider.prototype.importUsers = function(attributes, userHandler, callback) {
 	if (!config.ldap.enable) { 
 		console.log("LDAP not enabled!");
 		callback(); 
@@ -39,7 +39,7 @@ DirectoryProvider.prototype.importUsers = function(userHandler, callback) {
 		console.log("Successfully bound to directory. Searching for users...");
 		
 		var opts = {
-		  attributes: ['uid', 'displayName', 'cn'], 
+		  attributes: attributes, 
 		  filter: config.ldap.directory.search,
 		  scope: 'sub'
 		};

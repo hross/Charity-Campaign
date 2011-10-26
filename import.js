@@ -63,7 +63,7 @@ var userCreator = function(entry, callback) {
 
 console.log("Starting user import...");
 
-directoryProvider.importUsers(userHandler, function(error, result) {
+directoryProvider.importUsers(['uid', 'displayName', 'cn'], userHandler, function(error, result) {
 	if (0 != result.status) { console.log("LDAP query issue with status code: " + result.status); }
 	
 	if (error) {
