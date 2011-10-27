@@ -83,7 +83,6 @@ function bootApplication(app) {
         if (msgs.info) { ret.info = msgs.info; } 
         if (msgs.warn) { ret.warn = msgs.warn; }
 
-        console.log(ret);
         return ret;
       }
     }
