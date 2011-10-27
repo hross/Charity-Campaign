@@ -17,7 +17,7 @@ var createUser = function(login, password, account, email, first, last, callback
 	userProvider.findByLogin(login, function(error, user) {
 		 if (user) {
 			console.log("User " + login + " already created.");
-			callback();
+			callback(null, user);
 			return;
 		} else {
 			console.log("Creating account: " + login + "...");
@@ -28,7 +28,8 @@ var createUser = function(login, password, account, email, first, last, callback
 				password2: password,
 				email: email,
 				first: first,
-				last: last
+				last: last,
+				account: account
 			}, function( error, users) {
 				if (error) {
 					console.log("Failed to create account: " + login);
