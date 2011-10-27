@@ -305,7 +305,7 @@ UserProvider.prototype.save = function(users, callback) {
 				user.update_on = new Date();
 				
 				provider.getNextUserId(function(error,id) {
-					user.gravatar = crypto.createHash('md5').update(user.email).digest("hex");
+					user.gravatar = crypto.createHash('md5').update(user.email.toLowerCase()).digest("hex");
 					user.id = id;
 					user.slug = slugify.slugify(user.login);
 					
@@ -781,7 +781,7 @@ UserProvider.prototype.update = function(users, callback) {
 			console.log("updating user...");
 			
 			user.update_on = new Date();
-			user.gravatar = crypto.createHash('md5').update(user.email).digest("hex");
+			user.gravatar = crypto.createHash('md5').update(user.email.toLowerCase()).digest("hex");
 			user.slug = slugify.slugify(user.login);
 			
 			var params = {login: user.login, slug: user.slug, update_on: user.update_on, 
