@@ -71,7 +71,7 @@ function bootApplication(app) {
       }
     },
 
-    statusMesssages: function(req) {
+    statuses: function(req) {
       return function() {
         var msgs = req.flash();
         var ret = {};

@@ -1,24 +1,24 @@
 <% if (hasMessages) { %>
-<% var messages = statusMessages();%>
+<% var messages = statuses();%>
 
 <% for(var i=0; i < messages.error.length; i++) { %>
 <div class="alert-message error">
   <a class="close" href="#">×</a>
-  <p><%= messages.error[i] %></p>
+  <p><%- messages.error[i] %></p>
 </div>
 <% } %>
 
 <% for(var i=0; i < messages.warn.length; i++) { %>
 <div class="alert-message warn">
   <a class="close" href="#">×</a>
-  <p><%= messages.warn[i] %></p>
+  <p><%- messages.warn[i] %></p>
 </div>
 <% } %>
 
 <% for(var i=0; i < messages.info.length; i++) { %>
 <div class="alert-message info">
   <a class="close" href="#">×</a>
-  <p><%= messages.info[i] %></p>
+  <p><%- messages.info[i] %></p>
 </div>
 <% } %>
 

@@ -276,7 +276,7 @@ module.exports = {
 			if (error) return next(error);
 			
 			if (bonuses[0]) {
-        req.flash('info', 'Created bonus _' + bonuses[0].name + '_');
+        req.flash('info', 'Created bonus _' + bonuses[0].title + '_');
 
 				if ('spot' == bonuses[0].bonustype) {
 				  _recalculate(bonuses[0].id, req.session.user.login, req.session.user.id, function(error, errorMessage) {
