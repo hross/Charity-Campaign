@@ -478,7 +478,7 @@ module.exports = {
 			  res.redirect(redir); // redirect to previous url or base
 			} else {
 			  // re-render the login page
-			  req.flash('warn', 'Login failed');
+			  req.flash('error', 'Login failed');
 			  res.render(null, {redir: redir});
 			}
 	  	});

@@ -1,6 +1,6 @@
 /**
  * Module dependencies.
- */
+*/
 
 var fs = require('fs');
 var express = require('express');
@@ -14,42 +14,42 @@ exports.boot = function(app){
 
 function bootApplication(app) {
 
-	app.configure('development', function(){
-		app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-	});
-	
-	app.configure('production', function(){
-		console.log("Running in production mode...")
-		app.use(function(err, req, res, next){
-   			res.render('500');
- 		});
-	});
+  app.configure('development', function(){
+    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+  });
 
-	app.use(express.logger(':method :url :status'));
-	app.use(express.bodyParser());
-	app.use(express.methodOverride());
-	app.use(express.cookieParser());
-	app.use(express.session({ secret: 'keyboard cat' }));
-	app.use(app.router);
-	app.use(express.static(__dirname + '/public'));
+  app.configure('production', function(){
+    console.log("Running in production mode...")
+    app.use(function(err, req, res, next){
+      res.render('500');
+    });
+  });
 
-	// Example 404 page via simple Connect middleware
-	app.use(function(req, res){
-		res.render('404', {locals: {url:'', luser: null}});
-	});
+  app.use(express.logger(':method :url :status'));
+  app.use(express.bodyParser());
+  app.use(express.methodOverride());
+  app.use(express.cookieParser());
+  app.use(express.session({ secret: 'keyboard cat' }));
+  app.use(app.router);
+  app.use(express.static(__dirname + '/public'));
 
-	// Setup ejs views as default, with .html as the extension
-	app.set('views', __dirname + '/views');
-	app.register('.html', require('ejs'));
-	app.set('view engine', 'html');
-	
-	// we always want a user object, campaign id and admin variable
-	app.set('view options', {
-		luser: null,
-		campaignId: null,
-		isAdmin: false,
-		adminEmail: 'admin@yoursite.com' //TODO: make this a config setting
-	});
+  // Example 404 page via simple Connect middleware
+  app.use(function(req, res){
+    res.render('404', {locals: {url:'', luser: null}});
+  });
+
+  // Setup ejs views as default, with .html as the extension
+  app.set('views', __dirname + '/views');
+  app.register('.html', require('ejs'));
+  app.set('view engine', 'html');
+
+  // we always want a user object, campaign id and admin variable
+  app.set('view options', {
+    luser: null,
+    campaignId: null,
+    isAdmin: false,
+    adminEmail: 'admin@yoursite.com' //TODO: make this a config setting
+  });
 
   // Some dynamic view helpers
   app.dynamicHelpers({
@@ -62,16 +62,33 @@ function bootApplication(app) {
       return Object.keys(req.session.flash || {}).length;
     },
 
-    messages: function(req){
+    messages: function(req){ // depreciated messages function
       return function(){
         var msgs = req.flash();
         return Object.keys(msgs).reduce(function(arr, type){
           return arr.concat(msgs[type]);
         }, []);
       }
+    },
+
+    statusMesssages: function(req) {
+      return function() {
+        var msgs = req.flash();
+        var ret = {};
+        ret.error = [];
+        ret.info = [];
+        ret.warn = [];
+
+        if (msgs.error) { ret.error = msgs.error; }
+        if (msgs.info) { ret.info = msgs.info; } 
+        if (msgs.warn) { ret.warn = msgs.warn; }
+
+        console.log(ret);
+        return ret;
+      }
     }
   });
-   
+
   // end app init
 }
 
@@ -110,87 +127,87 @@ function bootController(app, file) {
   if (name == 'app') prefix = '/';
 
   Object.keys(actions).map(function(action){
-  	var isJson = actions.findJsonRoute && actions.findJsonRoute(action);
+    var isJson = actions.findJsonRoute && actions.findJsonRoute(action);
 
     var fn = controllerAction(name, plural, action, isJson, actions[action]);
     switch(action) {
       case 'index':
         app.get(prefix, fn);
-        app.get(prefix + '/filter/:parentId', fn);
-        break;
+      app.get(prefix + '/filter/:parentId', fn);
+      break;
       case 'show':
-      	app.get(prefix + '/show/:id/*', fn);
-        app.get(prefix + '/show/:id.:format?', fn);
-        break;
+        app.get(prefix + '/show/:id/*', fn);
+      app.get(prefix + '/show/:id.:format?', fn);
+      break;
       case 'add':
         app.get(prefix + '/add', requiresLogin, fn);
-        app.get(prefix + '/add/:parentId', requiresLogin, fn);
-        break;
+      app.get(prefix + '/add/:parentId', requiresLogin, fn);
+      break;
       case 'create':
         app.post(prefix + '/create', requiresLogin, fn);
-        break;
+      break;
       case 'edit':
         app.get(prefix + '/edit/:id', requiresLogin, fn);
-        break;
+      break;
       case 'update':
         app.post(prefix + '/update/:id', requiresLogin, fn);
-        break;
+      break;
       case 'validate':
-      	app.get(prefix + '/validate', fn);
-        app.post(prefix + '/validate', fn);
-        break;
+        app.get(prefix + '/validate', fn);
+      app.post(prefix + '/validate', fn);
+      break;
       case 'invalidate':
-      	app.get(prefix + '/invalidate', fn);
-        app.post(prefix + '/invalidate', fn);
-        break;
+        app.get(prefix + '/invalidate', fn);
+      app.post(prefix + '/invalidate', fn);
+      break;
       case 'destroy':
         app.get(prefix + '/destroy/:id', requiresLogin, fn);
-        break;
+      break;
       case 'findGetRoute':
-      	// find route function is used to resolve unknown paths
-      	break;
+        // find route function is used to resolve unknown paths
+        break;
       case 'findPostRoute':
-      	// find route function is used to resolve unknown paths
-      	break;
+        // find route function is used to resolve unknown paths
+        break;
       case 'findJsonRoute':
-      	// find route function is used to resolve unknown paths
-      	break;
+        // find route function is used to resolve unknown paths
+        break;
       case 'resolveSecurity':
-      	// TODO: stub for a security function
-      	break;
+        // TODO: stub for a security function
+        break;
       default:
-      	// a function we don't know how to describe with the controller
-      	// use a generic findRoute function to tell us the path if it exists
-      	if (actions.findGetRoute && actions.findGetRoute(action)) {
-      		if (actions.findGetRoute(action)[1]) {
-      			// call with login
-      			app.get(prefix + actions.findGetRoute(action)[0], requiresLogin, fn);
-      		} else {
-      			// call without login
-      			app.get(prefix + actions.findGetRoute(action)[0], fn);
-      		}
-      	}
-      	
-      	if (actions.findPostRoute && actions.findPostRoute(action)) {
-      		if (actions.findPostRoute(action)[1]) {
-      			// call with login
-      			app.post(prefix + actions.findPostRoute(action)[0], requiresLogin, fn);
-      		} else {
-      			// call without login
-      			app.post(prefix + actions.findPostRoute(action)[0], fn);
-      		}
-      	}
-      	
-      	if (isJson) {
-      		if (actions.findJsonRoute(action)[1]) {
-      			// call with login
-      			app.get(prefix + actions.findJsonRoute(action)[0], requiresLogin, fn);
-      		} else {
-      			// call without login
-      			app.get(prefix + actions.findJsonRoute(action)[0], fn);
-      		}
-      	}
-      	break;
+        // a function we don't know how to describe with the controller
+        // use a generic findRoute function to tell us the path if it exists
+        if (actions.findGetRoute && actions.findGetRoute(action)) {
+        if (actions.findGetRoute(action)[1]) {
+          // call with login
+          app.get(prefix + actions.findGetRoute(action)[0], requiresLogin, fn);
+        } else {
+          // call without login
+          app.get(prefix + actions.findGetRoute(action)[0], fn);
+        }
+      }
+
+      if (actions.findPostRoute && actions.findPostRoute(action)) {
+        if (actions.findPostRoute(action)[1]) {
+          // call with login
+          app.post(prefix + actions.findPostRoute(action)[0], requiresLogin, fn);
+        } else {
+          // call without login
+          app.post(prefix + actions.findPostRoute(action)[0], fn);
+        }
+      }
+
+      if (isJson) {
+        if (actions.findJsonRoute(action)[1]) {
+          // call with login
+          app.get(prefix + actions.findJsonRoute(action)[0], requiresLogin, fn);
+        } else {
+          // call without login
+          app.get(prefix + actions.findJsonRoute(action)[0], fn);
+        }
+      }
+      break;
     }
   });
 }
@@ -202,7 +219,7 @@ function controllerAction(name, plural, action, isJson, fn) {
     var render = res.render;
     var format = req.params.format;
     var path = __dirname + '/views/' + name + '/' + action + '.html';
-    
+
     res.render = function(obj, options, fn){
       res.render = render;
       // Template path
@@ -211,10 +228,10 @@ function controllerAction(name, plural, action, isJson, fn) {
       }
 
       // Format support
-     if (isJson) {
-     	format = 'json';
-     }	
-     
+      if (isJson) {
+        format = 'json';
+      }	
+
       if (format) {
         if (format === 'json') {
           return res.send(obj);
@@ -225,26 +242,26 @@ function controllerAction(name, plural, action, isJson, fn) {
 
       // Render template
       res.render = render;
-      
+
       // make sure options is an array
       options = options || {};
-      
+
       // check for user and if they exist
       // add a local for all views
       if (req.session.user) {
-      	options['luser'] = req.session.user;
+        options['luser'] = req.session.user;
       }
-      
+
       // Expose obj as the "users" or "user" local
       if (action == 'index') {
         options[plural] = obj;
       } else {
         options[name] = obj;
       }
-      
+
       // always add current url to options
       options['url'] = req.url;
-      
+
       return res.render(path, options, fn);
     };
     fn.apply(this, arguments);

@@ -1,8 +1,25 @@
 <% if (hasMessages) { %>
-    <% messages().forEach(function(msg){ %>
-    	<div class="alert-message info">
-    		<a class="close" href="#">×</a>
-    		<p><%- msg %></p>
-    	</div>
-    <% }) %>
+<% var messages = statusMessages();%>
+
+<% for(var i=0; i < messages.error.length; i++) { %>
+<div class="alert-message error">
+  <a class="close" href="#">×</a>
+  <p><%= messages.error[i] %></p>
+</div>
+<% } %>
+
+<% for(var i=0; i < messages.warn.length; i++) { %>
+<div class="alert-message warn">
+  <a class="close" href="#">×</a>
+  <p><%= messages.warn[i] %></p>
+</div>
+<% } %>
+
+<% for(var i=0; i < messages.info.length; i++) { %>
+<div class="alert-message info">
+  <a class="close" href="#">×</a>
+  <p><%= messages.info[i] %></p>
+</div>
+<% } %>
+
 <% } %>
