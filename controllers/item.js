@@ -822,7 +822,7 @@ function _calculateBonuses(req, item, login, userId, callback) {
             // we passed the bonus threshold and this team didn't already win
             if ((total >= parseInt(bonus.total)) && !_.contains(bonus.winners, team.id)) {
 
-              req.flash('info', 'Congratulations! You just got the bonus: ' + bonus.name);
+              req.flash('info', 'Congratulations! You just got the bonus: ' + bonus.title);
 
               // this team is now a winner
               bonus.winners.push(team.id);
