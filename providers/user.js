@@ -1,5 +1,9 @@
 /* TODO: recursive remove bonuses, etc on user remove */
 
+RegExp.escape = function(text) {
+      return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+}
+
 require('../lib/util.js'); // misc utility functions
 
 var config = require('../config'); // config info
@@ -172,8 +176,9 @@ UserProvider.prototype.authenticateLdap = function(login, password, callback) {
 			// something bad happened so get out
       		callback(null);
       	} else {
+          var loginRx = new RegExp("^" + RegExp.escape(login) + "$", "i");
         	//user_collection.db.bson_serializer.ObjectID.createFromHexString(id)
-        	user_collection.findOne({login: login}, function(error, result) {
+        	user_collection.findOne({login: loginRx}, function(error, result) {
 				if (error) {
 					console.log(error);
 					callback(null);
@@ -237,8 +242,8 @@ UserProvider.prototype.authenticate = function(login, password, callback) {
 			// something bad happened so get out
       		callback(null);
       	} else {
-        	//user_collection.db.bson_serializer.ObjectID.createFromHexString(id)
-        	user_collection.findOne({login: login}, function(error, result) {
+        	var loginRx = new RegExp("^" + RegExp.escape(login) + "$", "i");
+          user_collection.findOne({login: loginRx}, function(error, result) {
 				if (error) {
 					console.log(error);
 					callback(null);
@@ -718,6 +723,8 @@ UserProvider.prototype.removeRole = function(users, role, callback) {
 				}
 				
 				// build a list of parents with the new id
+        if (!result) result = {};
+
 				var roles = result.roles;
 				if (roles && (roles.indexOf(role) > 0)) {
 					roles.remove(roles.indexOf(role));
@@ -726,7 +733,7 @@ UserProvider.prototype.removeRole = function(users, role, callback) {
 						if (error) { callback(error); return; }
 						
 						console.log("updated.");
-						result.roles = roles;
+						if (null != result) result.roles = roles;
 						callback(null, result);
 					});
 				} else {
