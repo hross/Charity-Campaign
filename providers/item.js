@@ -228,15 +228,19 @@ ItemProvider.prototype.findByCreation = function(campaignId, startDate, endDate,
 		if (limit) params['limit'] = limit;
 		
 		var nd = [];
-		
+	
 		if (startDate) nd.push({created_at: {$gte: startDate}});
 		if (endDate) nd.push({created_at: {$lte: endDate}});
-		nd.push({campaignId: campaignId});
+
+    nd.push({campaignId: campaignId});
+
+console.log(params);
+console.log(nd);
 
 		item_collection.find({$and: nd}, params).toArray(function(error, results) {
 			if (error) { callback(error); return; }
-
-			callback(null, results);
+			
+      callback(null, results);
 		});
     });
 };

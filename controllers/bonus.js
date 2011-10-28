@@ -501,7 +501,8 @@ function _recalculate(bonusId, login, userId, callback) {
 						
 						// find all items corresponding to this bonus
 						itemProvider.findByCreation(bonus.campaignId, bonus.start, bonus.end, 0, function(error, items) {
-							// go through each item and track totals
+						console.log(items);	
+              // go through each item and track totals
 							var totals = {};
 							var winners = []; // keep track of winning teams for later
 							var winItems = []; // keep winning items for later updates
@@ -509,7 +510,11 @@ function _recalculate(bonusId, login, userId, callback) {
 							
 							for (var i = 0; i < items.length; i++) {
 								// we are only counting this item if it counts toward the bonus
+                console.log("Examining item: " + JSON.stringify(items[i]));
+
 								if ((bonus.type < 0) || (bonus.type == items[i].type)) {
+                  console.log("Found item: " + JSON.stringify(items[i]));
+
 									if (!totals[items[i].teamId]) totals[items[i].teamId] = 0; // init blank team values
 								
 									// increment our total
