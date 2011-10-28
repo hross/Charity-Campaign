@@ -807,11 +807,15 @@ function _calculateBonuses(req, item, login, userId, callback) {
 
       itemTypeProvider.findSystemBonus(function(error, sysItemType) {
         var checkBonus = function(bonus, callback) {
+
+          // if we aren't supposed to calculate, ignore this bonus
+          if (!bonus.autoassign) { callback(null, bonus); return; }
+
           if (!bonus.winners) bonus.winners = []; // make sure this is an array
 
           // get stats related to this bonus
           itemProvider.itemTotalsSince(team.id, bonus.type, bonus.start, function(error, points, bonusPoints, quantity) {
-            if (error) { callback(error); }
+            if (error) { callback(error); return; }
 
             // which total do we need?
             var total = quantity;

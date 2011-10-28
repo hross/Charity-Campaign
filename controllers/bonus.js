@@ -206,7 +206,8 @@ module.exports = {
   // handle create post
   
   create: function(req, res, next){
-  
+ 
+var autoassign = req.param('autoassign') && (req.param('autoassign') == 'on');
     var campaignId = req.param("campaignId");
     
 	var title = req.param('title');
@@ -271,7 +272,8 @@ module.exports = {
 			numteams: numteams,
 			pointsoritems: pointsoritems,
 			bonustype: bonustype,
-			spotpoints: spotpoints
+			spotpoints: spotpoints,
+      autoassign: autoassign
 		}, function( error, bonuses) {
 			if (error) return next(error);
 			
@@ -303,6 +305,8 @@ module.exports = {
   // update an item
   
   update: function(req, res, next){
+
+  var autoassign = req.param('autoassign') && (req.param('autoassign') == 'on');
     var campaignId = req.param("campaignId");
     
 	var title = req.param('title');
@@ -367,7 +371,8 @@ module.exports = {
 			numteams: numteams,
 			pointsoritems: pointsoritems,
 			bonustype: bonustype,
-			spotpoints: spotpoints
+			spotpoints: spotpoints,
+      autoassign: autoassign
 		}, function(error, bonuses) {
 			if (error) return next(error);
 	

@@ -1,241 +1,247 @@
 <div class="container">
-<div class="row">
+  <div class="row">
 
-<div class="span4 columns">'
-	<h3>Quick Links</h3>
-	<ul class="unstyled">
-		<li><a href="/campaigns/show/<%= campaignId%>">Back to Campaign</a></li>
-	</ul>
+    <div class="span4 columns">'
+      <h3>Quick Links</h3>
+      <ul class="unstyled">
+        <li><a href="/campaigns/show/<%= campaignId%>">Back to Campaign</a></li>
+      </ul>
 
-	<h3>Administration</h3>
-	<ul class="unstyled menu">
-	<li>
-	<a class="btn" href="/bonuses/edit/<%=bonus.id%>">Edit this Bonus</a>
-	</li>
-	<li>
-	<a class="btn delete" href="/bonuses/destroy/<%=bonus.id%>">Delete this Bonus</a>
-	</li>
-	</ul>
-</div>
+      <h3>Administration</h3>
+      <ul class="unstyled menu">
+        <li>
+        <a class="btn" href="/bonuses/edit/<%=bonus.id%>">Edit this Bonus</a>
+        </li>
+        <li>
+        <a class="btn delete" href="/bonuses/destroy/<%=bonus.id%>">Delete this Bonus</a>
+        </li>
+      </ul>
+    </div>
 
-<div class="span12 columns">
+    <div class="span12 columns">
 
-	<%- partial('../messages') %>
-	
-	<div class="page-header">
-		<h2><a href="/bonuses/show/<%= bonus.id%>"><%=bonus.title%></a></h2>
-	</div>
+      <%- partial('../messages') %>
 
-		<form id="bonusform" method="post" action="/bonuses/update/<%= bonus.id %>">
-		
-		<fieldset>
-			
-			<div class="clearfix">
-			<label for="title">Title</label>
-			<div class="input"><input type="text" name="title" id="title" value="<%=bonus.title%>" /></div>
-			</div>
-			
-			<div class="clearfix">
-			<label for="description">Description</label>
-			<div class="input">
-			<textarea name="description" id="description" rows=10 cols=50><%=bonus.description%></textarea>
-			</div>
-			</div>
+      <div class="page-header">
+        <h2><a href="/bonuses/show/<%= bonus.id%>"><%=bonus.title%></a></h2>
+      </div>
 
-		<!-- display tabs -->
-		<ul id="bonustabs" class="tabs">
-			<li <%if ('spot' != bonus.bonustype) {%> class="active" <%}%>><a href="#item">Item Bonus</a></li>
-			<li <%if ('spot' == bonus.bonustype) {%> class="active" <%}%>><a href="#spot">Spot Bonus</a></li>
-		</ul>
-		
-		<div id="item" class="tabview" <%if ('spot' == bonus.bonustype) {%> style="display:none;" <%}%>>
-			<div class="clearfix">
-			<label for="start">Start</label>
-			<div class="input">
-			<input type="text" name="start" id="start" value="<%=bonus.start%>" />
-			</div>
-			</div>
-			
-			<div class="clearfix">
-			<label for="end">End</label><br />
-			<div class="input">
-			<input type="text" name="end" id="end" value="<%=bonus.end%>" />
-			</div>
-			</div>
-			
-			<div class="clearfix">
-			<label for="points">Bonus Points per Item</label><br />
-			<div class="input">
-			<input type="text" name="points" id="points" value="<%=bonus.points%>" />
-			</div>
-			</div>
-			
-			<div class="clearfix">
-			<label for="type">Item Type</label>
-			<div class="input">
-			<% for(var i=0; i < itemTypes.length; i++) {%>
-				<%if (itemTypes[i].visible) {%>
-				<input type="radio" name="type" value="<%=itemTypes[i].id%>" <%= (itemTypes[i].id == bonus.type)?"checked":""%>><%=itemTypes[i].name%><br />
-				<%}%>
-			<%}%>
-			</div>
-			</div>
-		</div>	
-			
-		<div id="spot" class="tabview" <%if ('spot' != bonus.bonustype) {%> style="display:none;" <%}%>>
-			<p>First team(s) to submit X items.</p>
-			
-			<div class="clearfix">
-				<label for="numteams">The first ? teams:</label>
-				<div class="input">
-					<select id="numteams" name="numteams">
-					  <option value="1" <%= ('1' == bonus.numteams)?"selected='selected'":""%>>1</option>
-					  <option value="2" <%= ('2' == bonus.numteams)?"selected='selected'":""%>>2</option>
-					  <option value="3" <%= ('3' == bonus.numteams)?"selected='selected'":""%>>3</option>
-					  <option value="4" <%= ('4' == bonus.numteams)?"selected='selected'":""%>>4</option>
-					  <option value="5" <%= ('5' == bonus.numteams)?"selected='selected'":""%>>5</option>
-					  <option value="6" <%= ('6' == bonus.numteams)?"selected='selected'":""%>>6</option>
-					  <option value="7" <%= ('7' == bonus.numteams)?"selected='selected'":""%>>7</option>
-					  <option value="8" <%= ('8' == bonus.numteams)?"selected='selected'":""%>>8</option>
-					  <option value="9" <%= ('9' == bonus.numteams)?"selected='selected'":""%>>9</option>
-					</select>
-				</div>
-			</div>
-			
-			<div class="clearfix">
-				<label for="total">To submit ? points/items:</label>
-				<div class="input"><input type="text" name="total" id="total" value="<%=bonus.total%>" /></div>
-			</div>
-		
-			<div class="clearfix">
-				<label for="pointsoritems">Points or Items?</label>
-				<div class="input">
-					<select id="pointsoritems" name="pointsoritems">
-					  <option value="items"  <%= ('items' == bonus.pointsoritems)?"selected='selected'":""%>>Items</option>
-					  <option value="points" <%= ('items' != bonus.pointsoritems)?"selected='selected'":""%>>Points</option>
-					</select>
-				</div>
-			</div>
-			
-			<div class="clearfix">
-				<label for="spottype">Of Item</label>
-				<div class="input">
-					<ul class="inputs-list">
-					<li><label>
-					<input type="radio" name="spottype" value="-1"  <%=(bonus.type < 0)?"checked":""%>>
-					<span>All Items</span>
-					</label></li>
-				<% for(var i=0; i < itemTypes.length; i++) {%>
-					<%if (itemTypes[i].visible) {%>
-					<li><label>
-					<input type="radio" name="spottype" value="<%=itemTypes[i].id%>" <%= (itemTypes[i].id == bonus.type)?"checked":""%>>
-					<span><%=itemTypes[i].name%></span>
-					</label></li>
-					<%}%>
-				<%}%>
-					</ul>
-				</div>
-			</div>
-			
-			<div class="clearfix">
-				<label for="spotpoints">Get How Many Points?</label>
-				<div class="input"><input type="text" name="spotpoints" id="spotpoints" value="<%=bonus.spotpoints%>" /></div>
-			</div>
-			
-			<p>Leave blank for no start/end date.</p>
-			
-			<div class="clearfix">
-				<label for="spotstart">Start</label>
-				<div class="input"><input type="text" name="spotstart" id="spotstart" value="<%=bonus.start%>" /></div>
-			</div>
-			
-			<div class="clearfix">
-				<label for="spotend">End</label><br />
-				<div class="input"><input type="text" name="spotend" id="spotend" value="<%=bonus.end%>" /></div>
-			</div>
-		</div>
-		
-			<input type="hidden" name="bonustype" id="bonustype" value="<%=bonus.bonustype%>" />
-			
-			<input type="hidden" name="guid" id="guid" value="<%=bonus._id%>" />
-			<input type="hidden" name="campaignId" id="campaignId" value="<%=bonus.campaignId%>" />
-			
-			<div class="actions">
-			<input type="submit" value="Update" />
-			</div>
-			
-			</fieldset>
-			
-			</form>
-			
-	</div>
-	
-	</div>
+      <form id="bonusform" method="post" action="/bonuses/update/<%= bonus.id %>">
+
+        <fieldset>
+
+          <div class="clearfix">
+            <label for="title">Title</label>
+            <div class="input"><input type="text" name="title" id="title" value="<%=bonus.title%>" /></div>
+          </div>
+
+          <div class="clearfix">
+            <label for="description">Description</label>
+            <div class="input">
+              <textarea name="description" id="description" rows=10 cols=50><%=bonus.description%></textarea>
+            </div>
+          </div>
+
+          <!-- display tabs -->
+          <ul id="bonustabs" class="tabs">
+            <li <%if ('spot' != bonus.bonustype) {%> class="active" <%}%>><a href="#item">Item Bonus</a></li>
+            <li <%if ('spot' == bonus.bonustype) {%> class="active" <%}%>><a href="#spot">Spot Bonus</a></li>
+          </ul>
+
+          <div id="item" class="tabview" <%if ('spot' == bonus.bonustype) {%> style="display:none;" <%}%>>
+            <div class="clearfix">
+              <label for="start">Start</label>
+              <div class="input">
+                <input type="text" name="start" id="start" value="<%=bonus.start%>" />
+              </div>
+            </div>
+
+            <div class="clearfix">
+              <label for="end">End</label><br />
+              <div class="input">
+                <input type="text" name="end" id="end" value="<%=bonus.end%>" />
+              </div>
+            </div>
+
+            <div class="clearfix">
+              <label for="points">Bonus Points per Item</label><br />
+              <div class="input">
+                <input type="text" name="points" id="points" value="<%=bonus.points%>" />
+              </div>
+            </div>
+
+            <div class="clearfix">
+              <label for="type">Item Type</label>
+              <div class="input">
+                <% for(var i=0; i < itemTypes.length; i++) {%>
+                <%if (itemTypes[i].visible) {%>
+                <input type="radio" name="type" value="<%=itemTypes[i].id%>" <%= (itemTypes[i].id == bonus.type)?"checked":""%>><%=itemTypes[i].name%><br />
+                <%}%>
+                <%}%>
+              </div>
+            </div>
+          </div>	
+
+          <div id="spot" class="tabview" <%if ('spot' != bonus.bonustype) {%> style="display:none;" <%}%>>
+            <p>First team(s) to submit X items.</p>
+
+            <div class="clearfix">
+              <label for="numteams">The first ? teams:</label>
+              <div class="input">
+                <select id="numteams" name="numteams">
+                  <option value="1" <%= ('1' == bonus.numteams)?"selected='selected'":""%>>1</option>
+                  <option value="2" <%= ('2' == bonus.numteams)?"selected='selected'":""%>>2</option>
+                  <option value="3" <%= ('3' == bonus.numteams)?"selected='selected'":""%>>3</option>
+                  <option value="4" <%= ('4' == bonus.numteams)?"selected='selected'":""%>>4</option>
+                  <option value="5" <%= ('5' == bonus.numteams)?"selected='selected'":""%>>5</option>
+                  <option value="6" <%= ('6' == bonus.numteams)?"selected='selected'":""%>>6</option>
+                  <option value="7" <%= ('7' == bonus.numteams)?"selected='selected'":""%>>7</option>
+                  <option value="8" <%= ('8' == bonus.numteams)?"selected='selected'":""%>>8</option>
+                  <option value="9" <%= ('9' == bonus.numteams)?"selected='selected'":""%>>9</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="clearfix">
+              <label for="total">To submit ? points/items:</label>
+              <div class="input"><input type="text" name="total" id="total" value="<%=bonus.total%>" /></div>
+            </div>
+
+            <div class="clearfix">
+              <label for="pointsoritems">Points or Items?</label>
+              <div class="input">
+                <select id="pointsoritems" name="pointsoritems">
+                  <option value="items"  <%= ('items' == bonus.pointsoritems)?"selected='selected'":""%>>Items</option>
+                  <option value="points" <%= ('items' != bonus.pointsoritems)?"selected='selected'":""%>>Points</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="clearfix">
+              <label for="spottype">Of Item</label>
+              <div class="input">
+                <ul class="inputs-list">
+                  <li><label>
+                    <input type="radio" name="spottype" value="-1"  <%=(bonus.type < 0)?"checked":""%>>
+                    <span>All Items</span>
+                  </label></li>
+                  <% for(var i=0; i < itemTypes.length; i++) {%>
+                  <%if (itemTypes[i].visible) {%>
+                  <li><label>
+                    <input type="radio" name="spottype" value="<%=itemTypes[i].id%>" <%= (itemTypes[i].id == bonus.type)?"checked":""%>>
+                    <span><%=itemTypes[i].name%></span>
+                  </label></li>
+                  <%}%>
+                  <%}%>
+                </ul>
+              </div>
+            </div>
+
+            <div class="clearfix">
+              <label for="spotpoints">Get How Many Points?</label>
+              <div class="input"><input type="text" name="spotpoints" id="spotpoints" value="<%=bonus.spotpoints%>" /></div>
+            </div>
+
+            <div class="clearfix">
+              <label for="autoassign">Auto-Assign?</label>
+              <div class="input">
+                <input type="checkbox" name="autoassign"  <%if(bonus.autoassign) {%>checked<%}%>/>
+              </div>
+            </div>
+            <p>Leave blank for no start/end date.</p>
+
+            <div class="clearfix">
+              <label for="spotstart">Start</label>
+              <div class="input"><input type="text" name="spotstart" id="spotstart" value="<%=bonus.start%>" /></div>
+            </div>
+
+            <div class="clearfix">
+              <label for="spotend">End</label><br />
+              <div class="input"><input type="text" name="spotend" id="spotend" value="<%=bonus.end%>" /></div>
+            </div>
+          </div>
+
+          <input type="hidden" name="bonustype" id="bonustype" value="<%=bonus.bonustype%>" />
+
+          <input type="hidden" name="guid" id="guid" value="<%=bonus._id%>" />
+          <input type="hidden" name="campaignId" id="campaignId" value="<%=bonus.campaignId%>" />
+
+          <div class="actions">
+            <input type="submit" value="Update" />
+          </div>
+
+        </fieldset>
+
+      </form>
+
+    </div>
+
+  </div>
 </div>
 
 <script>
-	
-	$(document).ready(function() {
-		$('#start').datetimepicker();
-		$('#end').datetimepicker();
-		$('#spotstart').datetimepicker();
-		$('#spotend').datetimepicker();
-		
-		<%if ('spot' == bonus.bonustype) {%>
-			$('#spotstart').datetimepicker('setDate', (new Date("<%=bonus.start%>")) );
-			$('#spotend').datetimepicker('setDate', (new Date("<%=bonus.end%>")) );
-		<%} else {%>
-			$('#start').datetimepicker('setDate', (new Date("<%=bonus.start%>")) );
-			$('#end').datetimepicker('setDate', (new Date("<%=bonus.end%>")) );
-		<%}%>
-	
-		// add tab logic
-		$("#bonustabs a").click(function (){
-			// set active tab
-			$("#bonustabs li").removeClass("active");
-			$(this).parent().addClass("active");
-			
-			// hide all current tab views
-			$(".tabview").hide();
-			
-			// show the proper tab view
-			$($(this).attr('href')).show();
-			
-			// set hidden input
-			$("#bonustype").val($(this).attr('href').replace("#", ""));
-			
-			// disable redirect
-			return false;
-		});
+
+  $(document).ready(function() {
+    $('#start').datetimepicker();
+    $('#end').datetimepicker();
+    $('#spotstart').datetimepicker();
+    $('#spotend').datetimepicker();
+
+    <%if ('spot' == bonus.bonustype) {%>
+      $('#spotstart').datetimepicker('setDate', (new Date("<%=bonus.start%>")) );
+      $('#spotend').datetimepicker('setDate', (new Date("<%=bonus.end%>")) );
+      <%} else {%>
+      $('#start').datetimepicker('setDate', (new Date("<%=bonus.start%>")) );
+      $('#end').datetimepicker('setDate', (new Date("<%=bonus.end%>")) );
+      <%}%>
+
+    // add tab logic
+    $("#bonustabs a").click(function (){
+      // set active tab
+      $("#bonustabs li").removeClass("active");
+      $(this).parent().addClass("active");
+
+      // hide all current tab views
+      $(".tabview").hide();
+
+      // show the proper tab view
+      $($(this).attr('href')).show();
+
+      // set hidden input
+      $("#bonustype").val($(this).attr('href').replace("#", ""));
+
+      // disable redirect
+      return false;
+    });
 
 
-		$("#bonusform").validate({
-			rules: {
-				title: {required: true},
-				quantity: {
-					min: 1
-				},
-				total: {
-					min: 1
-				},
-				spotpoints: {
-					min: 1
-				},
-			},
-			messages: {
-				title: {
-					required: "You must enter a title."
-				},
-				quantity: {
-					minlength: "You must enter a quantity greater than 0."
-				},
-				total: {
-					minlength: "You must enter a total greater than 0."
-				},
-				spotpoints: {
-					minlength: "You must enter a total greater than 0."
-				},
-			}
-		});
-	});
+    $("#bonusform").validate({
+      rules: {
+        title: {required: true},
+        quantity: {
+          min: 1
+        },
+        total: {
+          min: 1
+        },
+        spotpoints: {
+          min: 1
+        },
+      },
+      messages: {
+        title: {
+          required: "You must enter a title."
+        },
+        quantity: {
+          minlength: "You must enter a quantity greater than 0."
+        },
+        total: {
+          minlength: "You must enter a total greater than 0."
+        },
+        spotpoints: {
+          minlength: "You must enter a total greater than 0."
+        },
+      }
+    });
+  });
 </script>

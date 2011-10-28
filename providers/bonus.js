@@ -203,7 +203,7 @@ BonusProvider.prototype.update = function(bonuses, callback) {
 				start: bonus.start, end: bonus.end, slug: bonus.slug, 
 				total: bonus.total, numteams: bonus.numteams, pointsoritems: bonus.pointsoritems,
 				bonustype: bonus.bonustype, spotpoints: bonus.spotpoints, completed: bonus.completed,
-				winners: bonus.winners, completed_on: bonus.completed_on}},{}, function() {
+				winners: bonus.winners, completed_on: bonus.completed_on, autoassign: bonus.autoassign}},{}, function() {
 				console.log("updated.");
 				callback(null, bonus);
 			});
