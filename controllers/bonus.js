@@ -206,34 +206,33 @@ module.exports = {
   // handle create post
   
   create: function(req, res, next){
- 
-var autoassign = req.param('autoassign') && (req.param('autoassign') == 'on');
-    var campaignId = req.param("campaignId");
-    
-	var title = req.param('title');
-	var	description = req.param('description');
+    var bonus = {};
+    bonus.autoassign = req.param('autoassign') && (req.param('autoassign') == 'on');
+    bonus.campaignId = req.param("campaignId");
+    bonus.title = req.param('title');
+    bonus.description = req.param('description');
 	
-	var	start = new Date(req.param('start'));
-	var	end = new Date(req.param('end'));
-	var	points = req.param('points');
-	var	type = req.param("type");
+    bonus.start = new Date(req.param('start'));
+    bonus.end = new Date(req.param('end'));
+    bonus.points = req.param('points');
+    bonus.type = req.param("type");
 	
-	var	spotstart = null;
-	var	spotend = null;
+    var	spotstart = null;
+    var	spotend = null;
 	
-	if (req.param('spotstart')) spotstart = new Date(req.param('spotstart'));
-	if (req.param('spotend')) spotend = new Date(req.param('spotend'));
+    if (req.param('spotstart')) spotstart = new Date(req.param('spotstart'));
+    if (req.param('spotend')) spotend = new Date(req.param('spotend'));
 	
-	var	total = req.param('total');
-	var	numteams = req.param("numteams");
-	var	pointsoritems = req.param("pointsoritems");
-	var	spottype = req.param("spottype");
-	var bonustype = req.param("bonustype");
-	var spotpoints = req.param("spotpoints");
-	var name = "";
+    bonus.total = req.param('total');
+    bonus.numteams = req.param("numteams");
+    bonus.pointsoritems = req.param("pointsoritems");
+    var spottype = req.param("spottype");
+    bonus.bonustype = req.param("bonustype");
+    bonus.potpoints = req.param("spotpoints");
+    bonus.name = "";
     
   	var isAdmin = (req.session.user && req.session.user.roles &&
-	  (req.session.user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + campaignId)>=0 ||
+	  (req.session.user.roles.indexOf(CAMPAIGN_ADMIN_ROLE + bonus.campaignId)>=0 ||
 	  req.session.user.roles.indexOf(ADMIN_ROLE)>=0));
 	  
 	if (!isAdmin) {
@@ -243,38 +242,24 @@ var autoassign = req.param('autoassign') && (req.param('autoassign') == 'on');
 	}
 	
 	var type = req.param('type');
-	if ('spot' == bonustype) {
-		type = spottype;
-		start = spotstart;
-		end = spotend;
+	if ('spot' == bonus.bonustype) {
+		bonus.type = spottype;
+		bonus.start = spotstart;
+		bonus.end = spotend;
 	}
 	
-  	itemTypeProvider.findById(type, function(error, itemType) {
+  	itemTypeProvider.findById(bonus.type, function(error, itemType) {
     	if (error) return next(error);
-    	if (!itemType && ('spot' != bonustype)) {
+    	if (!itemType && ('spot' != bonus.bonustype)) {
     		req.flash('info', 'No item type specified!');
     		res.redirect('back');
     		return;
     	}
     	
-    	if (itemType) name = itemType.name;
+    	if (itemType) bonus.name = itemType.name;
   
-		bonusProvider.save({
-			title: title,
-			description: description,
-			name: name,
-			campaignId: campaignId,
-			start: start,
-			end: end,
-			points: points,
-			type: type,
-			total: total,
-			numteams: numteams,
-			pointsoritems: pointsoritems,
-			bonustype: bonustype,
-			spotpoints: spotpoints,
-      autoassign: autoassign
-		}, function( error, bonuses) {
+		bonusProvider.save(bonus
+		, function( error, bonuses) {
 			if (error) return next(error);
 			
 			if (bonuses[0]) {
