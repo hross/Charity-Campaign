@@ -362,7 +362,6 @@ UserProvider.prototype.importCsv = function(fileName, callback) {
 					provider.save({
 						login: record.login,
 						password: record.password,
-						password2: record.password,
 						email: record.email,
 						first: record.first,
 						last: record.last,
