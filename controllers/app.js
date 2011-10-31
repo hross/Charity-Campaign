@@ -120,7 +120,6 @@ module.exports = {
 					userProvider.save({
 						login: login,
 						password: password,
-						password2: password,
 						email: email,
 						first: first,
 						last: last
