@@ -231,7 +231,6 @@ module.exports = {
 		userProvider.save({
 			login: login,
 			password: req.param('password'),
-			password2: req.param('password2'),
 			email: req.param('email'),
 			first: req.param('first'),
 			last: req.param('last'),
