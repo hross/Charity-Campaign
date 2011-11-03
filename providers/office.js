@@ -57,7 +57,7 @@ OfficeProvider.prototype.findAll = function(campaignId, callback) {
     this.getCollection(function(error, office_collection) {
       if( error ) callback(error)
       else {
-        office_collection.find({campaignId: campaignId}, {sort: [['name','asc']]}).toArray(function(error, results) {
+        office_collection.find({campaignId: campaignId}, {sort: [['order','asc']]}).toArray(function(error, results) {
           if( error ) {
           	callback(error);
           } else {
@@ -164,7 +164,7 @@ OfficeProvider.prototype.update = function(offices, callback) {
 				}
 			
 				office_collection.update({id:office.id}, 
-					{$set: {name: office.name, description: office.description, update_on: office.update_on}},{}, function() {
+					{$set: {name: office.name, description: office.description, update_on: office.update_on, order: office.order}},{}, function() {
 					console.log("updated.");
 					callback(null, office);
 				});

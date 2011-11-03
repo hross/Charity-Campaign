@@ -1,53 +1,58 @@
 <div class="container">
-<div class="row">
+  <div class="row">
 
-<div class="span4 columns">
-	<h3>Quick Links</h3>
-	<ul class="unstyled">
-		<li><a href="/campaigns/show/<%= campaignId%>">Back to Campaign</a></li>
-	</ul>
+    <div class="span4 columns">
+      <h3>Quick Links</h3>
+      <ul class="unstyled">
+        <li><a href="/campaigns/show/<%= campaignId%>">Back to Campaign</a></li>
+      </ul>
 
-	<h3>Administration</h3>
-	<ul class="unstyled menu">
-	<li>
-	<a class="btn" href="/offices/edit/<%=office.id%>">Edit this Office</a>
-	</li>
-	<li>
-	<a class="btn delete" href="/offices/destroy/<%=office.id%>">Delete this Office</a>
-	</li>
-	</ul>
-</div>
+      <h3>Administration</h3>
+      <ul class="unstyled menu">
+        <li>
+        <a class="btn" href="/offices/edit/<%=office.id%>">Edit this Office</a>
+        </li>
+        <li>
+        <a class="btn delete" href="/offices/destroy/<%=office.id%>">Delete this Office</a>
+        </li>
+      </ul>
+    </div>
 
-<div class="span12 columns">
+    <div class="span12 columns">
 
-	<%- partial('../messages') %>
-	
-	<div class="page-header">
-		<h2><a href="/offices/show/<%= office.id%>"><%=office.name%></a></h2>
-	</div>
+      <%- partial('../messages') %>
 
-		<form method="post" action="/offices/update/<%= office.id %>">		
-		<fieldset>
+      <div class="page-header">
+        <h2><a href="/offices/show/<%= office.id%>"><%=office.name%></a></h2>
+      </div>
 
-		<div class="clearfix">
-			<label for="name">Name</label><br />
-			<div class="input"><input type="text" name="name" id="name" value="<%=office.name%>" /></div>
-		</div>
-		
-		<div class="clearfix">
-			<label for="description">Description</label><br />
-			<div class="input"><textarea name="description" id="description" rows=10 cols=50><%=office.description%></textarea></div>
-		</div>
-			
-			<input type="hidden" name="guid" id="guid" value="<%=office._id%>" />
-			<input type="hidden" name="campaignId" id="campaignId" value="<%=office.campaignId%>" />
-			
-		<div class="actions">
-			<input class="btn" type="submit" value="Update" />
-		</div>
-			
-		</fieldset>
-		</form>
-		</div>
-	</div>	
+      <form method="post" action="/offices/update/<%= office.id %>">		
+        <fieldset>
+
+          <div class="clearfix">
+            <label for="name">Name</label><br />
+            <div class="input"><input type="text" name="name" id="name" value="<%=office.name%>" /></div>
+          </div>
+
+          <div class="clearfix">
+            <label for="order">Order</label><br />
+            <div class="input"><input type="text" name="order" id="order" value="<%=office.order%>" /></div>
+          </div>
+
+          <div class="clearfix">
+            <label for="description">Description</label><br />
+            <div class="input"><textarea name="description" id="description" rows=10 cols=50><%=office.description%></textarea></div>
+          </div>
+
+          <input type="hidden" name="guid" id="guid" value="<%=office._id%>" />
+          <input type="hidden" name="campaignId" id="campaignId" value="<%=office.campaignId%>" />
+
+          <div class="actions">
+            <input class="btn" type="submit" value="Update" />
+          </div>
+
+        </fieldset>
+      </form>
+    </div>
+  </div>	
 </div>
