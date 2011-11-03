@@ -57,7 +57,7 @@ ItemTypeProvider.prototype.findAll = function(campaignId, callback) {
     this.getCollection(function(error, itemtype_collection) {
       if( error ) callback(error)
       else {
-        itemtype_collection.find({campaignId: campaignId}).toArray(function(error, results) {
+        itemtype_collection.find({campaignId: campaignId}).sort({'name': 'desc'}).toArray(function(error, results) {
           if( error ) {
           	callback(error);
           } else {
