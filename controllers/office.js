@@ -125,13 +125,14 @@ module.exports = {
       description: req.param('description'),
       order: req.param('order'),
       campaignId: campaignId
-    }, function( error, docs) {
-      if (error) return next(error);
+    }, function(error, docs) {
+      if (error) { return next(error); }
+      if (!docs) { req.flash('Failed to create office.'); }
 
-      if (docs[0]) {
+      if (docs && docs[0]) {
         res.redirect("/offices/filter/" + docs[0].campaignId);
       } else {
-        res.redirect('/offices');
+        res.redirect('/offices/filter/' + campaignId);
       }
     });
   },
@@ -159,10 +160,10 @@ module.exports = {
       id: req.params.id,
       campaignId: campaignId,
     }, function(error, offices) {
-      if (error) return next(error);
+      if (error) { return next(error); }
 
-      req.flash('info', 'Successfully updated _' + offices[0].name + '_.');
-      res.redirect('/offices/show/' + offices[0].id);
+      req.flash('info', 'Successfully updated.');
+      res.redirect('/offices/show/' + req.params.id);
     });
   },
 

@@ -57,7 +57,7 @@ BonusProvider.prototype.findAll = function(campaignId, callback) {
     this.getCollection(function(error, bonus_collection) {
       if( error ) callback(error)
       else {
-        bonus_collection.find({campaignId: campaignId}).toArray(function(error, results) {
+        bonus_collection.find({campaignId: campaignId}).sort({'title':'asc'}).toArray(function(error, results) {
           if( error ) {
           	callback(error);
           } else {
@@ -92,7 +92,7 @@ BonusProvider.prototype.findByIds = function(ids, callback) {
 		if (error) {
       		callback(error)
       	} else {
-        	bonus_collection.find({id: {$in: ids}}).toArray(function(error, results) {
+        	bonus_collection.find({id: {$in: ids}}).sort({'title': 'asc'}).toArray(function(error, results) {
 				if (error) {
 					console.log(error);
 					callback(error);
@@ -109,7 +109,7 @@ BonusProvider.prototype.findTypeWithin = function(type, dt, callback) {
       		callback(error)
       	} else {
       		// search for bonuses for this type where dt is between start and end date
-        	bonus_collection.find({type: type, start: {$lte: dt}, end: {$gte: dt}}).toArray(function(error, result) {
+        	bonus_collection.find({type: type, start: {$lte: dt}, end: {$gte: dt}}).sort({'title': 'asc'}).toArray(function(error, result) {
 				if (error) {
 					console.log(error);
 					callback(error);
@@ -127,7 +127,7 @@ BonusProvider.prototype.findActive = function(campaignId, dt, callback) {
       	} else {
       		// search for bonuses for this type where dt is between start and end date
         	bonus_collection.find({campaignId: campaignId, bonustype: {$ne: 'spot'}, start: {$lte: dt}, end: {$gte: dt}
-        		}).toArray(function(error, result) {
+        		}).sort({'title':'asc'}).toArray(function(error, result) {
 
 				if (error) {
 					console.log(error);
@@ -147,7 +147,7 @@ BonusProvider.prototype.findActiveSpot = function(campaignId, dt, callback) {
       		// search for spot bonuses for this campaign which are not completed
         	bonus_collection.find({campaignId: campaignId, bonustype: 'spot', 
         		$or: [ {completed: null}, {completed: false} ]
-        	}).toArray(function(error, result) {
+        	}).sort({'title': 'asc'}).toArray(function(error, result) {
 
 				if (error) {
 					console.log(error);
